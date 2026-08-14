@@ -1,0 +1,16 @@
+{
+  "name": "autobhj",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev frontend --webpack",
+    "build": "next build frontend --webpack",
+    "start": "next start frontend",
+    "seed": "node backend/scripts/seed-from-legacy.js"
+  },
+  "dependencies": {
+    "next": "^16.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

@@ -1,0 +1,10 @@
+import { NextResponse } from "next/server";
+import { getSession } from "../../../../lib/adminAuth";
+
+export async function GET() {
+  const session = await getSession();
+  return NextResponse.json({
+    authenticated: Boolean(session),
+    username: session?.username || null,
+  });
+}

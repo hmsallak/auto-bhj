@@ -1,0 +1,10 @@
+node_modules/
+frontend/.next/
+frontend/public/uploads/*
+!frontend/public/uploads/.gitkeep
+backend/data/*.db
+backend/data/*.db-journal
+backend/data/*.db-wal
+backend/data/*.db-shm
+.env
+.env.local
