@@ -5,6 +5,10 @@ import PhotoGallery from "../../../../components/PhotoGallery";
 import CarSpecSheet from "../../../../components/CarSpecSheet";
 import { ChevronLeftIcon } from "../../../../components/site/icons";
 
+// A car's status/price/description can change (or the car can be sold and
+// removed) at any time from the admin, so always fetch fresh data.
+export const dynamic = "force-dynamic";
+
 export default async function CarDetailPage({ params }) {
   const { reference } = await params;
   const car = getCarByReference(reference);

@@ -10,6 +10,10 @@ import HowItWorks from "../../components/site/HowItWorks";
 import Faq from "../../components/site/Faq";
 import LocationHours from "../../components/site/LocationHours";
 
+// The stock changes whenever the admin adds/edits/removes a car, so this
+// page must be re-rendered per request rather than cached from build time.
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   const cars = listCars();
 
