@@ -34,3 +34,12 @@ export async function saveUploadedImage(file) {
 
   return `/uploads/${filename}`;
 }
+
+export async function saveUploadedImages(files) {
+  const urls = [];
+  for (const file of files) {
+    const url = await saveUploadedImage(file);
+    if (url) urls.push(url);
+  }
+  return urls;
+}

@@ -1,4 +1,4 @@
-import { saveUploadedImage } from "./imageUpload";
+import { saveUploadedImages } from "./imageUpload";
 
 export async function readCarPayload(request) {
   const contentType = request.headers.get("content-type") || "";
@@ -6,14 +6,32 @@ export async function readCarPayload(request) {
   if (contentType.startsWith("multipart/form-data")) {
     const formData = await request.formData();
     const payload = {};
+    const skipKeys = new Set(["imageFiles", "existingImages", "imageOrder"]);
 
     for (const [key, value] of formData.entries()) {
-      if (key === "imageFile") continue;
+      if (skipKeys.has(key)) continue;
       payload[key] = value;
     }
 
-    const imageUrl = await saveUploadedImage(formData.get("imageFile"));
-    if (imageUrl) payload.imageUrl = imageUrl;
+    const existingImages = formData.getAll("existingImages");
+    const uploadedImages = await saveUploadedImages(formData.getAll("imageFiles"));
+
+    let order = [];
+    try {
+      order = JSON.parse(formData.get("imageOrder") || "[]");
+    } catch {
+      order = [];
+    }
+
+    payload.images = order
+      .map((token) => {
+        const [kind, indexText] = String(token).split(":");
+        const index = Number(indexText);
+        if (kind === "existing") return existingImages[index];
+        if (kind === "new") return uploadedImages[index];
+        return null;
+      })
+      .filter(Boolean);
 
     return payload;
   }

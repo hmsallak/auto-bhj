@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const emptyCar = {
   brand: "",
@@ -11,7 +11,6 @@ const emptyCar = {
   fuel: "Essence",
   gearbox: "Manuelle",
   status: "available",
-  imageUrl: "",
   description: "",
   bodyType: "",
   seats: "",
@@ -29,8 +28,22 @@ const emptyCar = {
   interiorMaterial: "",
 };
 
+let nextPhotoKey = 0;
+
+function photosFromUrls(urls) {
+  return (urls || []).map((url) => ({
+    key: `existing-${nextPhotoKey++}`,
+    kind: "existing",
+    url,
+    previewUrl: url,
+  }));
+}
+
 export default function AdminCarForm({ editingCar, onSubmit, onCancel, message, isError }) {
   const formRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [photos, setPhotos] = useState([]);
+  const [photoUrlInput, setPhotoUrlInput] = useState("");
 
   useEffect(() => {
     const form = formRef.current;
@@ -40,12 +53,83 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel, message, 
     for (const [key, value] of Object.entries({ ...emptyCar, ...values })) {
       if (form.elements[key]) form.elements[key].value = value ?? "";
     }
-    if (form.elements.imageFile) form.elements.imageFile.value = "";
+
+    setPhotos(photosFromUrls(editingCar?.images));
   }, [editingCar]);
+
+  useEffect(() => {
+    return () => {
+      for (const photo of photos) {
+        if (photo.kind === "new") URL.revokeObjectURL(photo.previewUrl);
+      }
+    };
+  }, [photos]);
+
+  function addFiles(fileList) {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
+
+    setPhotos((current) => [
+      ...current,
+      ...files.map((file) => ({
+        key: `new-${nextPhotoKey++}`,
+        kind: "new",
+        file,
+        previewUrl: URL.createObjectURL(file),
+      })),
+    ]);
+  }
+
+  function addPhotoUrl() {
+    const url = photoUrlInput.trim();
+    if (!url) return;
+
+    setPhotos((current) => [
+      ...current,
+      { key: `existing-${nextPhotoKey++}`, kind: "existing", url, previewUrl: url },
+    ]);
+    setPhotoUrlInput("");
+  }
+
+  function removePhoto(key) {
+    setPhotos((current) => current.filter((photo) => photo.key !== key));
+  }
+
+  function movePhoto(key, direction) {
+    setPhotos((current) => {
+      const index = current.findIndex((photo) => photo.key === key);
+      const targetIndex = index + direction;
+      if (index === -1 || targetIndex < 0 || targetIndex >= current.length) return current;
+
+      const next = [...current];
+      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+      return next;
+    });
+  }
 
   function handleSubmit(event) {
     event.preventDefault();
-    onSubmit(new FormData(event.target));
+
+    const formData = new FormData(event.target);
+    const existingImages = [];
+    const imageFiles = [];
+    const order = [];
+
+    for (const photo of photos) {
+      if (photo.kind === "existing") {
+        order.push(`existing:${existingImages.length}`);
+        existingImages.push(photo.url);
+      } else {
+        order.push(`new:${imageFiles.length}`);
+        imageFiles.push(photo.file);
+      }
+    }
+
+    for (const url of existingImages) formData.append("existingImages", url);
+    for (const file of imageFiles) formData.append("imageFiles", file);
+    formData.append("imageOrder", JSON.stringify(order));
+
+    onSubmit(formData);
   }
 
   return (
@@ -104,14 +188,88 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel, message, 
             </select>
           </label>
         </div>
-        <label>
-          Image locale
-          <input name="imageFile" type="file" accept="image/png,image/jpeg,image/webp" />
-        </label>
-        <label>
-          URL image optionnelle
-          <input name="imageUrl" placeholder="https://..." />
-        </label>
+
+        <div className="photo-manager">
+          <div className="photo-manager-head">
+            <span>Photos {photos.length > 0 && `(${photos.length})`}</span>
+            <button
+              className="button neutral small"
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Ajouter des photos
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
+              hidden
+              onChange={(event) => {
+                addFiles(event.target.files);
+                event.target.value = "";
+              }}
+            />
+          </div>
+
+          {photos.length ? (
+            <div className="photo-grid">
+              {photos.map((photo, index) => (
+                <div className="photo-thumb" key={photo.key}>
+                  <img src={photo.previewUrl} alt="" />
+                  {index === 0 && <span className="photo-thumb-cover">Couverture</span>}
+                  <div className="photo-thumb-actions">
+                    <button
+                      type="button"
+                      onClick={() => movePhoto(photo.key, -1)}
+                      disabled={index === 0}
+                      aria-label="Deplacer avant"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      type="button"
+                      className="danger"
+                      onClick={() => removePhoto(photo.key)}
+                      aria-label="Supprimer la photo"
+                    >
+                      ×
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => movePhoto(photo.key, 1)}
+                      disabled={index === photos.length - 1}
+                      aria-label="Deplacer apres"
+                    >
+                      ›
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="empty">Aucune photo. La premiere ajoutee sert de couverture.</p>
+          )}
+
+          <div className="photo-url-row">
+            <input
+              type="text"
+              placeholder="Ou coller une URL d'image (https://...)"
+              value={photoUrlInput}
+              onChange={(event) => setPhotoUrlInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addPhotoUrl();
+                }
+              }}
+            />
+            <button className="button neutral small" type="button" onClick={addPhotoUrl}>
+              Ajouter
+            </button>
+          </div>
+        </div>
+
         <label>
           Description
           <textarea name="description" placeholder="Entretien, garantie, options principales" />
