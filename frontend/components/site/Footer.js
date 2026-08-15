@@ -22,7 +22,6 @@ export default function Footer() {
           <a href="/#services">Services</a>
           <a href="/#faq">Questions frequentes</a>
           <a href="/#contact">Contact</a>
-          <a href="/admin">Espace pro</a>
         </div>
 
         <div className="footer-col">

@@ -15,7 +15,6 @@ export default function SiteLayout({ children }) {
           <a href="/#services">Services</a>
           <a href="/#faq">FAQ</a>
           <a href="/#contact">Contact</a>
-          <a href="/admin">Admin</a>
         </nav>
       </header>
       <main>{children}</main>

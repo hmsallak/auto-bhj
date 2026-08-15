@@ -119,6 +119,39 @@ nav {
   color: #c7fff4;
 }
 
+/* Admin uses its own accent (red, from the dashboard tokens) instead of the
+   public site's teal, so the whole back-office reads as one consistent
+   color language instead of mixing the two brand accents. */
+.dash-panel > h2 {
+  font-size: clamp(22px, 2.4vw, 30px);
+}
+
+.dash-panel .eyebrow,
+.admin-login-card .eyebrow {
+  color: var(--dash-accent);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* Admin uses a single accent (red) for every primary action instead of the
+   public site's amber, so there is exactly one "loud" color in the whole
+   back-office instead of two competing warm colors. */
+.dashboard .button.primary,
+.admin-login-card .button.primary {
+  color: white;
+  background: var(--dash-accent);
+}
+
+.dashboard .button.primary:hover:not(:disabled),
+.admin-login-card .button.primary:hover:not(:disabled) {
+  background: #c11e1e;
+}
+
+.dashboard .button,
+.admin-login-card .button {
+  border-radius: 10px;
+}
+
 h1,
 h2,
 h3 {
@@ -171,6 +204,17 @@ h3 {
   padding: 12px 18px;
   border-radius: 8px;
   font-weight: 800;
+  transition: background 150ms ease, color 150ms ease, transform 100ms ease, box-shadow 150ms ease;
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.button:disabled {
+  cursor: default;
+  opacity: 0.55;
+  transform: none;
 }
 
 .button.primary {
@@ -178,9 +222,17 @@ h3 {
   background: var(--accent);
 }
 
+.button.primary:hover:not(:disabled) {
+  background: #d98a09;
+}
+
 .button.neutral {
   color: var(--ink);
   background: #edf2f4;
+}
+
+.button.neutral:hover:not(:disabled) {
+  background: #e3eaed;
 }
 
 .button.small {
@@ -193,6 +245,11 @@ h3 {
   padding: 0;
   color: var(--muted);
   background: transparent;
+  transition: color 150ms ease;
+}
+
+.link-button:hover {
+  color: var(--ink);
 }
 
 .section {
@@ -237,11 +294,45 @@ textarea {
   color: var(--ink);
   background: white;
   font: inherit;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 textarea {
   min-height: 110px;
   resize: vertical;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  accent-color: var(--dash-accent);
+  cursor: pointer;
+}
+
+/* Consistent, on-brand keyboard focus ring across the app (buttons, links,
+   form controls, dashboard nav) — the browser default is invisible on the
+   dark sidebar and inconsistent everywhere else. Only shows for keyboard
+   navigation (:focus-visible), not on mouse click. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--dash-accent);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  border-color: var(--dash-accent);
+}
+
+.dash-nav-item:focus-visible {
+  outline-offset: -2px;
 }
 
 .panel,
@@ -987,14 +1078,14 @@ textarea {
 
 .form {
   display: grid;
-  gap: 14px;
-  margin-top: 22px;
+  gap: 18px;
+  margin-top: 24px;
 }
 
 .two-cols {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 16px;
 }
 
 .form-actions,
@@ -1026,7 +1117,13 @@ textarea {
   gap: 8px;
   padding: 12px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 10px;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.admin-item:hover {
+  border-color: #d7dee3;
+  background: #fafbfc;
 }
 
 .admin-item header {
@@ -1034,6 +1131,65 @@ textarea {
   justify-content: space-between;
   gap: 10px;
   font-weight: 900;
+}
+
+.member-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.member-item {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.member-item:hover {
+  border-color: #d7dee3;
+  background: #fafbfc;
+}
+
+.member-item header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-weight: 900;
+}
+
+.member-item-body {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.member-permissions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.member-permissions label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.member-permissions label:has(input:checked) {
+  border-color: var(--dash-accent);
+  background: #fef2f2;
 }
 
 .danger {
@@ -1046,6 +1202,15 @@ textarea {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 800;
+  transition: background 150ms ease, transform 100ms ease;
+}
+
+.danger:hover {
+  background: #991b1b;
+}
+
+.danger:active {
+  transform: scale(0.97);
 }
 
 .detail-grid {
@@ -1257,16 +1422,15 @@ textarea {
   min-height: 100vh;
   padding: 24px;
   background:
-    radial-gradient(circle at 15% 10%, rgba(220, 38, 38, 0.16), transparent 45%),
-    radial-gradient(circle at 85% 90%, rgba(15, 118, 110, 0.18), transparent 45%),
+    radial-gradient(circle at 50% 0%, rgba(220, 38, 38, 0.14), transparent 50%),
     var(--dash-bg);
 }
 
 .admin-login-card {
   width: min(420px, 100%);
-  padding: 40px 36px;
+  padding: 44px 40px;
   background: var(--surface);
-  border-radius: 14px;
+  border-radius: 20px;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
 }
 
@@ -1275,13 +1439,14 @@ textarea {
   place-items: center;
   width: 48px;
   height: 48px;
-  margin-bottom: 18px;
-  border-radius: 10px;
+  margin-bottom: 20px;
+  border-radius: 999px;
   background: var(--dash-accent);
   color: white;
   font-family: var(--font-display), Arial, sans-serif;
-  font-weight: 900;
-  font-size: 16px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.02em;
 }
 
 .admin-login-card h1 {
@@ -1311,7 +1476,7 @@ textarea {
   border: 0;
   border-radius: 6px;
   background: none;
-  color: var(--brand-dark);
+  color: var(--dash-accent);
   font-weight: 700;
   font-size: 13px;
   cursor: pointer;
@@ -1338,7 +1503,7 @@ textarea {
 }
 
 .admin-login-footer a {
-  color: var(--brand-dark);
+  color: var(--dash-accent);
   font-weight: 700;
 }
 
@@ -1346,7 +1511,7 @@ textarea {
 
 .dashboard {
   display: grid;
-  grid-template-columns: 250px 1fr;
+  grid-template-columns: 272px 1fr;
   min-height: 100vh;
   background: var(--soft);
 }
@@ -1354,8 +1519,8 @@ textarea {
 .dash-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 22px 16px;
+  gap: 32px;
+  padding: 28px 18px;
   background: var(--dash-sidebar);
   color: var(--dash-text);
 }
@@ -1364,13 +1529,15 @@ textarea {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 8px;
+  padding: 0 10px;
 }
 
 .dash-brand strong {
   display: block;
   color: white;
   font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .dash-brand span {
@@ -1382,61 +1549,80 @@ textarea {
 .dash-plate {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
   background: var(--dash-accent);
   color: white;
-  font-weight: 900;
-  font-size: 13px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: -0.02em;
 }
 
 .dash-nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .dash-nav-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
+  min-height: 44px;
+  padding: 10px 14px;
   border: 0;
-  border-left: 3px solid transparent;
-  border-radius: 0 6px 6px 0;
+  border-radius: 10px;
   background: none;
-  color: var(--dash-text);
+  color: var(--dash-text-dim);
   font: inherit;
-  font-weight: 700;
+  font-weight: 500;
   font-size: 14px;
   text-align: left;
   cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.dash-nav-item svg {
+  opacity: 0.75;
+  transition: opacity 150ms ease;
 }
 
 .dash-nav-item:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--dash-text);
 }
 
 .dash-nav-item.active {
-  border-left-color: var(--dash-accent);
-  background: var(--dash-accent-dim);
+  background: var(--dash-accent);
   color: white;
+  font-weight: 600;
+}
+
+.dash-nav-item.active svg,
+.dash-nav-item:hover svg {
+  opacity: 1;
 }
 
 .dash-nav-badge {
   margin-left: auto;
   padding: 1px 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--dash-text);
   font-size: 12px;
+  font-weight: 600;
+}
+
+.dash-nav-item.active .dash-nav-badge {
+  background: rgba(255, 255, 255, 0.22);
+  color: white;
 }
 
 .dash-nav-badge.unread {
   background: var(--dash-accent);
   color: white;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .messages-list {
@@ -1449,7 +1635,7 @@ textarea {
   gap: 8px;
   padding: 16px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .message-item.unread {
@@ -1473,10 +1659,10 @@ textarea {
 .message-ref {
   padding: 2px 8px;
   border-radius: 999px;
-  background: #e6f4f2;
-  color: var(--brand-dark);
+  background: var(--soft);
+  color: var(--muted);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .message-new-dot {
@@ -1528,23 +1714,27 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 32px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
+  padding: 26px 40px;
+  background: var(--soft);
 }
 
 .dash-topbar h1 {
-  font-size: 22px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .dash-content {
-  padding: 28px 32px;
+  padding: 8px 40px 48px;
   display: grid;
-  gap: 22px;
+  gap: 28px;
 }
 
 .dash-panel {
-  padding: 22px;
+  padding: 32px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 18px;
+  box-shadow: none;
 }
 
 .dash-panel-head {
@@ -1553,11 +1743,13 @@ textarea {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .dash-panel-head h2 {
-  font-size: 17px;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
@@ -1570,29 +1762,31 @@ textarea {
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 14px;
+  gap: 1px;
+  background: rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 18px;
+  overflow: hidden;
 }
 
 .kpi-tile {
   display: grid;
-  gap: 6px;
-  padding: 18px;
+  gap: 8px;
+  padding: 24px 22px;
   background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  border-top: 3px solid var(--dash-accent);
 }
 
 .kpi-label {
   color: var(--muted);
   font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .kpi-value {
-  font-size: 26px;
-  font-weight: 900;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1653,7 +1847,7 @@ textarea {
 .admin-item-thumb {
   width: 72px;
   height: 54px;
-  border-radius: 6px;
+  border-radius: 8px;
   object-fit: cover;
   background: #dfe5ea;
 }
@@ -1663,20 +1857,153 @@ textarea {
   gap: 4px;
 }
 
+.photo-manager {
+  display: grid;
+  gap: 12px;
+}
+
+.photo-manager-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.photo-manager-head > span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.photo-thumb {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #dfe5ea;
+}
+
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-thumb-cover {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--dash-accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.photo-thumb-actions {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.6), transparent);
+}
+
+.photo-thumb-actions button {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 150ms ease, opacity 150ms ease;
+}
+
+.photo-thumb-actions button:hover:not(:disabled) {
+  background: white;
+}
+
+.photo-thumb-actions button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.photo-thumb-actions button.danger {
+  width: 26px;
+  min-height: 0;
+  padding: 0;
+  background: var(--dash-accent);
+  color: white;
+}
+
+.photo-thumb-actions button.danger:hover {
+  background: #c11e1e;
+}
+
+.photo-url-row {
+  display: flex;
+  gap: 8px;
+}
+
+.photo-url-row input {
+  flex: 1;
+  min-width: 0;
+}
+
 .form-details {
   border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px 14px;
+  border-radius: 10px;
+  padding: 14px 16px;
 }
 
 .form-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   cursor: pointer;
+  color: var(--dash-accent);
   font-weight: 800;
-  color: var(--brand-dark);
+  list-style: none;
+}
+
+.form-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.form-details summary::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 150ms ease;
+}
+
+.form-details[open] summary::after {
+  transform: rotate(-135deg);
 }
 
 .form-details .two-cols {
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
 .settings-grid {
