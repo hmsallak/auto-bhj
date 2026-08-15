@@ -43,12 +43,27 @@ CREATE TABLE IF NOT EXISTS car_images (
 
 CREATE INDEX IF NOT EXISTS idx_car_images_car_id ON car_images (car_id, position);
 
+-- role 'owner' can manage other users and always has every permission.
+-- role 'member' only sees the tabs listed in its permissions (JSON array
+-- of: "stock", "messages").
 CREATE TABLE IF NOT EXISTS admin_users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('owner', 'member')),
+  permissions TEXT NOT NULL DEFAULT '[]',
   created_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS activity_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  actor TEXT NOT NULL,
+  action TEXT NOT NULL,
+  target TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_activity_log_created ON activity_log (created_at DESC);
 
 -- Sessions and login attempts live in the database (not in-memory) because
 -- Next.js compiles each API route into its own bundle: a plain in-memory

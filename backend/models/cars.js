@@ -1,4 +1,5 @@
 const { getDb } = require("../db/connection");
+const activityLog = require("./activityLog");
 
 function cleanText(value) {
   return String(value ?? "").trim();
@@ -104,6 +105,15 @@ function validateCarInput(payload, existing = null) {
     return { error: "L'image doit etre une URL http/https ou une image locale." };
   }
 
+  if (Array.isArray(payload.images)) {
+    const invalid = payload.images.some(
+      (url) => url && !/^(https?:\/\/.+|\/uploads\/.+)/i.test(url)
+    );
+    if (invalid) {
+      return { error: "Une des photos a une URL invalide." };
+    }
+  }
+
   if (!["available", "reserved"].includes(car.status)) {
     return { error: "Statut invalide." };
   }
@@ -178,7 +188,7 @@ function getCarById(id) {
   return rowToCar(row, getCarImages(db, row.id));
 }
 
-function createCar(payload) {
+function createCar(payload, actor) {
   const { error, car } = validateCarInput(payload);
   if (error) return { error };
 
@@ -218,10 +228,13 @@ function createCar(payload) {
     replaceCarImages(db, info.lastInsertRowid, payload.images);
   }
 
-  return { car: getCarById(info.lastInsertRowid) };
+  const created = getCarById(info.lastInsertRowid);
+  activityLog.log(actor, "car_created", `${created.reference} (${created.brand} ${created.model})`);
+
+  return { car: created };
 }
 
-function updateCar(id, payload) {
+function updateCar(id, payload, actor) {
   const existing = getCarById(id);
   if (!existing) return { error: "Vehicule introuvable." };
 
@@ -260,12 +273,21 @@ function updateCar(id, payload) {
     replaceCarImages(db, id, payload.images);
   }
 
-  return { car: getCarById(id) };
+  const updated = getCarById(id);
+  activityLog.log(actor, "car_updated", `${updated.reference} (${updated.brand} ${updated.model})`);
+
+  return { car: updated };
 }
 
-function deleteCar(id) {
+function deleteCar(id, actor) {
+  const existing = getCarById(id);
   const db = getDb();
   const info = db.prepare("DELETE FROM cars WHERE id = ?").run(id);
+
+  if (info.changes > 0 && existing) {
+    activityLog.log(actor, "car_deleted", `${existing.reference} (${existing.brand} ${existing.model})`);
+  }
+
   return info.changes > 0;
 }
 

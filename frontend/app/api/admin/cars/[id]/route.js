@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { updateCar, deleteCar } from "../../../../../../backend/models/cars";
-import { requireSession } from "../../../../../lib/adminAuth";
+import { requirePermission } from "../../../../../lib/adminAuth";
 import { readCarPayload } from "../../../../../lib/carPayload";
 
 async function handleUpdate(request, { params }) {
-  if (!(await requireSession())) {
-    return NextResponse.json({ error: "Connexion requise." }, { status: 401 });
+  const user = await requirePermission("stock");
+  if (!user) {
+    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
   }
 
   const { id: rawId } = await params;
@@ -17,7 +18,7 @@ async function handleUpdate(request, { params }) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  const result = updateCar(id, payload);
+  const result = updateCar(id, payload, user.username);
   if (result.error) {
     const status = result.error === "Vehicule introuvable." ? 404 : 400;
     return NextResponse.json({ error: result.error }, { status });
@@ -30,13 +31,14 @@ export const POST = handleUpdate;
 export const PUT = handleUpdate;
 
 export async function DELETE(request, { params }) {
-  if (!(await requireSession())) {
-    return NextResponse.json({ error: "Connexion requise." }, { status: 401 });
+  const user = await requirePermission("stock");
+  if (!user) {
+    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
   }
 
   const { id: rawId } = await params;
   const id = Number(rawId);
-  const deleted = deleteCar(id);
+  const deleted = deleteCar(id, user.username);
 
   if (!deleted) {
     return NextResponse.json({ error: "Vehicule introuvable." }, { status: 404 });

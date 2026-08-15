@@ -1,4 +1,5 @@
 const { getDb } = require("../db/connection");
+const activityLog = require("./activityLog");
 
 function cleanText(value) {
   return String(value ?? "").trim();
@@ -47,6 +48,8 @@ function createMessage(payload) {
     )
     .run(name, email, phone || null, carReference || null, message, now);
 
+  activityLog.log("site public", "message_received", `${name}${carReference ? ` - ${carReference}` : ""}`);
+
   return { message: rowToMessage(db.prepare("SELECT * FROM contact_messages WHERE id = ?").get(info.lastInsertRowid)) };
 }
 
@@ -63,9 +66,15 @@ function markMessageRead(id, isRead) {
   db.prepare("UPDATE contact_messages SET is_read = ? WHERE id = ?").run(isRead ? 1 : 0, id);
 }
 
-function deleteMessage(id) {
+function deleteMessage(id, actor) {
+  const existing = rowToMessage(getDb().prepare("SELECT * FROM contact_messages WHERE id = ?").get(id));
   const db = getDb();
   const info = db.prepare("DELETE FROM contact_messages WHERE id = ?").run(id);
+
+  if (info.changes > 0 && existing) {
+    activityLog.log(actor, "message_deleted", existing.name);
+  }
+
   return info.changes > 0;
 }
 

@@ -34,16 +34,39 @@ const CARS_COLUMNS = {
   previous_owners: "TEXT",
 };
 
-function migrateCarsColumns(database) {
+const ADMIN_USERS_COLUMNS = {
+  role: "TEXT NOT NULL DEFAULT 'member'",
+  permissions: "TEXT NOT NULL DEFAULT '[]'",
+};
+
+function migrateColumns(database, table, columns) {
   const existing = new Set(
-    database.prepare("PRAGMA table_info(cars)").all().map((col) => col.name)
+    database.prepare(`PRAGMA table_info(${table})`).all().map((col) => col.name)
   );
 
-  for (const [column, type] of Object.entries(CARS_COLUMNS)) {
+  for (const [column, type] of Object.entries(columns)) {
     if (!existing.has(column)) {
-      database.exec(`ALTER TABLE cars ADD COLUMN ${column} ${type};`);
+      database.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type};`);
     }
   }
+}
+
+// The very first admin account (created before roles existed, or the oldest
+// one otherwise) becomes 'owner' so someone always has full access and can
+// manage other users - without this, an existing deployment's admin would be
+// silently locked out of user management after this upgrade.
+function ensureOwnerExists(database) {
+  const { count } = database
+    .prepare("SELECT COUNT(*) AS count FROM admin_users WHERE role = 'owner'")
+    .get();
+  if (count > 0) return;
+
+  const oldest = database
+    .prepare("SELECT id FROM admin_users ORDER BY id ASC LIMIT 1")
+    .get();
+  if (!oldest) return;
+
+  database.prepare("UPDATE admin_users SET role = 'owner' WHERE id = ?").run(oldest.id);
 }
 
 function getDb() {
@@ -54,7 +77,9 @@ function getDb() {
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA foreign_keys = ON;");
   db.exec(schema);
-  migrateCarsColumns(db);
+  migrateColumns(db, "cars", CARS_COLUMNS);
+  migrateColumns(db, "admin_users", ADMIN_USERS_COLUMNS);
+  ensureOwnerExists(db);
 
   return db;
 }

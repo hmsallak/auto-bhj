@@ -1,14 +1,24 @@
-import { OverviewIcon, StockIcon, AddIcon, MessagesIcon, SettingsIcon } from "./icons";
+import { OverviewIcon, StockIcon, AddIcon, MessagesIcon, UsersIcon, SettingsIcon } from "./icons";
 
 export const TABS = [
   { id: "overview", label: "Vue d'ensemble", Icon: OverviewIcon },
-  { id: "stock", label: "Stock", Icon: StockIcon },
-  { id: "form", label: "Ajouter / Modifier", Icon: AddIcon },
-  { id: "messages", label: "Messages", Icon: MessagesIcon },
+  { id: "stock", label: "Stock", Icon: StockIcon, permission: "stock" },
+  { id: "form", label: "Ajouter / Modifier", Icon: AddIcon, permission: "stock" },
+  { id: "messages", label: "Messages", Icon: MessagesIcon, permission: "messages" },
+  { id: "users", label: "Equipe", Icon: UsersIcon, ownerOnly: true },
   { id: "settings", label: "Parametres", Icon: SettingsIcon },
 ];
 
-export default function AdminSidebar({ activeTab, onSelect, username, stockCount, unreadCount }) {
+function canSeeTab(tab, user) {
+  if (tab.ownerOnly) return user?.role === "owner";
+  if (!tab.permission) return true;
+  if (user?.role === "owner") return true;
+  return Boolean(user?.permissions?.includes(tab.permission));
+}
+
+export default function AdminSidebar({ activeTab, onSelect, user, stockCount, unreadCount }) {
+  const visibleTabs = TABS.filter((tab) => canSeeTab(tab, user));
+
   return (
     <aside className="dash-sidebar">
       <div className="dash-brand">
@@ -20,7 +30,7 @@ export default function AdminSidebar({ activeTab, onSelect, username, stockCount
       </div>
 
       <nav className="dash-nav">
-        {TABS.map(({ id, label, Icon }) => (
+        {visibleTabs.map(({ id, label, Icon }) => (
           <button
             key={id}
             type="button"
@@ -38,7 +48,7 @@ export default function AdminSidebar({ activeTab, onSelect, username, stockCount
       </nav>
 
       <div className="dash-sidebar-footer">
-        <span className="dash-user">{username}</span>
+        <span className="dash-user">{user?.username}</span>
         <a href="/">Voir le site public</a>
       </div>
     </aside>

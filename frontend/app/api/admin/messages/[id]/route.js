@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { markMessageRead, deleteMessage } from "../../../../../../backend/models/messages";
-import { requireSession } from "../../../../../lib/adminAuth";
+import { requirePermission } from "../../../../../lib/adminAuth";
 
 export async function PATCH(request, { params }) {
-  if (!(await requireSession())) {
-    return NextResponse.json({ error: "Connexion requise." }, { status: 401 });
+  const user = await requirePermission("messages");
+  if (!user) {
+    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
   }
 
   const { id } = await params;
@@ -15,12 +16,13 @@ export async function PATCH(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  if (!(await requireSession())) {
-    return NextResponse.json({ error: "Connexion requise." }, { status: 401 });
+  const user = await requirePermission("messages");
+  if (!user) {
+    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
   }
 
   const { id } = await params;
-  const deleted = deleteMessage(Number(id));
+  const deleted = deleteMessage(Number(id), user.username);
 
   if (!deleted) {
     return NextResponse.json({ error: "Message introuvable." }, { status: 404 });

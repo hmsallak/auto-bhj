@@ -6,6 +6,7 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 import AdminOverview from "../../components/admin/AdminOverview";
 import AdminStock from "../../components/admin/AdminStock";
 import AdminMessages from "../../components/admin/AdminMessages";
+import AdminUsers from "../../components/admin/AdminUsers";
 import AdminSettings from "../../components/admin/AdminSettings";
 import AdminCarForm from "../../components/AdminCarForm";
 
@@ -25,13 +26,14 @@ const TAB_TITLES = {
   stock: "Stock",
   form: "Ajouter / Modifier une voiture",
   messages: "Messages",
+  users: "Equipe",
   settings: "Parametres",
 };
 
 export default function AdminPage() {
   const [checking, setChecking] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
-  const [username, setUsername] = useState(null);
+  const [user, setUser] = useState(null);
   const [loginMessage, setLoginMessage] = useState("");
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -40,6 +42,8 @@ export default function AdminPage() {
   const [carMessage, setCarMessage] = useState("");
   const [carMessageError, setCarMessageError] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [activity, setActivity] = useState([]);
 
   async function loadCars() {
     setCars(await api("/api/cars"));
@@ -49,13 +53,36 @@ export default function AdminPage() {
     setMessages(await api("/api/admin/messages"));
   }
 
+  async function loadUsers() {
+    setUsers(await api("/api/admin/users"));
+  }
+
+  async function loadActivity() {
+    setActivity(await api("/api/admin/activity"));
+  }
+
+  async function loadForRole(currentUser) {
+    const isOwner = currentUser?.role === "owner";
+    const tasks = [loadCars()];
+    if (isOwner || currentUser?.permissions?.includes("messages")) {
+      tasks.push(loadMessages());
+    }
+    if (isOwner) {
+      tasks.push(loadUsers(), loadActivity());
+    }
+    await Promise.all(tasks);
+  }
+
   useEffect(() => {
     api("/api/admin/me")
       .then(async (session) => {
         setAuthenticated(Boolean(session.authenticated));
-        setUsername(session.username);
-        if (session.authenticated) {
-          await Promise.all([loadCars(), loadMessages()]);
+        const currentUser = session.authenticated
+          ? { username: session.username, role: session.role, permissions: session.permissions }
+          : null;
+        setUser(currentUser);
+        if (currentUser) {
+          await loadForRole(currentUser);
         }
       })
       .finally(() => setChecking(false));
@@ -73,9 +100,11 @@ export default function AdminPage() {
         body: JSON.stringify(Object.fromEntries(formData.entries())),
       });
       event.target.reset();
+      const session = await api("/api/admin/me");
+      const currentUser = { username: session.username, role: session.role, permissions: session.permissions };
       setAuthenticated(true);
-      setUsername(formData.get("username"));
-      await Promise.all([loadCars(), loadMessages()]);
+      setUser(currentUser);
+      await loadForRole(currentUser);
     } catch (error) {
       setLoginMessage(error.message);
     }
@@ -84,6 +113,7 @@ export default function AdminPage() {
   async function handleLogout() {
     await api("/api/admin/logout", { method: "POST" });
     setAuthenticated(false);
+    setUser(null);
     setEditingCar(null);
     setActiveTab("overview");
   }
@@ -105,6 +135,10 @@ export default function AdminPage() {
   }
 
   async function handleDelete(car) {
+    if (!window.confirm(`Supprimer ${car.reference} (${car.brand} ${car.model}) du stock ?`)) {
+      return;
+    }
+
     try {
       await api(`/api/admin/cars/${car.id}`, { method: "DELETE" });
       if (editingCar?.id === car.id) setEditingCar(null);
@@ -140,8 +174,35 @@ export default function AdminPage() {
   }
 
   async function handleDeleteMessage(msg) {
+    if (!window.confirm(`Supprimer le message de ${msg.name} ?`)) {
+      return;
+    }
+
     await api(`/api/admin/messages/${msg.id}`, { method: "DELETE" });
     await loadMessages();
+  }
+
+  async function handleCreateUser(payload) {
+    await api("/api/admin/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    await Promise.all([loadUsers(), loadActivity()]);
+  }
+
+  async function handleUpdatePermissions(id, permissions) {
+    await api(`/api/admin/users/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ permissions }),
+    });
+    await Promise.all([loadUsers(), loadActivity()]);
+  }
+
+  async function handleDeleteUser(id) {
+    await api(`/api/admin/users/${id}`, { method: "DELETE" });
+    await Promise.all([loadUsers(), loadActivity()]);
   }
 
   if (checking) return null;
@@ -160,7 +221,7 @@ export default function AdminPage() {
           setActiveTab(tab);
           if (tab === "form") setEditingCar(null);
         }}
-        username={username}
+        user={user}
         stockCount={cars.length}
         unreadCount={unreadCount}
       />
@@ -203,8 +264,18 @@ export default function AdminPage() {
             />
           )}
 
+          {activeTab === "users" && user?.role === "owner" && (
+            <AdminUsers
+              users={users}
+              activity={activity}
+              onCreateUser={handleCreateUser}
+              onUpdatePermissions={handleUpdatePermissions}
+              onDeleteUser={handleDeleteUser}
+            />
+          )}
+
           {activeTab === "settings" && (
-            <AdminSettings username={username} onChangePassword={handleChangePassword} />
+            <AdminSettings username={user?.username} onChangePassword={handleChangePassword} />
           )}
         </div>
       </div>

@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
-import { getSession } from "../../../../lib/adminAuth";
+import { getCurrentUser } from "../../../../lib/adminAuth";
 
 export async function GET() {
-  const session = await getSession();
+  const user = await getCurrentUser();
+
   return NextResponse.json({
-    authenticated: Boolean(session),
-    username: session?.username || null,
+    authenticated: Boolean(user),
+    username: user?.username || null,
+    role: user?.role || null,
+    permissions: user?.permissions || [],
   });
 }
