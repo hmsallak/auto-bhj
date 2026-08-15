@@ -2128,25 +2128,54 @@ textarea:focus-visible {
   .dash-sidebar {
     flex-direction: row;
     align-items: center;
+    gap: 8px;
     overflow-x: auto;
-    padding: 12px;
+    padding: 10px 12px;
+  }
+
+  .dash-brand span:last-child {
+    display: none;
   }
 
   .dash-nav {
     flex-direction: row;
+    flex: none;
+  }
+
+  .dash-nav-item {
+    flex: none;
+    padding: 8px 12px;
   }
 
   .dash-nav-item span:last-child {
     display: none;
   }
 
-  .dash-nav-item.active {
-    border-left-color: transparent;
-    border-bottom: 3px solid var(--dash-accent);
-  }
-
   .dash-sidebar-footer {
     display: none;
+  }
+
+  .dash-topbar {
+    padding: 16px 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .dash-topbar h1 {
+    font-size: 20px;
+  }
+
+  .dash-content {
+    padding: 4px 20px 32px;
+    gap: 20px;
+  }
+
+  .dash-panel {
+    padding: 20px;
+  }
+
+  .dash-panel > h2 {
+    font-size: clamp(20px, 6vw, 26px);
   }
 
   .recent-row {
@@ -2212,5 +2241,21 @@ textarea:focus-visible {
 
   .footer-bottom {
     flex-direction: column;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dash-content {
+    padding: 4px 16px 28px;
+  }
+
+  .dash-panel {
+    padding: 16px;
+  }
+
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   }
 }
