@@ -2,7 +2,10 @@ import { randomUUID } from "crypto";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 
-const uploadsDir = path.join(process.cwd(), "public", "uploads");
+// Stored under backend/data (not frontend/public) so uploaded photos live on
+// the same persistent volume as the SQLite database in production - the
+// public/ folder is baked into the build and isn't writable/persistent there.
+const uploadsDir = path.join(process.cwd(), "backend", "data", "uploads");
 
 const extensionByType = {
   "image/jpeg": ".jpg",
