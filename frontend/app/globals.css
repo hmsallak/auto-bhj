@@ -2221,11 +2221,18 @@ textarea:focus-visible {
   }
 
   .admin-item {
-    grid-template-columns: 56px 1fr;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .admin-item-thumb {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
   }
 
   .admin-actions {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
 
   .value-grid,
