@@ -39,6 +39,17 @@ export async function requirePermission(key) {
   return user;
 }
 
+// Distinguishes "no valid session" (401 - the frontend should drop back to
+// the login screen) from "logged in but not allowed" (403 - the frontend
+// should just show an error) after a requireSession/requireOwner/
+// requirePermission call has already returned null.
+export async function authError() {
+  const user = await getCurrentUser();
+  return user
+    ? { status: 403, error: "Acces refuse." }
+    : { status: 401, error: "Session expiree. Reconnectez-vous." };
+}
+
 export async function getClientIp() {
   const store = await headers();
   const forwarded = store.get("x-forwarded-for");

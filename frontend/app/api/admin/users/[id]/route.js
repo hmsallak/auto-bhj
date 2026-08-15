@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { updateUserPermissions, deleteUser } from "../../../../../../backend/models/adminUsers";
-import { requireOwner } from "../../../../../lib/adminAuth";
+import { requireOwner, authError } from "../../../../../lib/adminAuth";
 
 export async function PATCH(request, { params }) {
   const user = await requireOwner();
   if (!user) {
-    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
+    const { status, error } = await authError();
+    return NextResponse.json({ error }, { status });
   }
 
   const { id } = await params;
@@ -22,7 +23,8 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   const user = await requireOwner();
   if (!user) {
-    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
+    const { status, error } = await authError();
+    return NextResponse.json({ error }, { status });
   }
 
   const { id } = await params;

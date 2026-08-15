@@ -10,17 +10,6 @@ import AdminUsers from "../../components/admin/AdminUsers";
 import AdminSettings from "../../components/admin/AdminSettings";
 import AdminCarForm from "../../components/AdminCarForm";
 
-async function api(url, options = {}) {
-  const response = await fetch(url, { credentials: "same-origin", ...options });
-  const payload = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(payload.error || "Une erreur est survenue.");
-  }
-
-  return payload;
-}
-
 const TAB_TITLES = {
   overview: "Vue d'ensemble",
   stock: "Stock",
@@ -35,6 +24,23 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loginMessage, setLoginMessage] = useState("");
+
+  async function api(url, options = {}) {
+    const response = await fetch(url, { credentials: "same-origin", ...options });
+    const payload = await response.json().catch(() => ({}));
+
+    if (response.status === 401) {
+      setAuthenticated(false);
+      setUser(null);
+      setLoginMessage("Session expiree. Reconnectez-vous.");
+    }
+
+    if (!response.ok) {
+      throw new Error(payload.error || "Une erreur est survenue.");
+    }
+
+    return payload;
+  }
 
   const [activeTab, setActiveTab] = useState("overview");
   const [cars, setCars] = useState([]);

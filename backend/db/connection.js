@@ -39,6 +39,10 @@ const ADMIN_USERS_COLUMNS = {
   permissions: "TEXT NOT NULL DEFAULT '[]'",
 };
 
+const SESSIONS_COLUMNS = {
+  last_seen_at: "INTEGER",
+};
+
 function migrateColumns(database, table, columns) {
   const existing = new Set(
     database.prepare(`PRAGMA table_info(${table})`).all().map((col) => col.name)
@@ -79,6 +83,7 @@ function getDb() {
   db.exec(schema);
   migrateColumns(db, "cars", CARS_COLUMNS);
   migrateColumns(db, "admin_users", ADMIN_USERS_COLUMNS);
+  migrateColumns(db, "sessions", SESSIONS_COLUMNS);
   ensureOwnerExists(db);
 
   return db;

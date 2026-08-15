@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { createCar } from "../../../../../backend/models/cars";
-import { requirePermission } from "../../../../lib/adminAuth";
+import { requirePermission, authError } from "../../../../lib/adminAuth";
 import { readCarPayload } from "../../../../lib/carPayload";
 
 export async function POST(request) {
   const user = await requirePermission("stock");
   if (!user) {
-    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
+    const { status, error } = await authError();
+    return NextResponse.json({ error }, { status });
   }
 
   let payload;

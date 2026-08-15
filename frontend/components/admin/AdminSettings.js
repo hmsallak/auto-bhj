@@ -49,7 +49,9 @@ export default function AdminSettings({ username, onChangePassword }) {
           </div>
           <div className="spec-row">
             <span className="spec-label">Session</span>
-            <span className="spec-value">Chiffree (HMAC), expire apres 8h</span>
+            <span className="spec-value">
+              Chiffree (HMAC), deconnexion apres 1h d&apos;inactivite (8h maximum)
+            </span>
           </div>
         </div>
       </div>

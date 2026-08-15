@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { listUsers, createUser } from "../../../../../backend/models/adminUsers";
-import { requireOwner } from "../../../../lib/adminAuth";
+import { requireOwner, authError } from "../../../../lib/adminAuth";
 
 export async function GET() {
   const user = await requireOwner();
   if (!user) {
-    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
+    const { status, error } = await authError();
+    return NextResponse.json({ error }, { status });
   }
 
   return NextResponse.json(listUsers());
@@ -14,7 +15,8 @@ export async function GET() {
 export async function POST(request) {
   const user = await requireOwner();
   if (!user) {
-    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
+    const { status, error } = await authError();
+    return NextResponse.json({ error }, { status });
   }
 
   const payload = await request.json().catch(() => ({}));

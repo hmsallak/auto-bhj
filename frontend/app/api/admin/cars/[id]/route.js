@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { updateCar, deleteCar } from "../../../../../../backend/models/cars";
-import { requirePermission } from "../../../../../lib/adminAuth";
+import { requirePermission, authError } from "../../../../../lib/adminAuth";
 import { readCarPayload } from "../../../../../lib/carPayload";
 
 async function handleUpdate(request, { params }) {
   const user = await requirePermission("stock");
   if (!user) {
-    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
+    const { status, error } = await authError();
+    return NextResponse.json({ error }, { status });
   }
 
   const { id: rawId } = await params;
@@ -33,7 +34,8 @@ export const PUT = handleUpdate;
 export async function DELETE(request, { params }) {
   const user = await requirePermission("stock");
   if (!user) {
-    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
+    const { status, error } = await authError();
+    return NextResponse.json({ error }, { status });
   }
 
   const { id: rawId } = await params;
