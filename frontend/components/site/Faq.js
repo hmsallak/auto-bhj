@@ -41,7 +41,7 @@ export default function Faq() {
 
       <div className="faq-list">
         {QUESTIONS.map(({ q, a }) => (
-          <details className="faq-item" key={q}>
+          <details className="faq-item reveal-card" key={q}>
             <summary>{q}</summary>
             <p>{a}</p>
           </details>

@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { MenuIcon, CloseIcon } from "./icons";
 
 const LINKS = [
-  { href: "/#stock", label: "Stock" },
+  { href: "/stock", label: "Stock" },
   { href: "/#a-propos", label: "A propos" },
   { href: "/#services", label: "Services" },
   { href: "/#faq", label: "FAQ" },
@@ -27,8 +28,7 @@ export default function SiteHeader() {
   return (
     <header className="site-header">
       <a className="brand" href="/">
-        <span className="brand-mark">AB</span>
-        <span>Auto BHJ</span>
+        <Image className="brand-logo" src="/logo.png" alt="Auto BHJ" width={2048} height={768} priority />
       </a>
 
       <button

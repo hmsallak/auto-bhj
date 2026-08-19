@@ -4,6 +4,7 @@
 
 - For every task that changes how the product looks, moves, responds, or is used, read and apply `.agents/skills/ui-ux-pro-max/SKILL.md` before making UI decisions.
 - For new pages, major redesigns, layouts, components, responsive behavior, accessibility, visual polish, typography, colors, or animation, generate or query the local UI/UX guidance with `.agents/skills/ui-ux-pro-max/scripts/search.py`.
+- Every new page must inherit and apply the existing Auto BHJ site design: shared header/footer layout where relevant, current typography, colors, spacing rhythm, card radius, button hierarchy, responsive behavior, and accessibility patterns. A new page should only introduce new styling when it is required by the page goal and remains consistent with the established design system.
 - Use a designer-review pass for UI work: critique the proposal, identify weak assumptions, revise the design, then implement. When sub-agents are available and the task is non-trivial, spawn a dedicated designer agent to review the interpretation and challenge the solution before delivery.
 - Prefer components and patterns that are current and production-grade. When selecting third-party UI components, check `https://21st.dev/` and use the best fitting component only if it improves maintainability, accessibility, and visual quality for this project.
 

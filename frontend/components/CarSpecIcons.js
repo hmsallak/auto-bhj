@@ -109,6 +109,15 @@ export function CarBodyIcon(props) {
   );
 }
 
+export function CalendarIcon(props) {
+  return (
+    <Svg {...props}>
+      <rect x="4" y="5" width="16" height="16" rx="2" />
+      <path d="M4 10h16M8 3v4M16 3v4" />
+    </Svg>
+  );
+}
+
 export function ChevronDownIcon(props) {
   return (
     <Svg {...props}>

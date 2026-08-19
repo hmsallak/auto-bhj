@@ -5,6 +5,7 @@ import ScrollReveal from "../../components/site/ScrollReveal";
 export default function SiteLayout({ children }) {
   return (
     <>
+      <div className="auto-motion-bg" aria-hidden="true" />
       <SiteHeader />
       <main>{children}</main>
       <Footer />

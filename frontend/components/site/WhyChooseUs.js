@@ -40,7 +40,7 @@ export default function WhyChooseUs() {
 
       <div className="value-grid">
         {POINTS.map(({ Icon, title, text }) => (
-          <div className="value-card" key={title}>
+          <div className="value-card reveal-card" key={title}>
             <span className="value-icon">
               <Icon />
             </span>

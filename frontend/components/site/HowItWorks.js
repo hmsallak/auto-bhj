@@ -40,7 +40,7 @@ export default function HowItWorks() {
 
       <ol className="steps-grid">
         {STEPS.map(({ Icon, title, text }, index) => (
-          <li className="step-card" key={title}>
+          <li className="step-card reveal-card" key={title}>
             <span className="step-number">{String(index + 1).padStart(2, "0")}</span>
             <span className="step-icon">
               <Icon />

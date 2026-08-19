@@ -7,7 +7,7 @@ export default function BrandsStrip({ cars }) {
       <p className="eyebrow">Marques disponibles en stock</p>
       <div className="brands-row">
         {brands.map((brand) => (
-          <a key={brand} href="#stock" className="brand-chip">
+          <a key={brand} href="/stock" className="brand-chip reveal-card">
             {brand}
           </a>
         ))}

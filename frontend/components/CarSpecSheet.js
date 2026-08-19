@@ -1,68 +1,90 @@
-import { formatKm } from "../lib/format";
+import { formatKm, statusLabel } from "../lib/format";
+import { ShieldIcon } from "./site/icons";
 import {
   GaugeIcon,
   GearboxIcon,
   FuelIcon,
-  PaintDropIcon,
   CloudIcon,
-  SeatIcon,
-  PistonIcon,
-  BoltIcon,
-  DoorIcon,
-  CarBodyIcon,
-  OwnersIcon,
+  CalendarIcon,
   ChevronDownIcon,
 } from "./CarSpecIcons";
 
-function SpecCell({ Icon, label, value }) {
+export function SpecHighlights({ car }) {
+  const cells = [
+    { Icon: ShieldIcon, label: "Etat", value: statusLabel(car.status) },
+    { Icon: GaugeIcon, label: "Kilometrage", value: formatKm(car.mileage) },
+    { Icon: CalendarIcon, label: "1ere immat.", value: car.year },
+    { Icon: FuelIcon, label: "Carburant", value: car.fuel },
+    { Icon: GearboxIcon, label: "Boite de vitesse", value: car.gearbox },
+    { Icon: CloudIcon, label: "Classe d'emission", value: car.emissionClass || "Non communique" },
+  ];
+
+  return (
+    <div className="spec-highlights">
+      {cells.map(({ Icon, label, value }) => (
+        <div className="spec-highlight" key={label}>
+          <span className="spec-highlight-icon">
+            <Icon />
+          </span>
+          <div>
+            <span className="spec-highlight-label">{label}</span>
+            <strong className="spec-highlight-value">{value}</strong>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DataRow({ label, value }) {
   if (value === null || value === undefined || value === "") return null;
   return (
-    <div className="spec-cell">
-      <span className="spec-cell-icon">
-        <Icon />
-      </span>
-      <div>
-        <span className="spec-cell-label">{label}</span>
-        <strong className="spec-cell-value">{value}</strong>
-      </div>
+    <div className="data-row">
+      <span className="data-row-label">{label}</span>
+      <span className="data-row-value">{value}</span>
     </div>
   );
 }
 
 export default function CarSpecSheet({ car }) {
   const power = car.powerKw && car.powerCh ? `${car.powerKw} kW (${car.powerCh} ch)` : null;
-  const cells = [
-    <SpecCell key="km" Icon={GaugeIcon} label="Kilometrage" value={formatKm(car.mileage)} />,
-    <SpecCell key="gearbox" Icon={GearboxIcon} label="Transmission" value={car.gearbox} />,
-    <SpecCell key="fuel" Icon={FuelIcon} label="Carburant" value={car.fuel} />,
-    <SpecCell key="ext" Icon={PaintDropIcon} label="Couleur exterieure" value={car.exteriorColor} />,
-    <SpecCell key="emission" Icon={CloudIcon} label="Classe d'emission" value={car.emissionClass} />,
-    <SpecCell key="seats" Icon={SeatIcon} label="Nombre de sieges" value={car.seats} />,
-    <SpecCell
-      key="engine"
-      Icon={PistonIcon}
-      label="Cylindree"
-      value={car.engineCc ? `${car.engineCc} cm3` : null}
-    />,
-    <SpecCell key="power" Icon={BoltIcon} label="Puissance" value={power} />,
-    <SpecCell key="int" Icon={PaintDropIcon} label="Couleur interieure" value={car.interiorColor} />,
-    <SpecCell key="doors" Icon={DoorIcon} label="Portes" value={car.doors} />,
-    <SpecCell key="body" Icon={CarBodyIcon} label="Carrosserie" value={car.bodyType} />,
-    <SpecCell key="owners" Icon={OwnersIcon} label="Proprietaires precedents" value={car.previousOwners} />,
-  ].filter((cell) => cell.props.value !== null && cell.props.value !== undefined && cell.props.value !== "");
+  const rows = [
+    <DataRow key="brand" label="Marque" value={car.brand} />,
+    <DataRow key="model" label="Modele" value={car.model} />,
+    <DataRow key="body" label="Type de carrosserie" value={car.bodyType} />,
+    <DataRow key="seats" label="Sieges" value={car.seats} />,
+    <DataRow key="doors" label="Portes" value={car.doors} />,
+    <DataRow key="gears" label="Vitesses" value={car.gears} />,
+    <DataRow key="cylinders" label="Cylindres" value={car.cylinders} />,
+    <DataRow key="engine" label="Cylindree" value={car.engineCc ? `${car.engineCc} cm3` : null} />,
+    <DataRow key="power" label="Puissance" value={power} />,
+    <DataRow key="ext" label="Couleur exterieure" value={car.exteriorColor} />,
+    <DataRow key="paint" label="Type de peinture" value={car.paintType} />,
+    <DataRow key="int" label="Couleur interieure" value={car.interiorColor} />,
+    <DataRow key="material" label="Materiau interieur" value={car.interiorMaterial} />,
+    <DataRow key="owners" label="Proprietaires precedents" value={car.previousOwners} />,
+    <DataRow key="consumption" label="Consommation" value={car.consumption} />,
+  ].filter((row) => row.props.value !== null && row.props.value !== undefined && row.props.value !== "");
 
   return (
     <div className="spec-sheet">
-      {cells.length > 0 && (
+      <details className="spec-block" open>
+        <summary>
+          <h3>Description</h3>
+          <ChevronDownIcon />
+        </summary>
+        <p className="car-description">
+          {car.description || "Contactez-nous pour plus d'informations."}
+        </p>
+      </details>
+
+      {rows.length > 0 && (
         <details className="spec-block" open>
           <summary>
-            <h3>Caracteristiques</h3>
+            <h3>Donnees generales</h3>
             <ChevronDownIcon />
           </summary>
-          <div className="spec-icon-grid">{cells}</div>
-          {car.consumption && (
-            <p className="spec-footnote">Consommation : {car.consumption}</p>
-          )}
+          <div className="data-grid">{rows}</div>
         </details>
       )}
 

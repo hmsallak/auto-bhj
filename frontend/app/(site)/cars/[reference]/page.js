@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { getCarByReference } from "../../../../../backend/models/cars";
 import { formatKm, formatPrice, statusLabel } from "../../../../lib/format";
 import PhotoGallery from "../../../../components/PhotoGallery";
-import CarSpecSheet from "../../../../components/CarSpecSheet";
+import CarSpecSheet, { SpecHighlights } from "../../../../components/CarSpecSheet";
 import VehicleActions from "../../../../components/VehicleActions";
 import VehicleViewTracker from "../../../../components/VehicleViewTracker";
 import { ChevronLeftIcon } from "../../../../components/site/icons";
@@ -39,7 +39,6 @@ export default async function CarDetailPage({ params }) {
   const car = getCarByReference(reference);
   if (!car) notFound();
   const reserved = car.status === "reserved";
-  const power = car.powerKw && car.powerCh ? `${car.powerKw} kW / ${car.powerCh} ch` : null;
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Vehicle",
@@ -79,36 +78,41 @@ export default async function CarDetailPage({ params }) {
         <ChevronLeftIcon width="18" height="18" />
         Retour a l'accueil
       </a>
-      <p className="detail-reference">Reference {car.reference}</p>
-      <div className="detail-grid">
-        <PhotoGallery images={car.images} alt={`${car.brand} ${car.model}`} status={car.status} />
 
-        <div className="panel">
-          <p className="eyebrow">{car.brand}</p>
-          <h1>{car.model}</h1>
-          <div className="detail-price-row">
+      <div className="detail-header">
+        <div className="detail-header-title">
+          <p className="detail-reference">Reference {car.reference}</p>
+          <h1>
+            {car.brand} {car.model}
+          </h1>
+        </div>
+        <div className="detail-header-price">
+          <div>
             <p className="car-price">{formatPrice(car.price)}</p>
             <span className={`status ${reserved ? "reserved" : "available"}`}>
               {statusLabel(car.status)}
             </span>
           </div>
-          <div className="car-specs">
-            <span>{car.year}</span>
-            <span>{formatKm(car.mileage)}</span>
-            <span>{car.fuel}</span>
-            <span>{car.gearbox}</span>
-            {power && <span>{power}</span>}
+          <div className="detail-header-actions">
+            <a className="button navy" href={`/?ref=${car.reference}&intent=visit#contact`}>
+              Contacter
+            </a>
+            <a className="button neutral" href="tel:+32000000000">
+              Appeler
+            </a>
           </div>
-
-          <div className="decision-proof" aria-label="Informations importantes">
-            <span>Controle avant vente</span>
-            <span>Essai sur rendez-vous</span>
-            <span>Prix affiche sans frais caches</span>
-            <span>FR/NL: visite sur rendez-vous / bezoek op afspraak</span>
-          </div>
-
-          <VehicleActions reference={car.reference} />
         </div>
+      </div>
+
+      <PhotoGallery images={car.images} alt={`${car.brand} ${car.model}`} status={car.status} />
+
+      <SpecHighlights car={car} />
+
+      <div className="decision-proof" aria-label="Informations importantes">
+        <span>Controle avant vente</span>
+        <span>Essai sur rendez-vous</span>
+        <span>Prix affiche sans frais caches</span>
+        <span>FR/NL: visite sur rendez-vous / bezoek op afspraak</span>
       </div>
 
       <div className="detail-lower">
@@ -116,11 +120,11 @@ export default async function CarDetailPage({ params }) {
           <CarSpecSheet car={car} />
         </div>
 
-        <div className="panel">
-          <h3>Description</h3>
-          <p className="car-description">
-            {car.description || "Contactez-nous pour plus d'informations."}
+        <div className="panel detail-contact-panel">
+          <p className="detail-contact-panel-title">
+            {car.brand} {car.model}
           </p>
+          <VehicleActions reference={car.reference} />
           <div className="detail-contact-card">
             <strong>Reference a communiquer : {car.reference}</strong>
             <p>

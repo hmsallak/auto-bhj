@@ -19,6 +19,12 @@
   --dash-text-dim: #7c8791;
   --dash-accent: #dc2626;
   --dash-accent-dim: #451414;
+  /* Public site global background ("Carbon & Clarity"): a very light
+     neutral grey, just a shade off pure white, so the solid white cards
+     clearly stand out against it. A faint black carbon-fibre weave and a
+     whisper of red glow add texture without weighing the page down. */
+  --page-bg: #f1f2f5;
+  --page-bg-alt: #e7e9ed;
 }
 
 * {
@@ -74,15 +80,11 @@ nav {
   gap: 12px;
 }
 
-.brand-mark {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  color: white;
-  background: var(--brand);
+.brand-logo {
+  height: 42px;
+  width: auto;
   border-radius: 8px;
-  font-weight: 900;
+  display: block;
 }
 
 nav {
@@ -379,19 +381,6 @@ textarea:focus-visible {
   border-radius: 8px;
 }
 
-.detail-media img {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  background: #dfe5ea;
-  transition: filter 0.2s ease, transform 0.2s ease;
-}
-
-.detail-media.is-reserved img {
-  filter: blur(2px) grayscale(0.2);
-  transform: scale(1.01);
-}
-
 .status {
   width: fit-content;
   display: inline-flex;
@@ -401,14 +390,6 @@ textarea:focus-visible {
   border-radius: 7px;
   font-size: 12px;
   font-weight: 900;
-}
-
-.detail-media .status,
-.listing-media .status {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 }
 
 .status.available {
@@ -421,42 +402,52 @@ textarea:focus-visible {
   background: #fed7aa;
 }
 
+/* Stock grid: vertical cards (photo on top, details below), the same
+   pattern used across modern listing sites, instead of a horizontal row. */
 .listing-list {
   display: grid;
-  gap: 14px;
-}
-
-.listing-row-link {
-  display: block;
-}
-
-.listing-row {
-  display: grid;
-  grid-template-columns: 220px 1fr 160px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
-  padding: 14px;
+}
+
+.stock-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 18px 42px rgba(15, 23, 42, 0.07);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
 }
 
-.listing-media {
+.stock-card:hover,
+.stock-card:focus-within {
+  transform: translateY(-4px);
+  border-color: #cbd5e1;
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.08), 0 28px 52px rgba(15, 23, 42, 0.13);
+}
+
+.stock-card-media {
   position: relative;
   overflow: hidden;
-  border-radius: 6px;
   background: #dfe5ea;
 }
 
-.listing-media img {
+.stock-card-media img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  background: #dfe5ea;
-  transition: filter 0.2s ease, transform 0.2s ease;
+  transition: filter 0.2s ease, transform 450ms ease;
 }
 
-.listing-row.is-reserved .listing-media img {
+.stock-card.is-reserved .stock-card-media img {
   filter: blur(2px) grayscale(0.2);
+}
+
+.stock-card:hover .stock-card-media img {
+  transform: scale(1.045);
 }
 
 .photo-count {
@@ -471,61 +462,82 @@ textarea:focus-visible {
   font-weight: 800;
 }
 
-.listing-main {
+.stock-card-badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: calc(100% - 20px);
+}
+
+.stock-card-badges .status {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.stock-card-body {
   display: grid;
   align-content: start;
-  gap: 8px;
+  gap: 6px;
+  padding: 16px;
+  flex: 1;
   min-width: 0;
 }
 
-.listing-title {
-  margin: 0;
-  font-size: 17px;
-}
-
-.listing-subtitle {
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.listing-specs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px 16px;
-  margin-top: 4px;
-}
-
-.listing-specs > div {
-  display: grid;
-  gap: 2px;
-}
-
-.listing-spec-label {
+.listing-reference {
+  display: block;
   color: var(--muted);
   font-size: 11px;
+  font-weight: 900;
   text-transform: uppercase;
-  font-weight: 700;
 }
 
-.listing-specs strong {
+.stock-card-title {
+  margin: 0;
+  font-size: 16px;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.stock-card-subtitle {
+  margin: 0;
+  color: var(--muted);
   font-size: 13px;
+  line-height: 1.5;
 }
 
-.listing-price-col {
+.stock-card-specs {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+}
+
+.stock-card-footer {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  text-align: right;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
 }
 
-.listing-price {
-  color: var(--brand-dark);
-  font-size: 22px;
+.stock-card-price {
+  color: var(--ink);
+  font-size: 20px;
   font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.stock-card-cta {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .car-price {
@@ -547,8 +559,9 @@ textarea:focus-visible {
 }
 
 .car-description {
-  margin: 0;
+  margin: 18px 0 0;
   color: var(--muted);
+  line-height: 1.6;
 }
 
 .empty {
@@ -589,6 +602,10 @@ textarea:focus-visible {
   opacity: 0.85;
 }
 
+.contact h2 {
+  color: var(--ink);
+}
+
 .contact p {
   color: var(--muted);
 }
@@ -621,6 +638,80 @@ textarea:focus-visible {
   opacity: 1;
   transform: none;
   transition: opacity 550ms ease-out, transform 550ms ease-out;
+}
+
+/* Per-card scroll reveal: each card in a grid/row fades and rises in on
+   its own, staggered by its position, instead of the whole section
+   appearing as one flat block. Falls back to fully visible, no motion,
+   when JS never runs or prefers-reduced-motion is set (ScrollReveal
+   only adds .reveal-init once it has already checked that setting). */
+.reveal-card.reveal-init {
+  opacity: 0;
+  transform: translateY(26px) scale(0.97);
+}
+
+.reveal-card.reveal-visible {
+  opacity: 1;
+  transform: none;
+  transition: opacity 620ms cubic-bezier(0.16, 1, 0.3, 1), transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.value-grid > .reveal-card:nth-child(1),
+.steps-grid > .reveal-card:nth-child(1),
+.services-list > .reveal-card:nth-child(1),
+.faq-list > .reveal-card:nth-child(1),
+.featured-track > .reveal-card:nth-child(1),
+.brands-row > .reveal-card:nth-child(1),
+.listing-list > .reveal-card:nth-child(1) {
+  transition-delay: 0ms;
+}
+
+.value-grid > .reveal-card:nth-child(2),
+.steps-grid > .reveal-card:nth-child(2),
+.services-list > .reveal-card:nth-child(2),
+.faq-list > .reveal-card:nth-child(2),
+.featured-track > .reveal-card:nth-child(2),
+.brands-row > .reveal-card:nth-child(2),
+.listing-list > .reveal-card:nth-child(2) {
+  transition-delay: 70ms;
+}
+
+.value-grid > .reveal-card:nth-child(3),
+.steps-grid > .reveal-card:nth-child(3),
+.services-list > .reveal-card:nth-child(3),
+.faq-list > .reveal-card:nth-child(3),
+.featured-track > .reveal-card:nth-child(3),
+.brands-row > .reveal-card:nth-child(3),
+.listing-list > .reveal-card:nth-child(3) {
+  transition-delay: 140ms;
+}
+
+.value-grid > .reveal-card:nth-child(4),
+.steps-grid > .reveal-card:nth-child(4),
+.services-list > .reveal-card:nth-child(4),
+.faq-list > .reveal-card:nth-child(4),
+.featured-track > .reveal-card:nth-child(4),
+.brands-row > .reveal-card:nth-child(4),
+.listing-list > .reveal-card:nth-child(4) {
+  transition-delay: 210ms;
+}
+
+.faq-list > .reveal-card:nth-child(5),
+.featured-track > .reveal-card:nth-child(5),
+.brands-row > .reveal-card:nth-child(5) {
+  transition-delay: 280ms;
+}
+
+.faq-list > .reveal-card:nth-child(6),
+.featured-track > .reveal-card:nth-child(6),
+.brands-row > .reveal-card:nth-child(6) {
+  transition-delay: 350ms;
+}
+
+.faq-list > .reveal-card:nth-child(7),
+.featured-track > .reveal-card:nth-child(7),
+.brands-row > .reveal-card:nth-child(7) {
+  transition-delay: 420ms;
 }
 
 /* Why choose us */
@@ -790,6 +881,10 @@ textarea:focus-visible {
   align-items: start;
 }
 
+.about-grid h2 {
+  color: var(--ink);
+}
+
 .about-grid p {
   color: var(--muted);
   line-height: 1.7;
@@ -914,6 +1009,10 @@ textarea:focus-visible {
 
 .footer-brand .brand {
   color: white;
+}
+
+.footer-brand .brand-logo {
+  height: 52px;
 }
 
 .footer-brand p {
@@ -1044,7 +1143,20 @@ textarea:focus-visible {
 
 .featured-controls {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 16px;
+}
+
+.featured-all-link {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: color 200ms ease;
+}
+
+.featured-all-link:hover {
+  color: var(--accent-dark);
 }
 
 .featured-nav-button {
@@ -1075,6 +1187,11 @@ textarea:focus-visible {
   scroll-snap-type: x proximity;
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
+  /* "Peek": the row fades at both edges instead of cutting off flat, so the
+     next/previous card is felt rather than fully hidden - a small nudge
+     that there's more to scroll through. */
+  mask-image: linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 32px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 32px), transparent 100%);
 }
 
 .featured-track::-webkit-scrollbar {
@@ -1181,19 +1298,85 @@ textarea:focus-visible {
 /* Public redesign: premium automotive catalogue */
 
 body {
-  background:
-    linear-gradient(180deg, #ffffff 0%, var(--soft) 42%, #edf2f7 100%);
+  background: var(--page-bg);
+}
+
+/* "Clarity": a very light neutral-grey backdrop behind every public page,
+   just enough off-white for the solid white cards to stand out, plus a
+   static grain layer for a little material depth and a soft navy glow
+   drifting slowly behind the content. No pattern/texture beyond that -
+   kept deliberately plain so the page reads bright and clean. */
+.auto-motion-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: var(--page-bg);
+  background-image:
+    /* fine static grain */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E"),
+    radial-gradient(120% 70% at 18% -10%, var(--page-bg-alt) 0%, transparent 60%),
+    linear-gradient(180deg, #fbfbfc 0%, var(--page-bg) 55%, var(--page-bg-alt) 100%);
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-size: 160px 160px, auto, auto;
+}
+
+.auto-motion-bg::before,
+.auto-motion-bg::after {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  border-radius: 50%;
+  filter: blur(70px);
+  will-change: transform, opacity;
+}
+
+.auto-motion-bg::before {
+  opacity: 0.4;
+  background: radial-gradient(38% 30% at 26% 30%, rgba(15, 23, 42, 0.14), transparent 72%);
+  animation: glowDriftRed 52s ease-in-out infinite alternate;
+}
+
+.auto-motion-bg::after {
+  opacity: 0.3;
+  background: radial-gradient(32% 26% at 78% 66%, rgba(148, 163, 184, 0.16), transparent 74%);
+  animation: glowDriftWhite 64s ease-in-out infinite alternate;
+}
+
+/* Premium hover: a small lift plus a red-tinted glow (echoing the
+   background's ambient glow) instead of a flat static card. Kept to
+   transform/box-shadow/border-color only so it stays cheap and is
+   safely no-op'd by the reduced-motion block further down. */
+main .value-card,
+main .step-card,
+main .service-row,
+main .faq-item,
+main .about-card {
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 260ms ease, border-color 260ms ease;
+}
+
+main .value-card:hover,
+main .step-card:hover,
+main .service-row:hover,
+main .faq-item:hover,
+main .about-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(220, 38, 38, 0.35);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12), 0 24px 44px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(220, 38, 38, 0.06);
+}
+
+.site-header,
+main,
+.site-footer {
+  position: relative;
+  z-index: 1;
 }
 
 .site-header {
   padding: 12px 28px;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-}
-
-.brand-mark {
-  background: var(--ink);
-  box-shadow: inset 0 -10px 18px rgba(220, 38, 38, 0.32);
 }
 
 nav a:hover {
@@ -1208,6 +1391,30 @@ nav a:hover {
   background:
     linear-gradient(90deg, rgba(15, 23, 42, 0.86), rgba(15, 23, 42, 0.44) 52%, rgba(15, 23, 42, 0.14)),
     url("/header-hero.png") center / cover;
+}
+
+@keyframes glowDriftRed {
+  from {
+    transform: translate(-4%, -3%) scale(1);
+    opacity: 0.5;
+  }
+
+  to {
+    transform: translate(4%, 5%) scale(1.08);
+    opacity: 0.62;
+  }
+}
+
+@keyframes glowDriftWhite {
+  from {
+    transform: translate(3%, 4%) scale(1.04);
+    opacity: 0.32;
+  }
+
+  to {
+    transform: translate(-5%, -2%) scale(1);
+    opacity: 0.44;
+  }
 }
 
 .hero-inner {
@@ -1312,18 +1519,24 @@ nav a:hover {
 .button.neutral {
   color: var(--ink);
   background: white;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
 }
 
-.button.whatsapp {
+.button.neutral:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.button.navy {
   color: white;
-  background: #128c46;
-  box-shadow: 0 14px 30px rgba(18, 140, 70, 0.24);
+  background: var(--brand-dark);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.32);
 }
 
-.button.whatsapp:hover:not(:disabled) {
-  background: #0f7a3d;
-  box-shadow: 0 18px 38px rgba(18, 140, 70, 0.3);
+.button.navy:hover:not(:disabled) {
+  background: #1e293b;
+  box-shadow: 0 20px 42px rgba(15, 23, 42, 0.38);
 }
 
 .button.ghost {
@@ -1349,6 +1562,10 @@ nav a:hover {
   margin-bottom: 24px;
 }
 
+.section-head h2 {
+  color: var(--ink);
+}
+
 .section-lead {
   max-width: 760px;
   color: var(--muted);
@@ -1370,12 +1587,34 @@ nav a:hover {
   margin-bottom: 0;
 }
 
-.stock-summary {
-  min-width: 128px;
+/* Search + filters sit in a left sidebar next to the results, not stacked
+   above them, so the photos are reachable without scrolling past a full
+   filter bar first. */
+.stock-layout {
   display: grid;
-  place-items: center;
+  grid-template-columns: 280px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.stock-sidebar {
+  display: grid;
+  gap: 14px;
+  position: sticky;
+  top: 90px;
+}
+
+.stock-results {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.stock-summary {
+  justify-self: start;
+  display: grid;
   gap: 2px;
-  padding: 16px 18px;
+  padding: 12px 16px;
   color: var(--ink);
   background: var(--surface);
   border: 1px solid var(--line);
@@ -1385,7 +1624,7 @@ nav a:hover {
 
 .stock-summary strong {
   color: var(--accent);
-  font-size: 34px;
+  font-size: 24px;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -1395,13 +1634,6 @@ nav a:hover {
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
-}
-
-.stock-tools {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: end;
 }
 
 .stock-search {
@@ -1419,14 +1651,9 @@ nav a:hover {
   font-size: 16px;
 }
 
-.filter-toggle {
-  min-height: 90px;
-  align-self: stretch;
-}
-
 .stock-filters-panel {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: none;
+  grid-template-columns: 1fr;
   gap: 14px;
   padding: 18px;
   background: var(--surface);
@@ -1435,152 +1662,17 @@ nav a:hover {
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);
 }
 
+.stock-filters-panel.open {
+  display: grid;
+}
+
 .stock-filters-panel .button {
   align-self: end;
-}
-
-.listing-list {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.listing-row-link {
-  height: 100%;
-}
-
-.stock-card {
-  height: 100%;
-  grid-template-columns: 220px minmax(0, 1fr) minmax(126px, auto);
-  gap: 18px;
-  padding: 12px;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 18px 42px rgba(15, 23, 42, 0.07);
-  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
-}
-
-.stock-card:hover,
-.stock-card:focus-within {
-  transform: translateY(-3px);
-  border-color: #cbd5e1;
-  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.08), 0 28px 52px rgba(15, 23, 42, 0.13);
-}
-
-.listing-media {
-  border-radius: 8px;
-}
-
-.listing-media img {
-  height: 100%;
-}
-
-.stock-card:hover .listing-media img {
-  transform: scale(1.045);
-}
-
-.listing-badges {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  max-width: calc(100% - 20px);
-}
-
-.listing-badges .status {
-  position: static;
-}
-
-.listing-title-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  min-width: 0;
-}
-
-.listing-reference {
-  display: block;
-  margin-bottom: 3px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.listing-title {
-  overflow-wrap: anywhere;
-}
-
-.listing-subtitle {
-  max-width: 100%;
-  white-space: normal;
-  line-height: 1.55;
-}
-
-.listing-specs {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.listing-specs > div {
-  padding: 8px 10px;
-  background: #f8fafc;
-  border: 1px solid #eef2f6;
-  border-radius: 8px;
-}
-
-.listing-specs strong {
-  overflow-wrap: anywhere;
-}
-
-.listing-price-col {
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.listing-price {
-  color: var(--ink);
-  font-size: 24px;
-  font-variant-numeric: tabular-nums;
-}
-
-.mobile-price {
-  display: none;
-}
-
-.listing-cta {
-  min-height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 9px 12px;
-  color: white;
-  background: var(--accent);
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 900;
 }
 
 .status.info {
   color: #1e3a8a;
   background: #dbeafe;
-}
-
-.detail-price-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 18px 0 14px;
-}
-
-.detail-price-row .car-price {
-  margin: 0;
-  color: var(--accent);
-  font-size: clamp(30px, 4vw, 42px);
-  font-weight: 900;
 }
 
 .decision-proof {
@@ -1611,6 +1703,17 @@ nav a:hover {
   flex: 1 1 150px;
 }
 
+.detail-contact-panel {
+  position: sticky;
+  top: 90px;
+}
+
+.detail-contact-panel-title {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
 .detail-contact-card {
   margin-top: 20px;
   padding: 16px;
@@ -1630,7 +1733,7 @@ nav a:hover {
 
 .car-price,
 .floating-card-price {
-  color: var(--accent);
+  color: var(--brand-dark);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1648,7 +1751,7 @@ nav a:hover {
 }
 
 .value-icon,
-.spec-cell-icon {
+.spec-highlight-icon {
   background: #fee2e2;
   color: var(--accent-dark);
 }
@@ -1675,22 +1778,47 @@ nav a:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .auto-motion-bg::before,
+  .auto-motion-bg::after {
+    animation: none;
+  }
+
   .stock-card,
   .floating-card,
-  .listing-media img,
-  .button {
+  .stock-card-media img,
+  .gallery-thumb img,
+  .button,
+  .value-card,
+  .step-card,
+  .service-row,
+  .faq-item,
+  .about-card {
     transition: none;
   }
 
   .stock-card:hover,
   .floating-card:hover,
-  .floating-card:focus-visible {
+  .floating-card:focus-visible,
+  .value-card:hover,
+  .step-card:hover,
+  .service-row:hover,
+  .faq-item:hover,
+  .about-card:hover {
     transform: none;
   }
 
-  .stock-card:hover .listing-media img,
-  .floating-card:hover .floating-card-media img {
+  .stock-card:hover .stock-card-media img,
+  .floating-card:hover .floating-card-media img,
+  .gallery-thumb:hover img,
+  .gallery-thumb:focus-visible img {
     transform: none;
+  }
+
+  .reveal-card.reveal-init,
+  .reveal-card.reveal-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 
@@ -1847,18 +1975,229 @@ nav a:hover {
   transform: scale(0.97);
 }
 
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 28px;
-  align-items: start;
+/* Header: title/reference on the left, price + primary actions on the
+   right, both on one row above the gallery. */
+.detail-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-.detail-media {
+.detail-header-title h1 {
+  margin: 4px 0 0;
+}
+
+.detail-header-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.detail-header-price .car-price {
+  margin: 0;
+  color: var(--brand-dark);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 900;
+}
+
+.detail-header-price > div:first-child {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+  text-align: right;
+}
+
+.detail-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Gallery: one large main photo, with up to four thumbnails stacked in a
+   grid beside it - not a horizontal strip underneath. */
+.gallery {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 10px;
+}
+
+.gallery-main {
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
   border: 1px solid var(--line);
+  border-radius: 8px;
+  background: none;
+}
+
+.gallery-main img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: #dfe5ea;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.gallery-main.is-reserved img {
+  filter: blur(2px) grayscale(0.2);
+  transform: scale(1.01);
+}
+
+.gallery-main .status {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.gallery-zoom-button {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: rgba(11, 18, 24, 0.75);
+  color: white;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.gallery-zoom-button:hover {
+  background: rgba(11, 18, 24, 0.9);
+}
+
+.gallery-thumbs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.gallery-thumb {
+  position: relative;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  background: none;
+}
+
+.gallery-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  transition: transform 300ms ease;
+}
+
+.gallery-thumb:hover img,
+.gallery-thumb:focus-visible img {
+  transform: scale(1.08);
+}
+
+.gallery-thumb.has-more img {
+  filter: brightness(0.55);
+}
+
+.gallery-thumb-more {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(11, 18, 24, 0.75);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Fullscreen lightbox, opened from the zoom button on the main photo. */
+.gallery-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery-lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(8, 10, 14, 0.92);
+  cursor: pointer;
+}
+
+.gallery-lightbox-image {
+  position: relative;
+  max-width: min(1200px, 92vw);
+  max-height: 86vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.gallery-lightbox-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.gallery-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.gallery-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  transform: translateY(-50%);
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.gallery-lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.gallery-lightbox-nav.prev {
+  left: 18px;
+}
+
+.gallery-lightbox-nav.next {
+  right: 18px;
 }
 
 .detail-reference {
@@ -1878,7 +2217,7 @@ nav a:hover {
 }
 
 .back-link:hover {
-  color: var(--brand-dark);
+  color: var(--accent);
 }
 
 .detail-media-placeholder {
@@ -1887,33 +2226,6 @@ nav a:hover {
   place-items: center;
   color: var(--muted);
   background: #dfe5ea;
-}
-
-.gallery-thumbs {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.gallery-thumb {
-  padding: 0;
-  border: 2px solid transparent;
-  border-radius: 6px;
-  overflow: hidden;
-  cursor: pointer;
-  background: none;
-}
-
-.gallery-thumb img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-}
-
-.gallery-thumb.active {
-  border-color: var(--brand);
 }
 
 .detail-lower {
@@ -1984,48 +2296,77 @@ nav a:hover {
   transform: rotate(180deg);
 }
 
-.spec-icon-grid {
+/* Spec highlight row: the compact icon pills shown right under the photo
+   gallery (etat / km / annee / carburant / boite / emission). */
+.spec-highlights {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px 16px;
-  margin-top: 18px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
 }
 
-.spec-cell {
+.spec-highlight {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
 }
 
-.spec-cell-icon {
+.spec-highlight-icon {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  background: #e6f4f2;
-  color: var(--brand-dark);
 }
 
-.spec-cell-label {
+.spec-highlight-label {
   display: block;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
-.spec-cell-value {
+.spec-highlight-value {
   display: block;
   font-size: 14px;
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
-.spec-footnote {
-  margin: 18px 0 0;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
+/* Donnees generales: a two-column dotted-leader list (label ... value)
+   instead of icon cards, matching a classic listing spec sheet. */
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 32px;
+  margin-top: 18px;
+}
+
+.data-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px dotted var(--line);
+  font-size: 14px;
+}
+
+.data-row-label {
   color: var(--muted);
-  font-size: 13px;
+}
+
+.data-row-value {
+  flex-shrink: 0;
+  font-weight: 800;
+  text-align: right;
 }
 
 .equipment-columns {
@@ -2665,6 +3006,14 @@ nav a:hover {
     grid-template-columns: 1fr;
   }
 
+  .stock-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .stock-sidebar {
+    position: static;
+  }
+
   .stock-filters-panel {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2684,10 +3033,18 @@ nav a:hover {
 }
 
 @media (max-width: 820px) {
+  .auto-motion-bg::before {
+    opacity: 0.2;
+  }
+
+  .auto-motion-bg::after {
+    display: none;
+  }
+
   .section-head,
   .contact,
   .admin-grid,
-  .detail-grid,
+  .gallery,
   .detail-lower,
   .settings-grid,
   .about-grid,
@@ -2695,8 +3052,16 @@ nav a:hover {
     grid-template-columns: 1fr;
   }
 
-  .spec-icon-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .detail-contact-panel {
+    position: static;
+  }
+
+  .spec-highlights {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .data-grid {
+    grid-template-columns: 1fr;
   }
 
   .section-head {
@@ -2729,30 +3094,6 @@ nav a:hover {
 
   .site-header nav a {
     padding: 12px 14px;
-  }
-
-  .listing-row {
-    grid-template-columns: 160px 1fr;
-  }
-
-  .listing-price-col {
-    grid-column: 1 / -1;
-    justify-content: flex-start;
-  }
-
-  .stock-card {
-    grid-template-columns: 180px minmax(0, 1fr);
-  }
-
-  .stock-card .listing-price-col {
-    display: none;
-  }
-
-  .mobile-price {
-    display: inline-flex;
-    align-self: start;
-    white-space: nowrap;
-    font-size: 20px;
   }
 
   .detail-shell {
@@ -2917,37 +3258,11 @@ nav a:hover {
   }
 
   .stock-filters-panel {
-    display: none;
     grid-template-columns: 1fr;
   }
 
-  .stock-filters-panel.open {
-    display: grid;
-  }
-
-  .spec-icon-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .listing-row,
-  .stock-card {
-    grid-template-columns: 1fr;
-  }
-
-  .listing-media img {
-    aspect-ratio: 16 / 9;
-  }
-
-  .listing-specs {
+  .spec-highlights {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .listing-title-row {
-    display: grid;
-  }
-
-  .mobile-price {
-    font-size: 22px;
   }
 
   .decision-proof {

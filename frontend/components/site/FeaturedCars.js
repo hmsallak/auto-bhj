@@ -26,6 +26,9 @@ export default function FeaturedCars({ cars }) {
           <h2>Nos dernieres arrivees</h2>
         </div>
         <div className="featured-controls">
+          <a href="/stock" className="featured-all-link">
+            Voir tout le stock
+          </a>
           <button
             type="button"
             className="featured-nav-button"
@@ -49,7 +52,7 @@ export default function FeaturedCars({ cars }) {
         {cars.map((car) => {
           const reserved = car.status === "reserved";
           return (
-            <a key={car.id} href={`/cars/${car.reference}`} className="floating-card">
+            <a key={car.id} href={`/cars/${car.reference}`} className="floating-card reveal-card">
               <div className="floating-card-media">
                 <Image
                   src={carImage(car)}

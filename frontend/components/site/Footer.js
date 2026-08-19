@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { PinIcon, PhoneIcon, MailIcon } from "./icons";
 
 export default function Footer() {
@@ -8,15 +9,14 @@ export default function Footer() {
       <div className="footer-grid">
         <div className="footer-brand">
           <a className="brand" href="/">
-            <span className="brand-mark">AB</span>
-            <span>Auto BHJ</span>
+            <Image className="brand-logo" src="/logo.png" alt="Auto BHJ" width={2048} height={768} />
           </a>
           <p>Vehicules d'occasion controles, a Sint-Pieters-Leeuw.</p>
         </div>
 
         <div className="footer-col">
           <h4>Navigation</h4>
-          <a href="/#stock">Stock</a>
+          <a href="/stock">Stock</a>
           <a href="/#a-propos">A propos</a>
           <a href="/#pourquoi">Pourquoi nous choisir</a>
           <a href="/#services">Services</a>

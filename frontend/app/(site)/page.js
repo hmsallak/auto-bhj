@@ -1,5 +1,4 @@
 import { listCars } from "../../../backend/models/cars";
-import CarBrowser from "../../components/CarBrowser";
 import FeaturedCars from "../../components/site/FeaturedCars";
 import BrandsStrip from "../../components/site/BrandsStrip";
 import TrustBadge from "../../components/site/TrustBadge";
@@ -18,6 +17,7 @@ export default function HomePage() {
   const cars = listCars();
   const availableCars = cars.filter((car) => car.status !== "reserved").length;
   const brandsCount = new Set(cars.map((car) => car.brand).filter(Boolean)).size;
+  const latestCars = cars.slice(0, 3);
 
   return (
     <>
@@ -32,7 +32,7 @@ export default function HomePage() {
               Sint-Pieters-Leeuw.
             </p>
             <div className="hero-actions">
-              <a className="button primary" href="#stock">
+              <a className="button primary" href="/stock">
                 Voir le stock
               </a>
               <a className="button neutral" href="#contact">
@@ -57,19 +57,15 @@ export default function HomePage() {
               Photos, references, kilometrage et prix consultables avant votre
               appel.
             </p>
-            <a href="#stock" className="hero-panel-link">
+            <a href="/stock" className="hero-panel-link">
               Explorer les annonces
             </a>
           </div>
         </div>
       </section>
 
-      <FeaturedCars cars={cars} />
+      <FeaturedCars cars={latestCars} />
       <BrandsStrip cars={cars} />
-
-      <section className="section" id="stock">
-        <CarBrowser />
-      </section>
 
       <TrustBadge carsCount={cars.length} />
       <AboutUs />

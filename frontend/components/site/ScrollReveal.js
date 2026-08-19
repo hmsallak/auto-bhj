@@ -7,7 +7,7 @@ export default function ScrollReveal() {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return;
 
-    const elements = document.querySelectorAll(".reveal");
+    const elements = document.querySelectorAll(".reveal, .reveal-card");
     elements.forEach((el) => el.classList.add("reveal-init"));
 
     const observer = new IntersectionObserver(

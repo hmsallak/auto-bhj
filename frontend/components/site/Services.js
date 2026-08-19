@@ -39,7 +39,7 @@ export default function Services() {
 
       <div className="services-list">
         {SERVICES.map(({ Icon, title, text }) => (
-          <div className="service-row" key={title}>
+          <div className="service-row reveal-card" key={title}>
             <span className="value-icon">
               <Icon />
             </span>

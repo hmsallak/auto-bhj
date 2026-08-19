@@ -27,14 +27,21 @@ export default function VehicleActions({ reference, compact = false }) {
   return (
     <div className={compact ? "vehicle-actions compact" : "vehicle-actions"}>
       <a
-        className="button primary"
+        className="button navy"
+        href={contactHref}
+        onClick={() => track("contact", reference)}
+      >
+        Contacter
+      </a>
+      <a
+        className="button neutral"
         href={`tel:${PHONE_TEL}`}
         onClick={() => track("call", reference)}
       >
         Appeler
       </a>
       <a
-        className="button whatsapp"
+        className="button neutral"
         href={whatsappHref(reference)}
         target="_blank"
         rel="noopener noreferrer"
@@ -53,13 +60,6 @@ export default function VehicleActions({ reference, compact = false }) {
         onClick={() => track("visit_request", reference)}
       >
         {compact ? "Visite" : "Demander une visite"}
-      </a>
-      <a
-        className="button ghost"
-        href={contactHref}
-        onClick={() => track("contact", reference)}
-      >
-        Contact
       </a>
     </div>
   );
