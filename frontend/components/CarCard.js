@@ -11,7 +11,7 @@ export default function CarCard({ car }) {
 
   return (
     <a className="listing-row-link" href={`/cars/${car.reference}`}>
-      <article className={`listing-row ${reserved ? "is-reserved" : ""}`}>
+      <article className={`listing-row stock-card ${reserved ? "is-reserved" : ""}`}>
         <div className="listing-media">
           <img src={carImage(car)} alt={`${car.brand} ${car.model}`} />
           {photoCount > 1 && <span className="photo-count">1/{photoCount}</span>}
@@ -21,9 +21,15 @@ export default function CarCard({ car }) {
         </div>
 
         <div className="listing-main">
-          <h3 className="listing-title">
-            {car.brand} {car.model}
-          </h3>
+          <div className="listing-title-row">
+            <div>
+              <span className="listing-reference">{car.reference}</span>
+              <h3 className="listing-title">
+                {car.brand} {car.model}
+              </h3>
+            </div>
+            <span className="listing-price mobile-price">{formatPrice(car.price)}</span>
+          </div>
           <p className="listing-subtitle">
             {car.description
               ? car.description.slice(0, 110) + (car.description.length > 110 ? "..." : "")
@@ -52,14 +58,15 @@ export default function CarCard({ car }) {
               <strong>{car.gearbox}</strong>
             </div>
             <div>
-              <span className="listing-spec-label">Reference</span>
-              <strong>{car.reference}</strong>
+              <span className="listing-spec-label">Statut</span>
+              <strong>{statusLabel(car.status)}</strong>
             </div>
           </div>
         </div>
 
         <div className="listing-price-col">
           <span className="listing-price">{formatPrice(car.price)}</span>
+          <span className="listing-cta">Voir details</span>
         </div>
       </article>
     </a>

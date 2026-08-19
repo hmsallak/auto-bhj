@@ -16,23 +16,49 @@ export const dynamic = "force-dynamic";
 
 export default function HomePage() {
   const cars = listCars();
+  const availableCars = cars.filter((car) => car.status !== "reserved").length;
+  const brandsCount = new Set(cars.map((car) => car.brand).filter(Boolean)).size;
 
   return (
     <>
       <section className="hero">
-        <div>
-          <p className="eyebrow">Vehicules d'occasion selectionnes</p>
-          <h1>Votre prochaine voiture vous attend chez Auto BHJ</h1>
-          <p className="hero-text">
-            Decouvrez notre selection de vehicules d&apos;occasion, choisis avec
-            soin et disponibles a Bruxelles.
-          </p>
-          <div className="hero-actions">
-            <a className="button primary" href="#stock">
-              Voir nos vehicules
-            </a>
-            <a className="button neutral" href="#contact">
-              Nous contacter
+        <div className="hero-inner">
+          <div className="hero-copy">
+            <p className="eyebrow">Stock occasion pret a visiter</p>
+            <h1>Des voitures selectionnees, visibles et disponibles pres de Bruxelles.</h1>
+            <p className="hero-text">
+              Auto BHJ vous accompagne avec un stock controle, des prix affiches
+              clairement et un contact direct pour organiser votre visite a
+              Sint-Pieters-Leeuw.
+            </p>
+            <div className="hero-actions">
+              <a className="button primary" href="#stock">
+                Voir le stock
+              </a>
+              <a className="button neutral" href="#contact">
+                Planifier une visite
+              </a>
+            </div>
+          </div>
+
+          <div className="hero-panel" aria-label="Resume du stock Auto BHJ">
+            <span className="hero-panel-label">Auto BHJ en direct</span>
+            <div className="hero-stats">
+              <div>
+                <strong>{availableCars}</strong>
+                <span>vehicules disponibles</span>
+              </div>
+              <div>
+                <strong>{brandsCount}</strong>
+                <span>marques en stock</span>
+              </div>
+            </div>
+            <p>
+              Photos, references, kilometrage et prix consultables avant votre
+              appel.
+            </p>
+            <a href="#stock" className="hero-panel-link">
+              Explorer les annonces
             </a>
           </div>
         </div>
