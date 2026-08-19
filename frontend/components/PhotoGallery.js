@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { statusLabel } from "../lib/format";
 
@@ -13,7 +14,15 @@ export default function PhotoGallery({ images, alt, status }) {
     <div>
       <div className={`detail-media ${reserved ? "is-reserved" : ""}`}>
         {active ? (
-          <img src={active} alt={alt} />
+          <Image
+            src={active}
+            alt={alt}
+            width={960}
+            height={720}
+            sizes="(max-width: 820px) 100vw, 56vw"
+            priority
+            unoptimized
+          />
         ) : (
           <div className="detail-media-placeholder">Pas de photo</div>
         )}
@@ -31,7 +40,14 @@ export default function PhotoGallery({ images, alt, status }) {
               className={`gallery-thumb ${index === activeIndex ? "active" : ""}`}
               onClick={() => setActiveIndex(index)}
             >
-              <img src={src} alt={`${alt} - photo ${index + 1}`} />
+              <Image
+                src={src}
+                alt={`${alt} - photo ${index + 1}`}
+                width={144}
+                height={108}
+                sizes="96px"
+                unoptimized
+              />
             </button>
           ))}
         </div>

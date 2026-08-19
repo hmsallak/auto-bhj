@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef } from "react";
 import { formatPrice, formatKm, statusLabel, carImage } from "../../lib/format";
 import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
@@ -50,7 +51,14 @@ export default function FeaturedCars({ cars }) {
           return (
             <a key={car.id} href={`/cars/${car.reference}`} className="floating-card">
               <div className="floating-card-media">
-                <img src={carImage(car)} alt={`${car.brand} ${car.model}`} loading="lazy" />
+                <Image
+                  src={carImage(car)}
+                  alt={`${car.brand} ${car.model}`}
+                  width={360}
+                  height={270}
+                  sizes="300px"
+                  unoptimized
+                />
                 <span className={`status ${reserved ? "reserved" : "available"}`}>
                   {statusLabel(car.status)}
                 </span>

@@ -8,8 +8,8 @@ const QUESTIONS = [
     a: "Une garantie peut etre proposee selon le vehicule. Demandez les details lors de votre prise de contact.",
   },
   {
-    q: "Reprenez-vous mon ancien vehicule ?",
-    a: "Oui, la reprise est etudiee au cas par cas et peut etre deduite du prix d'achat de la nouvelle voiture.",
+    q: "Comment demander une visite ?",
+    a: "Ouvrez la fiche du vehicule, cliquez sur Demander une visite et envoyez vos disponibilites avec la reference de la voiture.",
   },
   {
     q: "Les voitures sont-elles pretes pour le controle technique ?",

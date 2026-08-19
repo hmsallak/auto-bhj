@@ -39,8 +39,11 @@ export default function Footer() {
 
         <div className="footer-col">
           <h4>Informations legales</h4>
-          <span>Auto BHJ SRL</span>
-          <span>TVA BE 0801.303.538</span>
+          <a href="/mentions-legales">Mentions legales</a>
+          <a href="/politique-confidentialite">Politique de confidentialite</a>
+          <a href="/politique-cookies">Politique cookies</a>
+          <a href="/conditions-generales">Conditions generales</a>
+          <span>Auto BHJ SRL - TVA BE 0801.303.538</span>
           <span>Mekingenweg 99, 1600 Sint-Pieters-Leeuw</span>
         </div>
       </div>

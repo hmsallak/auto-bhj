@@ -1,4 +1,4 @@
-import { ShieldIcon, TagIcon, RefreshIcon, HeadsetIcon } from "./icons";
+import { ShieldIcon, TagIcon, SearchIcon, HeadsetIcon } from "./icons";
 
 const POINTS = [
   {
@@ -9,17 +9,17 @@ const POINTS = [
   {
     Icon: TagIcon,
     title: "Prix transparent",
-    text: "Le prix affiche est le prix final. Aucune surprise ni frais caches a la reprise du vehicule.",
+    text: "Le prix, la reference et les informations principales sont affiches clairement sur chaque annonce.",
   },
   {
-    Icon: RefreshIcon,
-    title: "Reprise possible",
-    text: "Votre ancien vehicule peut etre repris et deduit du prix de la nouvelle voiture.",
+    Icon: SearchIcon,
+    title: "Stock facile a comparer",
+    text: "Filtres, recherche par reference et fiches detaillees vous aident a trouver rapidement la bonne voiture.",
   },
   {
     Icon: HeadsetIcon,
     title: "Accompagnement",
-    text: "Immatriculation, controle technique, conseils de financement : nous vous accompagnons jusqu'au bout.",
+    text: "Visite, essai, controle technique et formalites de vente : nous vous guidons jusqu'a la remise des cles.",
   },
 ];
 

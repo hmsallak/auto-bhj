@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { formatPrice, formatKm, statusLabel, carImage } from "../lib/format";
 
 function powerLabel(car) {
@@ -8,16 +9,30 @@ function powerLabel(car) {
 export default function CarCard({ car }) {
   const reserved = car.status === "reserved";
   const photoCount = car.images?.length || 0;
+  const createdAt = car.createdAt ? new Date(car.createdAt).getTime() : 0;
+  const isNew = createdAt && Date.now() - createdAt < 1000 * 60 * 60 * 24 * 14;
+  const lowMileage = Number(car.mileage) > 0 && Number(car.mileage) <= 75000;
 
   return (
     <a className="listing-row-link" href={`/cars/${car.reference}`}>
       <article className={`listing-row stock-card ${reserved ? "is-reserved" : ""}`}>
         <div className="listing-media">
-          <img src={carImage(car)} alt={`${car.brand} ${car.model}`} />
+          <Image
+            src={carImage(car)}
+            alt={`${car.brand} ${car.model}`}
+            width={440}
+            height={330}
+            sizes="(max-width: 560px) 100vw, (max-width: 960px) 180px, 220px"
+            unoptimized
+          />
           {photoCount > 1 && <span className="photo-count">1/{photoCount}</span>}
-          <span className={`status ${reserved ? "reserved" : "available"}`}>
-            {statusLabel(car.status)}
-          </span>
+          <div className="listing-badges">
+            <span className={`status ${reserved ? "reserved" : "available"}`}>
+              {statusLabel(car.status)}
+            </span>
+            {isNew && <span className="status info">Nouveau</span>}
+            {lowMileage && <span className="status info">Faible km</span>}
+          </div>
         </div>
 
         <div className="listing-main">

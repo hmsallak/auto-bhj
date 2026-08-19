@@ -1,4 +1,4 @@
-import { SearchIcon, MessageIcon, RefreshIcon, KeyIcon } from "./icons";
+import { SearchIcon, MessageIcon, ShieldIcon, KeyIcon } from "./icons";
 
 const STEPS = [
   {
@@ -12,9 +12,9 @@ const STEPS = [
     text: "Appelez ou ecrivez en mentionnant la reference pour poser vos questions ou fixer un essai.",
   },
   {
-    Icon: RefreshIcon,
-    title: "Reprise et financement",
-    text: "Sur demande, nous etudions la reprise de votre vehicule et les options de financement.",
+    Icon: ShieldIcon,
+    title: "Verifiez les informations",
+    text: "Photos, prix, kilometrage, controle et equipements sont passes en revue avant votre decision.",
   },
   {
     Icon: KeyIcon,

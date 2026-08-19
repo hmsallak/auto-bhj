@@ -24,9 +24,13 @@ function createMessage(payload) {
   const email = cleanText(payload.email);
   const phone = cleanText(payload.phone);
   const carReference = cleanText(payload.carReference).toUpperCase();
-  const message = cleanText(payload.message);
+  const preferredVisit = cleanText(payload.preferredVisit);
+  const baseMessage = cleanText(payload.message);
+  const message = preferredVisit
+    ? `${baseMessage}\n\nMoment souhaite pour la visite : ${preferredVisit}`
+    : baseMessage;
 
-  if (!name || !email || !message) {
+  if (!name || !email || !baseMessage) {
     return { error: "Nom, email et message sont obligatoires." };
   }
 

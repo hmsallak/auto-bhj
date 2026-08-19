@@ -960,6 +960,86 @@ textarea:focus-visible {
   font-size: 12px;
 }
 
+/* Legal pages */
+
+.legal-shell {
+  width: min(920px, 100%);
+  margin: 0 auto;
+  padding: 64px 24px 82px;
+}
+
+.legal-hero {
+  padding: 28px 0 26px;
+  border-bottom: 1px solid var(--line);
+}
+
+.legal-hero h1 {
+  max-width: 780px;
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(36px, 6vw, 58px);
+  line-height: 1.02;
+}
+
+.legal-hero p {
+  max-width: 760px;
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.legal-hero span {
+  display: inline-flex;
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.legal-content {
+  display: grid;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.legal-section {
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+  overflow-wrap: anywhere;
+}
+
+.legal-section h2 {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 22px;
+}
+
+.legal-section p,
+.legal-section li {
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.legal-section p {
+  margin: 0 0 10px;
+}
+
+.legal-section p:last-child {
+  margin-bottom: 0;
+}
+
+.legal-section ul {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding-left: 20px;
+}
+
 /* Featured cars: floating cards, horizontal scroll-snap, hover zoom */
 
 .featured-controls {
@@ -1235,6 +1315,27 @@ nav a:hover {
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
 }
 
+.button.whatsapp {
+  color: white;
+  background: #128c46;
+  box-shadow: 0 14px 30px rgba(18, 140, 70, 0.24);
+}
+
+.button.whatsapp:hover:not(:disabled) {
+  background: #0f7a3d;
+  box-shadow: 0 18px 38px rgba(18, 140, 70, 0.3);
+}
+
+.button.ghost {
+  color: var(--ink);
+  background: #f8fafc;
+  border: 1px solid var(--line);
+}
+
+.button.ghost:hover:not(:disabled) {
+  background: #eef2f7;
+}
+
 .section {
   width: min(1180px, 100%);
   padding: 68px 24px;
@@ -1296,6 +1397,13 @@ nav a:hover {
   text-transform: uppercase;
 }
 
+.stock-tools {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
 .stock-search {
   max-width: none;
   padding: 18px;
@@ -1309,6 +1417,26 @@ nav a:hover {
   min-height: 52px;
   padding-left: 16px;
   font-size: 16px;
+}
+
+.filter-toggle {
+  min-height: 90px;
+  align-self: stretch;
+}
+
+.stock-filters-panel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);
+}
+
+.stock-filters-panel .button {
+  align-self: end;
 }
 
 .listing-list {
@@ -1347,6 +1475,20 @@ nav a:hover {
 
 .stock-card:hover .listing-media img {
   transform: scale(1.045);
+}
+
+.listing-badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: calc(100% - 20px);
+}
+
+.listing-badges .status {
+  position: static;
 }
 
 .listing-title-row {
@@ -1418,6 +1560,72 @@ nav a:hover {
   border-radius: 8px;
   font-size: 13px;
   font-weight: 900;
+}
+
+.status.info {
+  color: #1e3a8a;
+  background: #dbeafe;
+}
+
+.detail-price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0 14px;
+}
+
+.detail-price-row .car-price {
+  margin: 0;
+  color: var(--accent);
+  font-size: clamp(30px, 4vw, 42px);
+  font-weight: 900;
+}
+
+.decision-proof {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 22px 0;
+}
+
+.decision-proof span {
+  padding: 10px 12px;
+  color: var(--ink);
+  background: #fff7f7;
+  border: 1px solid #fee2e2;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.vehicle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.vehicle-actions .button {
+  flex: 1 1 150px;
+}
+
+.detail-contact-card {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.detail-contact-card p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.mobile-sticky-actions {
+  display: none;
 }
 
 .car-price,
@@ -2457,6 +2665,10 @@ nav a:hover {
     grid-template-columns: 1fr;
   }
 
+  .stock-filters-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .dashboard {
     grid-template-columns: 210px 1fr;
   }
@@ -2541,6 +2753,42 @@ nav a:hover {
     align-self: start;
     white-space: nowrap;
     font-size: 20px;
+  }
+
+  .detail-shell {
+    padding-bottom: 104px;
+  }
+
+  .mobile-sticky-actions {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    display: block;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -18px 34px rgba(15, 23, 42, 0.12);
+    backdrop-filter: blur(12px);
+  }
+
+  .mobile-sticky-actions .vehicle-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .mobile-sticky-actions .button {
+    min-height: 46px;
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  @media (max-width: 360px) {
+    .mobile-sticky-actions .vehicle-actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .dashboard {
@@ -2660,6 +2908,23 @@ nav a:hover {
     place-items: start;
   }
 
+  .stock-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-toggle {
+    min-height: 48px;
+  }
+
+  .stock-filters-panel {
+    display: none;
+    grid-template-columns: 1fr;
+  }
+
+  .stock-filters-panel.open {
+    display: grid;
+  }
+
   .spec-icon-grid {
     grid-template-columns: 1fr;
   }
@@ -2683,6 +2948,10 @@ nav a:hover {
 
   .mobile-price {
     font-size: 22px;
+  }
+
+  .decision-proof {
+    grid-template-columns: 1fr;
   }
 
   nav {

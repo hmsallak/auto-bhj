@@ -9,11 +9,17 @@ export default function ContactForm() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const ref = new URLSearchParams(window.location.search).get("ref");
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    const intent = params.get("intent");
     if (ref) {
       const upperRef = ref.toUpperCase();
       setCarReference(upperRef);
-      setMessage(`Bonjour, je suis interesse(e) par le vehicule ${upperRef}.`);
+      setMessage(
+        intent === "visit"
+          ? `Bonjour, je souhaite organiser une visite pour le vehicule ${upperRef}.`
+          : `Bonjour, je suis interesse(e) par le vehicule ${upperRef}.`
+      );
     }
   }, []);
 
@@ -81,6 +87,14 @@ export default function ContactForm() {
           />
         </label>
       </div>
+      <label>
+        Date ou moment souhaite pour la visite (optionnel)
+        <input
+          name="preferredVisit"
+          placeholder="Ex: samedi matin, lundi apres-midi..."
+          autoComplete="off"
+        />
+      </label>
       <label>
         Message
         <textarea
