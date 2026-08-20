@@ -5,7 +5,6 @@ import PhotoGallery from "../../../../components/PhotoGallery";
 import CarSpecSheet, { SpecHighlights } from "../../../../components/CarSpecSheet";
 import VehicleActions from "../../../../components/VehicleActions";
 import VehicleViewTracker from "../../../../components/VehicleViewTracker";
-import { ChevronLeftIcon } from "../../../../components/site/icons";
 
 // A car's status/price/description can change (or the car can be sold and
 // removed) at any time from the admin, so always fetch fresh data.
@@ -74,17 +73,22 @@ export default async function CarDetailPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <a className="back-link" href="/">
-        <ChevronLeftIcon width="18" height="18" />
-        Retour a l'accueil
-      </a>
+      <nav className="breadcrumb" aria-label="Fil d'Ariane">
+        <a href="/">Accueil</a>
+        <span>/</span>
+        <a href="/stock">Stock</a>
+        <span>/</span>
+        <span className="breadcrumb-current">
+          {car.brand} {car.model}
+        </span>
+      </nav>
 
       <div className="detail-header">
         <div className="detail-header-title">
-          <p className="detail-reference">Reference {car.reference}</p>
           <h1>
             {car.brand} {car.model}
           </h1>
+          <p className="detail-reference">Reference {car.reference}</p>
         </div>
         <div className="detail-header-price">
           <div>
@@ -121,17 +125,7 @@ export default async function CarDetailPage({ params }) {
         </div>
 
         <div className="panel detail-contact-panel">
-          <p className="detail-contact-panel-title">
-            {car.brand} {car.model}
-          </p>
           <VehicleActions reference={car.reference} />
-          <div className="detail-contact-card">
-            <strong>Reference a communiquer : {car.reference}</strong>
-            <p>
-              Pour une reponse rapide, indiquez cette reference dans votre
-              message ou lors de votre appel.
-            </p>
-          </div>
         </div>
       </div>
 

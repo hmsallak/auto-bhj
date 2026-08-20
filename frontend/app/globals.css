@@ -1708,25 +1708,6 @@ nav a:hover {
   top: 90px;
 }
 
-.detail-contact-panel-title {
-  margin: 0 0 14px;
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.detail-contact-card {
-  margin-top: 20px;
-  padding: 16px;
-  background: #f8fafc;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-}
-
-.detail-contact-card p {
-  margin: 6px 0 0;
-  color: var(--muted);
-}
-
 .mobile-sticky-actions {
   display: none;
 }
@@ -2206,18 +2187,24 @@ nav a:hover {
   font-weight: 800;
 }
 
-.back-link {
-  display: inline-flex;
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   margin-bottom: 14px;
   color: var(--muted);
   font-weight: 700;
   font-size: 14px;
 }
 
-.back-link:hover {
+.breadcrumb a:hover {
   color: var(--accent);
+}
+
+.breadcrumb-current {
+  color: var(--ink);
+  overflow-wrap: anywhere;
 }
 
 .detail-media-placeholder {
