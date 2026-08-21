@@ -114,7 +114,7 @@ function validateCarInput(payload, existing = null) {
     }
   }
 
-  if (!["available", "reserved"].includes(car.status)) {
+  if (!["available", "reserved", "sold"].includes(car.status)) {
     return { error: "Statut invalide." };
   }
 

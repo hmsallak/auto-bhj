@@ -131,9 +131,12 @@ export default function AdminPage() {
     try {
       const url = editingCar ? `/api/admin/cars/${editingCar.id}` : "/api/admin/cars";
       await api(url, { method: "POST", body: formData });
-      setCarMessage(editingCar ? "Voiture modifiee." : "Voiture publiee sur le site.");
+      setCarMessage(
+        editingCar ? "Vehicule mis a jour avec succes." : "Vehicule publie avec succes."
+      );
       setEditingCar(null);
       await loadCars();
+      setActiveTab("stock");
     } catch (error) {
       setCarMessage(error.message);
       setCarMessageError(true);
@@ -226,6 +229,8 @@ export default function AdminPage() {
         onSelect={(tab) => {
           setActiveTab(tab);
           if (tab === "form") setEditingCar(null);
+          setCarMessage("");
+          setCarMessageError(false);
         }}
         user={user}
         stockCount={cars.length}
@@ -241,6 +246,10 @@ export default function AdminPage() {
         </header>
 
         <div className="dash-content">
+          {carMessage && (
+            <p className={`message ${carMessageError ? "error" : ""}`}>{carMessage}</p>
+          )}
+
           {activeTab === "overview" && (
             <AdminOverview cars={cars} onGoToForm={() => setActiveTab("form")} />
           )}
@@ -257,8 +266,6 @@ export default function AdminPage() {
                 setEditingCar(null);
                 setActiveTab("stock");
               }}
-              message={carMessage}
-              isError={carMessageError}
             />
           )}
 

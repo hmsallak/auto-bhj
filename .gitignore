@@ -1,4 +1,7 @@
 node_modules/
+__pycache__/
+*.pyc
+.claude/settings.local.json
 frontend/.next/
 frontend/public/uploads/*
 !frontend/public/uploads/.gitkeep

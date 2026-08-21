@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS cars (
   gearbox TEXT NOT NULL,
   image_url TEXT,
   description TEXT,
-  status TEXT NOT NULL DEFAULT 'available' CHECK (status IN ('available', 'reserved')),
+  status TEXT NOT NULL DEFAULT 'available' CHECK (status IN ('available', 'reserved', 'sold')),
   -- Details etendues (optionnelles), pour une fiche complete type AutoScout24
   body_type TEXT,
   seats INTEGER,

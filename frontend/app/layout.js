@@ -1,17 +1,17 @@
-import { Manrope, Inter } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const manrope = Manrope({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
-  variable: "--font-display",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-template",
   display: "swap",
 });
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-body",
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -20,9 +20,16 @@ export const metadata = {
   description: "Auto BHJ presente son stock de vehicules d'occasion en ligne.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({ children }) {
   return (
-    <html lang="fr" className={`${manrope.variable} ${inter.variable}`}>
+    <html lang="fr" className={`${jakarta.variable} ${outfit.variable}`}>
+      <head>
+      </head>
       <body>{children}</body>
     </html>
   );

@@ -33,6 +33,16 @@ export async function readCarPayload(request) {
       })
       .filter(Boolean);
 
+    // FormData values are always strings, but the model expects equipment
+    // as a real object (or null when the admin left it empty).
+    if (typeof payload.equipment === "string") {
+      try {
+        payload.equipment = JSON.parse(payload.equipment);
+      } catch {
+        payload.equipment = null;
+      }
+    }
+
     return payload;
   }
 

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { OverviewIcon, StockIcon, AddIcon, MessagesIcon, UsersIcon, SettingsIcon } from "./icons";
 
 export const TABS = [
@@ -22,11 +23,8 @@ export default function AdminSidebar({ activeTab, onSelect, user, stockCount, un
   return (
     <aside className="dash-sidebar">
       <div className="dash-brand">
-        <span className="dash-plate">AB</span>
-        <div>
-          <strong>Auto BHJ</strong>
-          <span>Administration</span>
-        </div>
+        <Image className="dash-logo" src="/logo.png" alt="Auto BHJ" width={2048} height={768} priority />
+        <span className="dash-brand-sub">Administration</span>
       </div>
 
       <nav className="dash-nav">

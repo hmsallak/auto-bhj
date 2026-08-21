@@ -34,6 +34,7 @@ export default function AdminStock({ cars, onEdit, onDelete }) {
             <option value="all">Tous les statuts</option>
             <option value="available">Disponibles</option>
             <option value="reserved">Reservees</option>
+            <option value="sold">Vendues</option>
           </select>
         </div>
       </div>

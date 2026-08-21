@@ -38,6 +38,12 @@ export default async function CarDetailPage({ params }) {
   const car = getCarByReference(reference);
   if (!car) notFound();
   const reserved = car.status === "reserved";
+  const sold = car.status === "sold";
+  const availability = sold
+    ? "https://schema.org/SoldOut"
+    : reserved
+      ? "https://schema.org/PreOrder"
+      : "https://schema.org/InStock";
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Vehicle",
@@ -57,7 +63,7 @@ export default async function CarDetailPage({ params }) {
       "@type": "Offer",
       price: car.price,
       priceCurrency: "EUR",
-      availability: reserved ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
+      availability,
       seller: {
         "@type": "AutoDealer",
         name: "Auto BHJ",
@@ -83,54 +89,60 @@ export default async function CarDetailPage({ params }) {
         </span>
       </nav>
 
-      <div className="detail-header">
-        <div className="detail-header-title">
-          <h1>
-            {car.brand} {car.model}
-          </h1>
-          <p className="detail-reference">Reference {car.reference}</p>
+      <div className="detail-market-layout">
+        <div className="detail-market-main">
+          <div className="detail-header">
+            <div className="detail-header-title">
+              <h1>
+                {car.brand} {car.model}
+              </h1>
+              <p className="detail-reference">Reference {car.reference}</p>
+            </div>
+          </div>
+
+          <div className="detail-mobile-summary" aria-label="Resume du vehicule">
+            <div className="detail-mobile-price">
+              <span>Prix</span>
+              <strong>{formatPrice(car.price)}</strong>
+            </div>
+            <div className="detail-mobile-status">
+              <span>Etat</span>
+              <strong className={`status ${car.status}`}>{statusLabel(car.status)}</strong>
+            </div>
+          </div>
+
+          <PhotoGallery images={car.images} alt={`${car.brand} ${car.model}`} status={car.status} />
+
+          <SpecHighlights car={car} />
         </div>
-        <div className="detail-header-price">
-          <div>
+
+        <aside className="detail-market-sidebar" aria-label="Prix et contact">
+          <div className="detail-price-card">
+            <span className="detail-price-label">Prix affiche</span>
             <p className="car-price">{formatPrice(car.price)}</p>
-            <span className={`status ${reserved ? "reserved" : "available"}`}>
-              {statusLabel(car.status)}
-            </span>
+            <span className={`status ${car.status}`}>{statusLabel(car.status)}</span>
           </div>
-          <div className="detail-header-actions">
-            <a className="button navy" href={`/?ref=${car.reference}&intent=visit#contact`}>
-              Contacter
-            </a>
-            <a className="button neutral" href="tel:+32000000000">
-              Appeler
-            </a>
+
+          <div className="detail-seller-card">
+            <span className="detail-seller-kicker">Vendeur</span>
+            <h2>Auto BHJ</h2>
+            <p>Mekingenweg 99, 1600 Sint-Pieters-Leeuw</p>
+            <div className="detail-seller-badges">
+              <span>Visite sur rendez-vous</span>
+              <span>FR / NL</span>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <PhotoGallery images={car.images} alt={`${car.brand} ${car.model}`} status={car.status} />
-
-      <SpecHighlights car={car} />
-
-      <div className="decision-proof" aria-label="Informations importantes">
-        <span>Controle avant vente</span>
-        <span>Essai sur rendez-vous</span>
-        <span>Prix affiche sans frais caches</span>
-        <span>FR/NL: visite sur rendez-vous / bezoek op afspraak</span>
+          <div className="panel detail-contact-panel">
+            <VehicleActions reference={car.reference} />
+          </div>
+        </aside>
       </div>
 
       <div className="detail-lower">
-        <div className="panel">
+        <div className="panel detail-spec-panel">
           <CarSpecSheet car={car} />
         </div>
-
-        <div className="panel detail-contact-panel">
-          <VehicleActions reference={car.reference} />
-        </div>
-      </div>
-
-      <div className="mobile-sticky-actions">
-        <VehicleActions reference={car.reference} compact />
       </div>
     </section>
   );

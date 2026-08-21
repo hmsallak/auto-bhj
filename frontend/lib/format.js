@@ -10,8 +10,14 @@ export function formatKm(value) {
   return `${new Intl.NumberFormat("fr-BE").format(value)} km`;
 }
 
+const STATUS_LABELS = {
+  available: "Disponible",
+  reserved: "Reserve",
+  sold: "Vendu",
+};
+
 export function statusLabel(status) {
-  return status === "reserved" ? "Reserve" : "Disponible";
+  return STATUS_LABELS[status] || STATUS_LABELS.available;
 }
 
 export function carImage(car) {

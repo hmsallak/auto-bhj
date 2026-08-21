@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { statusLabel } from "../lib/format";
 
 const THUMB_LIMIT = 4;
@@ -39,31 +40,169 @@ function ChevronIcon({ direction = "left", ...props }) {
   );
 }
 
+const SWIPE_THRESHOLD = 40;
+
 export default function PhotoGallery({ images, alt, status }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const reserved = status === "reserved";
+  const sold = status === "sold";
   const photos = images.length ? images : [null];
   const active = photos[activeIndex] || photos[0];
   const visibleThumbs = photos.slice(0, THUMB_LIMIT);
   const hasMore = photos.length > THUMB_LIMIT;
+  const touchStartX = useRef(null);
+
+  function showPrev() {
+    setActiveIndex((index) => (index - 1 + photos.length) % photos.length);
+  }
+
+  function showNext() {
+    setActiveIndex((index) => (index + 1) % photos.length);
+  }
+
+  function handleTouchStart(event) {
+    touchStartX.current = event.touches[0].clientX;
+  }
+
+  function handleTouchEnd(event) {
+    if (touchStartX.current === null) return;
+    const delta = event.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(delta) < SWIPE_THRESHOLD || photos.length < 2) return;
+    if (delta < 0) showNext();
+    else showPrev();
+  }
 
   useEffect(() => {
-    if (!lightboxOpen) return;
+    if (!lightboxOpen || sold) return;
 
     function handleKey(event) {
       if (event.key === "Escape") setLightboxOpen(false);
-      if (event.key === "ArrowLeft") setActiveIndex((index) => (index - 1 + photos.length) % photos.length);
-      if (event.key === "ArrowRight") setActiveIndex((index) => (index + 1) % photos.length);
+      if (event.key === "ArrowLeft") showPrev();
+      if (event.key === "ArrowRight") showNext();
     }
 
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [lightboxOpen, photos.length]);
 
+  useEffect(() => {
+    if (!lightboxOpen || sold) return;
+
+    const scrollY = window.scrollY;
+    const previousBodyPosition = document.body.style.position;
+    const previousBodyTop = document.body.style.top;
+    const previousBodyWidth = document.body.style.width;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.position = previousBodyPosition;
+      document.body.style.top = previousBodyTop;
+      document.body.style.width = previousBodyWidth;
+      document.body.style.overflow = previousBodyOverflow;
+      window.scrollTo(0, scrollY);
+    };
+  }, [lightboxOpen, sold]);
+
+  const lightbox =
+    lightboxOpen && active && !sold ? (
+      <div
+        className="gallery-lightbox"
+        role="dialog"
+        aria-modal="true"
+        aria-label={alt}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <button
+          type="button"
+          className="gallery-lightbox-close"
+          aria-label="Fermer"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <CloseIcon />
+        </button>
+
+        <button
+          type="button"
+          className="gallery-lightbox-backdrop"
+          aria-label="Fermer"
+          onClick={() => setLightboxOpen(false)}
+        />
+
+        {photos.length > 1 && (
+          <button
+            type="button"
+            className="gallery-lightbox-nav prev"
+            aria-label="Photo precedente"
+            onClick={showPrev}
+          >
+            <ChevronIcon direction="left" />
+          </button>
+        )}
+
+        <div className="gallery-lightbox-stage">
+          <Image
+            src={active}
+            alt={alt}
+            width={1600}
+            height={1200}
+            sizes="100vw"
+            unoptimized
+            className="gallery-lightbox-image"
+          />
+
+          {photos.length > 1 && (
+            <div className="gallery-lightbox-thumbs" aria-label="Toutes les photos">
+              {photos.map((src, index) => (
+                <button
+                  key={`${src}-${index}`}
+                  type="button"
+                  className={`gallery-lightbox-thumb ${index === activeIndex ? "is-active" : ""}`}
+                  aria-label={`Afficher la photo ${index + 1}`}
+                  aria-current={index === activeIndex ? "true" : undefined}
+                  onClick={() => setActiveIndex(index)}
+                >
+                  <Image
+                    src={src}
+                    alt={`${alt} - photo ${index + 1}`}
+                    width={120}
+                    height={90}
+                    sizes="96px"
+                    unoptimized
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {photos.length > 1 && (
+          <button type="button" className="gallery-lightbox-nav next" aria-label="Photo suivante" onClick={showNext}>
+            <ChevronIcon direction="right" />
+          </button>
+        )}
+
+        {photos.length > 1 && (
+          <span className="gallery-lightbox-counter">
+            {activeIndex + 1} / {photos.length}
+          </span>
+        )}
+      </div>
+    ) : null;
+
   return (
     <div className="gallery">
-      <div className={`gallery-main ${reserved ? "is-reserved" : ""}`}>
+      <div className={`gallery-main ${reserved ? "is-reserved" : ""} ${sold ? "is-sold" : ""}`}>
         {active ? (
           <Image
             src={active}
@@ -77,17 +216,20 @@ export default function PhotoGallery({ images, alt, status }) {
         ) : (
           <div className="detail-media-placeholder">Pas de photo</div>
         )}
-        <span className={`status ${reserved ? "reserved" : "available"}`}>
-          {statusLabel(status)}
-        </span>
-        {active && (
+        {sold && (
+          <div className="gallery-sold-overlay">Vehicule vendu
+            <br />Photos non disponibles</div>
+        )}
+        <span className={`status ${status}`}>{statusLabel(status)}</span>
+        {active && !sold && (
           <button
             type="button"
             className="gallery-zoom-button"
-            aria-label="Voir en plein ecran"
+            aria-label="Voir toutes les photos en plein ecran"
             onClick={() => setLightboxOpen(true)}
           >
             <ZoomIcon />
+            {photos.length > 1 && <span className="gallery-zoom-count">{photos.length}</span>}
           </button>
         )}
       </div>
@@ -100,10 +242,10 @@ export default function PhotoGallery({ images, alt, status }) {
               <button
                 key={src}
                 type="button"
-                className={`gallery-thumb ${isLastVisible ? "has-more" : ""}`}
+                className={`gallery-thumb ${isLastVisible ? "has-more" : ""} ${sold ? "is-sold" : ""}`}
                 onClick={() => {
                   setActiveIndex(index);
-                  if (isLastVisible) setLightboxOpen(true);
+                  if (isLastVisible && !sold) setLightboxOpen(true);
                 }}
               >
                 <Image
@@ -125,57 +267,7 @@ export default function PhotoGallery({ images, alt, status }) {
         </div>
       )}
 
-      {lightboxOpen && active && (
-        <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-label={alt}>
-          <button
-            type="button"
-            className="gallery-lightbox-close"
-            aria-label="Fermer"
-            onClick={() => setLightboxOpen(false)}
-          >
-            <CloseIcon />
-          </button>
-
-          <button
-            type="button"
-            className="gallery-lightbox-backdrop"
-            aria-label="Fermer"
-            onClick={() => setLightboxOpen(false)}
-          />
-
-          {photos.length > 1 && (
-            <button
-              type="button"
-              className="gallery-lightbox-nav prev"
-              aria-label="Photo precedente"
-              onClick={() => setActiveIndex((index) => (index - 1 + photos.length) % photos.length)}
-            >
-              <ChevronIcon direction="left" />
-            </button>
-          )}
-
-          <Image
-            src={active}
-            alt={alt}
-            width={1600}
-            height={1200}
-            sizes="100vw"
-            unoptimized
-            className="gallery-lightbox-image"
-          />
-
-          {photos.length > 1 && (
-            <button
-              type="button"
-              className="gallery-lightbox-nav next"
-              aria-label="Photo suivante"
-              onClick={() => setActiveIndex((index) => (index + 1) % photos.length)}
-            >
-              <ChevronIcon direction="right" />
-            </button>
-          )}
-        </div>
-      )}
+      {lightbox && typeof document !== "undefined" ? createPortal(lightbox, document.body) : null}
     </div>
   );
 }

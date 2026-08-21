@@ -15,6 +15,7 @@ export default function AdminOverview({ cars, onGoToForm }) {
   const total = cars.length;
   const available = cars.filter((car) => car.status === "available").length;
   const reserved = cars.filter((car) => car.status === "reserved").length;
+  const sold = cars.filter((car) => car.status === "sold").length;
   const stockValue = cars
     .filter((car) => car.status === "available")
     .reduce((sum, car) => sum + car.price, 0);
@@ -28,6 +29,7 @@ export default function AdminOverview({ cars, onGoToForm }) {
     { label: "Voitures en stock", value: total },
     { label: "Disponibles", value: available, tone: "positive" },
     { label: "Reservees", value: reserved, tone: "warning" },
+    { label: "Vendues", value: sold, tone: "sold" },
     { label: "Valeur du stock", value: formatPrice(stockValue) },
     { label: "Prix moyen", value: total ? formatPrice(avgPrice) : "-" },
   ];
@@ -60,9 +62,7 @@ export default function AdminOverview({ cars, onGoToForm }) {
                   {car.brand} {car.model}
                 </span>
                 <span>{formatPrice(car.price)}</span>
-                <span className={`status ${car.status === "reserved" ? "reserved" : "available"}`}>
-                  {statusLabel(car.status)}
-                </span>
+                <span className={`status ${car.status}`}>{statusLabel(car.status)}</span>
                 <span className="recent-time">{relativeTime(car.updatedAt)}</span>
               </div>
             ))}

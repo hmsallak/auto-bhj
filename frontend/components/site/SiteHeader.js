@@ -3,51 +3,72 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { MenuIcon, CloseIcon } from "./icons";
+import ActionButton from "./ActionButton";
 
 const LINKS = [
-  { href: "/stock", label: "Stock" },
-  { href: "/#a-propos", label: "A propos" },
-  { href: "/#services", label: "Services" },
-  { href: "/#faq", label: "FAQ" },
-  { href: "/#contact", label: "Contact" },
+  { href: "/", label: "Accueil" },
+  { href: "/#stock", label: "Stock" },
+  { href: "/faq", label: "FAQ" },
 ];
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  // Close the mobile menu on desktop resize so it never gets stuck open
-  // behind a layout that no longer renders a toggle button.
   useEffect(() => {
     function handleResize() {
-      if (window.innerWidth > 820) setOpen(false);
+      if (window.innerWidth > 860) setOpen(false);
     }
+    function handleScroll() {
+      setScrolled(window.scrollY > 8);
+    }
+    handleScroll();
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   return (
-    <header className="site-header">
-      <a className="brand" href="/">
-        <Image className="brand-logo" src="/logo.png" alt="Auto BHJ" width={2048} height={768} priority />
-      </a>
+    <header className={`site-header-v2${scrolled ? " is-scrolled" : ""}`}>
+      <div className="site-header-v2-inner">
+        <a className="header-v2-brand" href="/">
+          <Image src="/logo.png" alt="Auto BHJ" width={2048} height={768} priority />
+        </a>
 
-      <button
-        type="button"
-        className="nav-toggle"
-        aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
-        aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
-      >
-        {open ? <CloseIcon width="22" height="22" /> : <MenuIcon width="22" height="22" />}
-      </button>
-
-      <nav className={open ? "open" : ""}>
-        {LINKS.map((link) => (
-          <a key={link.href} href={link.href} onClick={() => setOpen(false)}>
-            {link.label}
+        <nav className={`header-v2-nav${open ? " is-open" : ""}`}>
+          {LINKS.map((link) => (
+            <a key={link.href} href={link.href} onClick={() => setOpen(false)}>
+              {link.label}
+            </a>
+          ))}
+          <a
+            className="header-v2-nav-cta"
+            href="tel:+32483208801"
+            onClick={() => setOpen(false)}
+          >
+            0483 20 88 01
           </a>
-        ))}
-      </nav>
+        </nav>
+
+        <div className="header-v2-actions">
+          <ActionButton className="header-v2-cta" href="tel:+32483208801">
+            Prendre rendez-vous
+          </ActionButton>
+
+          <button
+            type="button"
+            className="header-v2-toggle"
+            aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((value) => !value)}
+          >
+            {open ? <CloseIcon width="20" height="20" /> : <MenuIcon width="20" height="20" />}
+          </button>
+        </div>
+      </div>
     </header>
   );
 }

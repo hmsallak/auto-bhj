@@ -1,5 +1,7 @@
-import { formatKm, statusLabel } from "../lib/format";
-import { ShieldIcon } from "./site/icons";
+"use client";
+
+import { useEffect, useState } from "react";
+import { formatKm } from "../lib/format";
 import {
   GaugeIcon,
   GearboxIcon,
@@ -7,11 +9,51 @@ import {
   CloudIcon,
   CalendarIcon,
   ChevronDownIcon,
+  PaintDropIcon,
+  SeatIcon,
+  PistonIcon,
+  BoltIcon,
+  DoorIcon,
+  CarBodyIcon,
+  OwnersIcon,
 } from "./CarSpecIcons";
+
+function RowIcon({ type }) {
+  const icons = {
+    brand: CarBodyIcon,
+    body: CarBodyIcon,
+    seats: SeatIcon,
+    doors: DoorIcon,
+    gearbox: GearboxIcon,
+    engine: PistonIcon,
+    power: BoltIcon,
+    color: PaintDropIcon,
+    material: SeatIcon,
+    owner: OwnersIcon,
+    consumption: FuelIcon,
+  };
+
+  const Icon = icons[type] || CarBodyIcon;
+  return <Icon width="16" height="16" aria-hidden="true" />;
+}
+
+function iconTypeForLabel(label) {
+  const text = label.toLowerCase();
+  if (text.includes("carrosserie")) return "body";
+  if (text.includes("siege")) return "seats";
+  if (text.includes("porte")) return "doors";
+  if (text.includes("vitesse")) return "gearbox";
+  if (text.includes("cylindre") || text.includes("cylindree")) return "engine";
+  if (text.includes("puissance")) return "power";
+  if (text.includes("couleur") || text.includes("peinture")) return "color";
+  if (text.includes("materiau")) return "material";
+  if (text.includes("proprietaire")) return "owner";
+  if (text.includes("consommation")) return "consumption";
+  return "brand";
+}
 
 export function SpecHighlights({ car }) {
   const cells = [
-    { Icon: ShieldIcon, label: "Etat", value: statusLabel(car.status) },
     { Icon: GaugeIcon, label: "Kilometrage", value: formatKm(car.mileage) },
     { Icon: CalendarIcon, label: "1ere immat.", value: car.year },
     { Icon: FuelIcon, label: "Carburant", value: car.fuel },
@@ -40,6 +82,9 @@ function DataRow({ label, value }) {
   if (value === null || value === undefined || value === "") return null;
   return (
     <div className="data-row">
+      <span className="data-row-icon">
+        <RowIcon type={iconTypeForLabel(label)} />
+      </span>
       <span className="data-row-label">{label}</span>
       <span className="data-row-value">{value}</span>
     </div>
@@ -47,6 +92,25 @@ function DataRow({ label, value }) {
 }
 
 export default function CarSpecSheet({ car }) {
+  const [generalOpen, setGeneralOpen] = useState(true);
+  const [equipmentOpen, setEquipmentOpen] = useState(true);
+  const [infoOpen, setInfoOpen] = useState(true);
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia("(max-width: 820px)");
+
+    function syncAccordionState(eventOrQuery = mobileQuery) {
+      const openByDefault = !eventOrQuery.matches;
+      setGeneralOpen(openByDefault);
+      setEquipmentOpen(openByDefault);
+      setInfoOpen(openByDefault);
+    }
+
+    syncAccordionState(mobileQuery);
+    mobileQuery.addEventListener("change", syncAccordionState);
+    return () => mobileQuery.removeEventListener("change", syncAccordionState);
+  }, []);
+
   const power = car.powerKw && car.powerCh ? `${car.powerKw} kW (${car.powerCh} ch)` : null;
   const rows = [
     <DataRow key="brand" label="Marque" value={car.brand} />,
@@ -68,18 +132,12 @@ export default function CarSpecSheet({ car }) {
 
   return (
     <div className="spec-sheet">
-      <details className="spec-block" open>
-        <summary>
-          <h3>Description</h3>
-          <ChevronDownIcon />
-        </summary>
-        <p className="car-description">
-          {car.description || "Contactez-nous pour plus d'informations."}
-        </p>
-      </details>
-
       {rows.length > 0 && (
-        <details className="spec-block" open>
+        <details
+          className="spec-block"
+          open={generalOpen}
+          onToggle={(event) => setGeneralOpen(event.target.open)}
+        >
           <summary>
             <h3>Donnees generales</h3>
             <ChevronDownIcon />
@@ -89,7 +147,11 @@ export default function CarSpecSheet({ car }) {
       )}
 
       {car.equipment && (
-        <details className="spec-block" open>
+        <details
+          className="spec-block"
+          open={equipmentOpen}
+          onToggle={(event) => setEquipmentOpen(event.target.open)}
+        >
           <summary>
             <h3>Equipement</h3>
             <ChevronDownIcon />
@@ -108,6 +170,20 @@ export default function CarSpecSheet({ car }) {
           </div>
         </details>
       )}
+
+      <details
+        className="spec-block"
+        open={infoOpen}
+        onToggle={(event) => setInfoOpen(event.target.open)}
+      >
+        <summary>
+          <h3>Info supplementaire</h3>
+          <ChevronDownIcon />
+        </summary>
+        <p className="car-description">
+          {car.description || "Contactez-nous pour plus d'informations."}
+        </p>
+      </details>
     </div>
   );
 }

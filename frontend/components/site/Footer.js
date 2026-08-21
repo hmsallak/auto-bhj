@@ -16,12 +16,9 @@ export default function Footer() {
 
         <div className="footer-col">
           <h4>Navigation</h4>
-          <a href="/stock">Stock</a>
-          <a href="/#a-propos">A propos</a>
-          <a href="/#pourquoi">Pourquoi nous choisir</a>
-          <a href="/#services">Services</a>
-          <a href="/#faq">Questions frequentes</a>
-          <a href="/#contact">Contact</a>
+          <a href="/">Accueil</a>
+          <a href="/#stock">Stock</a>
+          <a href="/faq">FAQ</a>
         </div>
 
         <div className="footer-col">
@@ -30,7 +27,7 @@ export default function Footer() {
             <PinIcon /> Mekingenweg 99, 1600 Sint-Pieters-Leeuw
           </span>
           <span className="contact-line">
-            <PhoneIcon /> +32 000 00 00 00
+            <PhoneIcon /> +32 483 20 88 01
           </span>
           <span className="contact-line">
             <MailIcon /> contact@autobhj.be

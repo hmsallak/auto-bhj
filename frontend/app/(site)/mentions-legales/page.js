@@ -17,7 +17,7 @@ const sections = [
       "Numero BCE : 0801.303.538",
       "Numero de TVA : BE 0801.303.538",
       "E-mail : contact@autobhj.be",
-      "Telephone : +32 000 00 00 00",
+      "Telephone : +32 483 20 88 01",
     ],
   },
   {

@@ -20,9 +20,7 @@ export default function AdminCarList({ cars, onEdit, onDelete }) {
             <span>
               {car.year} - {car.mileage.toLocaleString("fr-BE")} km - {car.fuel} - {car.gearbox}
             </span>
-            <span className={`status ${car.status === "reserved" ? "reserved" : "available"}`}>
-              {statusLabel(car.status)}
-            </span>
+            <span className={`status ${car.status}`}>{statusLabel(car.status)}</span>
           </div>
           <div className="admin-actions">
             <button className="button neutral small" type="button" onClick={() => onEdit(car)}>

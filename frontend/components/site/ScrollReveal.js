@@ -23,7 +23,35 @@ export default function ScrollReveal() {
     );
 
     elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+
+    // Hero parallax: the background image (.hero::before) drifts slower
+    // than the page scrolls, read through --hero-parallax. Only the homepage
+    // has a .hero, so this is a no-op elsewhere.
+    const hero = document.querySelector(".hero");
+    let ticking = false;
+
+    function updateParallax() {
+      ticking = false;
+      const rect = hero.getBoundingClientRect();
+      if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+      hero.style.setProperty("--hero-parallax", `${rect.top * -0.18}px`);
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(updateParallax);
+    }
+
+    if (hero) {
+      updateParallax();
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
+
+    return () => {
+      observer.disconnect();
+      if (hero) window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   return null;
