@@ -1,4 +1,5 @@
 import { listCars } from "../../../backend/models/cars";
+import { ShieldIcon, TagIcon } from "../../components/site/icons";
 import FeaturedCars from "../../components/site/FeaturedCars";
 import BrandsStrip from "../../components/site/BrandsStrip";
 import TrustBadge from "../../components/site/TrustBadge";
@@ -42,15 +43,24 @@ export default function HomePage() {
           </div>
 
           <div className="hero-panel" aria-label="Resume du stock Auto BHJ">
-            <span className="hero-panel-label">Auto BHJ en direct</span>
+            <span className="hero-panel-label">
+              <ShieldIcon width="16" height="16" aria-hidden="true" />
+              Auto BHJ en direct
+            </span>
             <div className="hero-stats">
               <div>
-                <strong>{availableCars}</strong>
-                <span>vehicules disponibles</span>
+                <TagIcon aria-hidden="true" />
+                <div>
+                  <strong>{availableCars}</strong>
+                  <span>vehicules disponibles</span>
+                </div>
               </div>
               <div>
-                <strong>{brandsCount}</strong>
-                <span>marques en stock</span>
+                <ShieldIcon aria-hidden="true" />
+                <div>
+                  <strong>{brandsCount}</strong>
+                  <span>marques en stock</span>
+                </div>
               </div>
             </div>
             <p>
