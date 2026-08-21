@@ -73,6 +73,29 @@ export function MessageIcon(props) {
   );
 }
 
+export function DocumentIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M7 3h7l3 3v15H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
+      <path d="M14 3v4h4" />
+      <path d="M8 11h6" />
+      <path d="M8 15h5" />
+    </Svg>
+  );
+}
+
+export function CalendarCheckIcon(props) {
+  return (
+    <Svg {...props}>
+      <rect x="4" y="5" width="16" height="15" rx="2" />
+      <path d="M8 3v4" />
+      <path d="M16 3v4" />
+      <path d="M4 10h16" />
+      <path d="M9 15l2 2 4-4" />
+    </Svg>
+  );
+}
+
 export function KeyIcon(props) {
   return (
     <Svg {...props}>

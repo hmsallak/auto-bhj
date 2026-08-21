@@ -123,6 +123,82 @@ function formatEuro(value) {
   }).format(value);
 }
 
+function FilterIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M4 7h10" />
+      <path d="M18 7h2" />
+      <path d="M16 5v4" />
+      <path d="M4 17h2" />
+      <path d="M10 17h10" />
+      <path d="M8 15v4" />
+    </svg>
+  );
+}
+
+function SortIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M8 4v16" />
+      <path d="M4 8l4-4 4 4" />
+      <path d="M16 20V4" />
+      <path d="M12 16l4 4 4-4" />
+    </svg>
+  );
+}
+
+function CloseIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...props}>
+      <path d="M5 5l14 14M19 5 5 19" />
+    </svg>
+  );
+}
+
+function CarLineIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M5 13h14l-1.4-4.1A2 2 0 0 0 15.7 7H8.3a2 2 0 0 0-1.9 1.9L5 13Z" />
+      <path d="M4 13v4h2" />
+      <path d="M18 17h2v-4" />
+      <circle cx="8" cy="17" r="1.5" />
+      <circle cx="16" cy="17" r="1.5" />
+    </svg>
+  );
+}
+
+function ShieldCheckIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  );
+}
+
+function AwardLineIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M8.5 11.5 7 21l5-3 5 3-1.5-9.5" />
+      <path d="M10 8l1.3 1.3L14.5 6" />
+    </svg>
+  );
+}
+
+function HandshakeLineIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M7 11l3-3 3 3 2-2" />
+      <path d="M3 12l4 4 3-3" />
+      <path d="M21 12l-4 4-3-3" />
+      <path d="M8 17l2 2a2 2 0 0 0 3 0l3-3" />
+      <path d="M3 8l4-3 3 3" />
+      <path d="M21 8l-4-3-3 3" />
+    </svg>
+  );
+}
+
 function ChoiceGroup({
   label,
   value,
@@ -173,6 +249,7 @@ export default function CarBrowser() {
   const [cars, setCars] = useState([]);
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(true);
+  const [sortOpen, setSortOpen] = useState(true);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [resetVersion, setResetVersion] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -183,13 +260,15 @@ export default function CarBrowser() {
   useEffect(() => {
     const mobileQuery = window.matchMedia("(max-width: 980px)");
 
-    function syncFilterPanel(eventOrQuery = mobileQuery) {
-      setFiltersOpen(!eventOrQuery.matches);
+    function syncMobilePanels(eventOrQuery = mobileQuery) {
+      const desktop = !eventOrQuery.matches;
+      setFiltersOpen(desktop);
+      setSortOpen(false);
     }
 
-    syncFilterPanel(mobileQuery);
-    mobileQuery.addEventListener("change", syncFilterPanel);
-    return () => mobileQuery.removeEventListener("change", syncFilterPanel);
+    syncMobilePanels(mobileQuery);
+    mobileQuery.addEventListener("change", syncMobilePanels);
+    return () => mobileQuery.removeEventListener("change", syncMobilePanels);
   }, []);
 
   useEffect(() => {
@@ -350,12 +429,6 @@ export default function CarBrowser() {
     });
   }, [cars, filters, query]);
 
-  const availableCars = cars.filter((car) => car.status !== "sold").length;
-  const entryPrice = cars
-    .filter((car) => car.status !== "sold" && numberValue(car.price) > 0)
-    .reduce((min, car) => Math.min(min, numberValue(car.price)), Infinity);
-  const shownEntryPrice = Number.isFinite(entryPrice) ? formatEuro(entryPrice) : "-";
-
   const activeFilterLabels = [
     query.trim() ? `Recherche: ${query.trim()}` : null,
     filters.brand ? `Marque: ${filters.brand}` : null,
@@ -380,7 +453,19 @@ export default function CarBrowser() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters, query]);
+  }, [
+    query,
+    filters.brand,
+    filters.model,
+    filters.bodyType,
+    filters.status,
+    filters.priceMin,
+    filters.priceMax,
+    filters.mileageMax,
+    filters.yearMin,
+    filters.fuel,
+    filters.gearbox,
+  ]);
 
   useEffect(() => {
     if (currentPage > pageCount) setCurrentPage(pageCount);
@@ -395,6 +480,11 @@ export default function CarBrowser() {
     window.dataLayer?.push?.({ event: "autobhj_filter", filter: key, value });
   }
 
+  function updateSort(value) {
+    updateFilter("sort", value);
+    setSortOpen(false);
+  }
+
   function resetFilters() {
     setQuery("");
     setFilters(DEFAULT_FILTERS);
@@ -406,6 +496,11 @@ export default function CarBrowser() {
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function applyMobileFilters() {
+    setFiltersOpen(false);
+    scrollToResults();
+  }
+
   function goToPage(page) {
     setCurrentPage(page);
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -413,49 +508,179 @@ export default function CarBrowser() {
 
   return (
     <div className="stock-browser">
-      <div className="section-head">
-        <div>
-          <p className="eyebrow">Catalogue</p>
-          <h2>Voitures disponibles</h2>
-          <p className="section-lead">
-            Filtrez le stock par reference, marque, budget, kilometrage et
-            criteres essentiels. Les choix sont conserves dans l'adresse de la page.
+      <section className="stock-catalog-hero" aria-labelledby="stock-catalog-title">
+        <div className="stock-catalog-hero-copy">
+          <p className="stock-catalog-pill">
+            <CarLineIcon aria-hidden="true" />
+            <span>Catalogue</span>
+          </p>
+          <h2 id="stock-catalog-title">Trouvez la voiture ideale</h2>
+          <span className="stock-catalog-mark" aria-hidden="true" />
+          <p>
+            Des occasions soigneusement selectionnees, pretes a prendre la route,
+            avec des prix clairs et un accompagnement simple du premier contact a la remise des cles.
           </p>
         </div>
-        <div className="stock-hero-metrics" aria-label="Resume du stock">
-          <span>
-            <strong>{availableCars}</strong>
-            en stock
-          </span>
-          <span>
-            <strong>{shownEntryPrice}</strong>
-            prix d'entree
-          </span>
+
+        <div className="stock-catalog-proof" aria-label="Garanties Auto BHJ">
+          <div className="stock-catalog-proof-item">
+            <ShieldCheckIcon aria-hidden="true" />
+            <strong>Vehicules</strong>
+            <span>controles</span>
+          </div>
+          <div className="stock-catalog-proof-item">
+            <AwardLineIcon aria-hidden="true" />
+            <strong>Garantie</strong>
+            <span>incluse</span>
+          </div>
+          <div className="stock-catalog-proof-item">
+            <HandshakeLineIcon aria-hidden="true" />
+            <strong>Accompagnement</strong>
+            <span>personnalise</span>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <label className="search stock-search stock-search-wide">
+        Recherche
+        <input
+          type="search"
+          placeholder="Reference, marque, modele, carburant..."
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+      </label>
 
       <div className="stock-layout">
         <aside className="stock-sidebar">
-          <label className="search stock-search">
-            Recherche
-            <input
-              type="search"
-              placeholder="Reference, marque, modele, carburant..."
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-          </label>
+          <div className="stock-sort-shell">
+            <button
+              className={`button neutral stock-desktop-sort-toggle${filters.sort !== DEFAULT_FILTERS.sort ? " is-active" : ""}`}
+              type="button"
+              aria-expanded={sortOpen}
+              onClick={() => setSortOpen((value) => !value)}
+            >
+              <span>Trier par</span>
+              <SortIcon aria-hidden="true" />
+              {filters.sort !== DEFAULT_FILTERS.sort && (
+                <span className="stock-filter-count" aria-label="1 tri applique">
+                  1
+                </span>
+              )}
+            </button>
+            <div className={`stock-results-head ${sortOpen ? "sort-open" : ""}`}>
+              <ChoiceGroup
+                className="stock-sort"
+                label="Trier"
+                value={filters.sort}
+                onChange={updateSort}
+                defaultOpen
+                options={[
+                  { value: "recommended", label: "Recommande" },
+                  { value: "newest", label: "Plus recents" },
+                  { value: "price_asc", label: "Prix croissant" },
+                  { value: "price_desc", label: "Prix decroissant" },
+                  { value: "km_asc", label: "Kilometrage bas" },
+                  { value: "year_desc", label: "Annee recente" },
+                ]}
+              />
+            </div>
+          </div>
 
-          <button
-            className="button neutral filter-toggle"
-            type="button"
-            aria-expanded={filtersOpen}
-            onClick={() => setFiltersOpen((value) => !value)}
-          >
-            Filtres {activeFilters ? `(${activeFilters})` : ""}
-          </button>
+          <div className="stock-mobile-controls" aria-label="Controle du catalogue">
+            <button
+              className={`button neutral filter-toggle stock-mobile-action${activeFilterLabels.length > 0 ? " is-active" : ""}`}
+              type="button"
+              aria-expanded={filtersOpen}
+              onClick={() => setFiltersOpen((value) => !value)}
+            >
+              <span>Filtres</span>
+              <FilterIcon aria-hidden="true" />
+              {activeFilterLabels.length > 0 && (
+                <span className="stock-filter-count" aria-label={`${activeFilterLabels.length} filtres appliques`}>
+                  {activeFilterLabels.length}
+                </span>
+              )}
+            </button>
+
+            <button
+              className={`button neutral stock-sort-toggle stock-mobile-action${filters.sort !== DEFAULT_FILTERS.sort ? " is-active" : ""}`}
+              type="button"
+              aria-expanded={sortOpen}
+              onClick={() => setSortOpen((value) => !value)}
+            >
+              <span>Trier par</span>
+              <SortIcon aria-hidden="true" />
+              {filters.sort !== DEFAULT_FILTERS.sort && (
+                <span className="stock-filter-count" aria-label="1 tri applique">
+                  1
+                </span>
+              )}
+            </button>
+          </div>
+
+          <div className={`stock-mobile-sort-panel ${sortOpen ? "sort-open" : ""}`}>
+            <ChoiceGroup
+              className="stock-sort"
+              label="Trier"
+              value={filters.sort}
+              onChange={updateSort}
+              defaultOpen
+              options={[
+                { value: "recommended", label: "Recommande" },
+                { value: "newest", label: "Plus recents" },
+                { value: "price_asc", label: "Prix croissant" },
+                { value: "price_desc", label: "Prix decroissant" },
+                { value: "km_asc", label: "Kilometrage bas" },
+                { value: "year_desc", label: "Annee recente" },
+              ]}
+            />
+          </div>
 
           <div className={`stock-filters-panel ${filtersOpen ? "open" : ""}`}>
+            <div className="stock-filter-drawer-head">
+              <button
+                className="stock-filter-clear"
+                type="button"
+                onClick={resetFilters}
+              >
+                Réinitialiser les filtres
+              </button>
+              <strong>Tous les filtres</strong>
+              <button
+                className="stock-filter-close"
+                type="button"
+                aria-label="Fermer les filtres"
+                onClick={() => setFiltersOpen(false)}
+              >
+                <CloseIcon aria-hidden="true" />
+              </button>
+            </div>
+
+            <button
+              className="stock-desktop-clear"
+              type="button"
+              onClick={resetFilters}
+            >
+              Réinitialiser les filtres
+            </button>
+
+            <div className="stock-filter-applied">
+              <div className="stock-filter-applied-head">
+                <span>
+                  Filtres appliques
+                  {activeFilterLabels.length > 0 && <strong>{activeFilterLabels.length}</strong>}
+                </span>
+              </div>
+              {activeFilterLabels.length > 0 && (
+                <div className="stock-filter-applied-chips" aria-label="Filtres appliques">
+                  {activeFilterLabels.map((label) => (
+                    <span key={label}>{label}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="stock-filter-scroll">
               <div className="stock-filter-head">
                 <span>Affiner</span>
@@ -554,7 +779,7 @@ export default function CarBrowser() {
                   })),
                 ]}
               />
-              <label>
+              <label className="stock-filter-field stock-filter-mileage">
                 Kilometrage maximum
                 <input
                   type="number"
@@ -587,13 +812,15 @@ export default function CarBrowser() {
               />
             </div>
 
+            <div className="stock-filter-drawer-actions">
+              <button className="button primary stock-filter-search" type="button" onClick={applyMobileFilters}>
+                Voir {visibleCars.length} {visibleCars.length > 1 ? "resultats" : "resultat"}
+              </button>
+            </div>
           </div>
 
           {filtersOpen && (
             <div className="stock-filter-actions">
-              <button className="button ghost" type="button" onClick={resetFilters}>
-                Effacer les filtres
-              </button>
               <button className="button primary stock-show-results" type="button" onClick={scrollToResults}>
                 Voir {visibleCars.length} {visibleCars.length > 1 ? "resultats" : "resultat"}
               </button>
@@ -602,35 +829,6 @@ export default function CarBrowser() {
         </aside>
 
         <div className="stock-results" ref={resultsRef}>
-          <div className="stock-results-head">
-            <ChoiceGroup
-              className="stock-sort"
-              label="Trier"
-              value={filters.sort}
-              onChange={(value) => updateFilter("sort", value)}
-              defaultOpen
-              options={[
-                { value: "recommended", label: "Recommande" },
-                { value: "newest", label: "Plus recents" },
-                { value: "price_asc", label: "Prix croissant" },
-                { value: "price_desc", label: "Prix decroissant" },
-                { value: "km_asc", label: "Kilometrage bas" },
-                { value: "year_desc", label: "Annee recente" },
-              ]}
-            />
-            {activeFilters > 0 && (
-              <button
-                className="button ghost stock-reset-inline"
-                type="button"
-                onClick={resetFilters}
-                aria-label="Reinitialiser les filtres"
-                title="Reinitialiser les filtres"
-              >
-                x
-              </button>
-            )}
-          </div>
-
           {activeFilterLabels.length > 0 && (
             <div className="stock-active-filters" aria-label="Filtres actifs">
               {activeFilterLabels.map((label) => (

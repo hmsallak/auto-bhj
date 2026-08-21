@@ -5,9 +5,7 @@ export default function CarCard({ car }) {
   const reserved = car.status === "reserved";
   const sold = car.status === "sold";
   const photoCount = car.images?.length || 0;
-  const createdAt = car.createdAt ? new Date(car.createdAt).getTime() : 0;
-  const isNew = createdAt && Date.now() - createdAt < 1000 * 60 * 60 * 24 * 14;
-  const lowMileage = Number(car.mileage) > 0 && Number(car.mileage) <= 75000;
+  const showStatusBadge = reserved || sold;
   const specs = [car.fuel, formatKm(car.mileage), car.year, car.gearbox].filter(Boolean);
 
   return (
@@ -24,13 +22,12 @@ export default function CarCard({ car }) {
           sizes="(max-width: 640px) 100vw, (max-width: 960px) 45vw, 300px"
           unoptimized
         />
-        {sold && <span className="sold-ribbon">Vendu</span>}
         {photoCount > 1 && <span className="photo-count">1/{photoCount}</span>}
-        <div className="stock-card-badges">
-          <span className={`status ${car.status}`}>{statusLabel(car.status)}</span>
-          {isNew && <span className="status info">Nouveau</span>}
-          {lowMileage && <span className="status info">Faible km</span>}
-        </div>
+        {showStatusBadge && (
+          <div className="stock-card-badges">
+            <span className={`status ${car.status}`}>{statusLabel(car.status)}</span>
+          </div>
+        )}
       </div>
 
       <div className="stock-card-body">

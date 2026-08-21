@@ -1,6 +1,7 @@
 import Hero from "../../components/site/Hero";
 import HomeTrustCards from "../../components/site/HomeTrustCards";
 import CarBrowser from "../../components/CarBrowser";
+import AboutUs from "../../components/site/AboutUs";
 import RendezVous from "../../components/site/RendezVous";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +50,7 @@ export default function HomePage() {
       <section className="section" id="stock">
         <CarBrowser />
       </section>
+      <AboutUs />
       <RendezVous />
     </>
   );

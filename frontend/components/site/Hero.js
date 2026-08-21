@@ -19,7 +19,7 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
 };
 
-const TITLE = "Trouvez la voiture d'occasion qui vous correspond";
+const TITLE = "Trouvez la voiture d'occasion qui vous correspond.";
 
 export default function Hero() {
   const prefersReducedMotion = useReducedMotion();
@@ -85,14 +85,17 @@ export default function Hero() {
 
         <h1 className="hero-v2-title" aria-label={TITLE}>
           <span ref={titleRef} aria-hidden="true">
-            {TITLE}
+            <span>Trouvez la voiture</span>
+            <span>d&apos;occasion</span>
+            <span className="hero-v2-title-accent">qui vous correspond.</span>
           </span>
         </h1>
 
         <motion.span className="hero-v2-rule" variants={item} aria-hidden="true" />
 
         <motion.p className="hero-v2-subtitle" variants={item}>
-          Auto BHJ — un large choix de vehicules revises, garantis et prets a rouler.
+          Des vehicules selectionnes avec exigence, a des prix justes,
+          et un accompagnement simple du premier contact a la remise des cles.
         </motion.p>
 
         <motion.div className="hero-v2-actions" variants={item}>
@@ -100,6 +103,9 @@ export default function Hero() {
             Voir nos vehicules
             <ChevronRightIcon width="16" height="16" />
           </ActionButton>
+          <a className="hero-v2-contact-link" href="#contact">
+            Nous contacter
+          </a>
         </motion.div>
       </motion.div>
     </section>

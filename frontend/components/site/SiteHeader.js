@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { MenuIcon, CloseIcon } from "./icons";
-import ActionButton from "./ActionButton";
 
 const LINKS = [
   { href: "/", label: "Accueil" },
-  { href: "/#stock", label: "Stock" },
+  { href: "/#stock", label: "Vehicules" },
   { href: "/faq", label: "FAQ" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 export default function SiteHeader() {
@@ -54,10 +54,6 @@ export default function SiteHeader() {
         </nav>
 
         <div className="header-v2-actions">
-          <ActionButton className="header-v2-cta" href="tel:+32483208801">
-            Prendre rendez-vous
-          </ActionButton>
-
           <button
             type="button"
             className="header-v2-toggle"
