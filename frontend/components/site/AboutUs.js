@@ -1,4 +1,34 @@
+"use client";
+
 import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
+
+const EASE = [0.16, 1, 0.3, 1];
+
+const introContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+};
+
+const introItem = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
+};
+
+const featuresContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.14, delayChildren: 0.1 } },
+};
+
+const featureItem = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
+};
+
+const featureIconItem = {
+  hidden: { opacity: 0, scale: 0.82, y: 8 },
+  show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+};
 
 const FEATURES = [
   {
@@ -59,6 +89,8 @@ function AboutIcon({ name }) {
 }
 
 export default function AboutUs() {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <section className="about-bhj-section" aria-labelledby="about-bhj-title">
       <div className="about-bhj-shell">
@@ -73,28 +105,41 @@ export default function AboutUs() {
         </div>
 
         <div className="about-bhj-content">
-          <p className="about-bhj-eyebrow">
-            <span />
-            A propos de nous
-          </p>
+          <motion.div
+            variants={introContainer}
+            initial={prefersReducedMotion ? "show" : "hidden"}
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            <motion.p className="about-bhj-eyebrow" variants={introItem}>
+              <span />
+              A propos de nous
+            </motion.p>
 
-          <h2 id="about-bhj-title">
-            Une entreprise familiale, depuis <span>5 ans.</span>
-          </h2>
+            <motion.h2 id="about-bhj-title" variants={introItem}>
+              Une entreprise familiale, depuis <span>5 ans.</span>
+            </motion.h2>
 
-          <div className="about-bhj-divider" aria-hidden="true" />
+            <motion.div className="about-bhj-divider" variants={introItem} aria-hidden="true" />
+          </motion.div>
 
-          <div className="about-bhj-features">
+          <motion.div
+            className="about-bhj-features"
+            variants={featuresContainer}
+            initial={prefersReducedMotion ? "show" : "hidden"}
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+          >
             {FEATURES.map((item) => (
-              <article className="about-bhj-feature" key={item.title}>
-                <span className="about-bhj-feature-icon">
+              <motion.article className="about-bhj-feature" key={item.title} variants={featureItem}>
+                <motion.span className="about-bhj-feature-icon" variants={featureIconItem}>
                   <AboutIcon name={item.icon} />
-                </span>
+                </motion.span>
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
-              </article>
+              </motion.article>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
