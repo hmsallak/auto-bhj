@@ -2174,12 +2174,10 @@ textarea:focus-visible {
   transition-delay: 210ms;
 }
 
-/* Footer */
-
-.site-footer {
-  background: var(--ink);
-  color: #aab4bc;
-}
+/* Footer -- shares the site's dark "Signal & Carbone" system (see --carbon
+   tokens above) with the hero and rendez-vous section, applied further down
+   this file. Background/text-color live in that single shared rule so the
+   footer can't drift out of sync with the rest of the dark homepage. */
 
 .footer-grid {
   display: grid;
@@ -2188,10 +2186,6 @@ textarea:focus-visible {
   width: min(1120px, 100%);
   margin: 0 auto;
   padding: 48px 24px;
-}
-
-.footer-brand .brand {
-  color: white;
 }
 
 .footer-brand .brand-logo {
@@ -2212,22 +2206,12 @@ textarea:focus-visible {
 
 .footer-col h4 {
   margin: 0 0 4px;
-  color: white;
   font-size: 13px;
   text-transform: uppercase;
 }
 
 .footer-col a {
-  color: #aab4bc;
   transition: color 150ms ease;
-}
-
-.footer-col a:hover {
-  color: white;
-}
-
-.footer-col .contact-line svg {
-  color: #aab4bc;
 }
 
 .footer-bottom {
@@ -4742,6 +4726,19 @@ main > .legal-shell {
   color: var(--carbon-text);
 }
 
+/* Footer sits one shade off the rest of the dark system -- same texture
+   layers, warmer near-black base instead of --carbon's cooler slate. A top
+   fade toward rv-section's own near-black vignette (rgba(4,7,10)) smooths
+   the handoff instead of cutting hard between the two tones. */
+.site-footer {
+  background:
+    linear-gradient(180deg, rgba(4, 7, 10, 0.85) 0%, transparent 180px),
+    linear-gradient(130deg, rgba(255, 255, 255, 0.045) 0%, transparent 65%),
+    radial-gradient(760px circle at 12% 6%, rgba(225, 29, 46, 0.16), transparent 68%),
+    radial-gradient(580px circle at 88% 20%, rgba(255, 255, 255, 0.07), transparent 72%),
+    rgba(8, 9, 11, 1);
+}
+
 .nv-section,
 .cf-section,
 .rv-section {
@@ -6229,8 +6226,8 @@ textarea,
 
 .stock-choice-group {
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  background: rgba(255, 255, 255, 0.045);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
   overflow: hidden;
 }
 
@@ -6314,7 +6311,7 @@ textarea,
   gap: 9px;
   padding: 0 8px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 6px;
   color: rgba(242, 240, 236, 0.82);
   background: transparent;
   font: inherit;
@@ -6326,7 +6323,7 @@ textarea,
 .stock-choice-option:hover,
 .stock-choice-option:focus-visible {
   color: white;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.055);
   outline: none;
 }
 
@@ -6346,19 +6343,19 @@ textarea,
 }
 
 .stock-choice-option em {
-  min-width: 34px;
-  padding: 3px 7px;
-  border-radius: 999px;
-  color: rgba(242, 240, 236, 0.68);
-  background: rgba(255, 255, 255, 0.07);
+  min-width: auto;
+  padding: 0;
+  border-radius: 0;
+  color: rgba(242, 240, 236, 0.42);
+  background: none;
   font-style: normal;
   font-size: 11px;
-  text-align: center;
+  text-align: right;
 }
 
 .stock-choice-option.is-selected {
   color: white;
-  background: rgba(225, 29, 46, 0.18);
+  background: transparent;
 }
 
 .stock-filters-panel {
@@ -7804,8 +7801,8 @@ canvas {
   }
 
   .stock-filters-panel.open .stock-choice-option em {
-    color: rgba(242, 240, 236, 0.62);
-    background: rgba(255, 255, 255, 0.07);
+    color: rgba(242, 240, 236, 0.5);
+    background: none;
   }
 
   .stock-filters-panel.open .stock-filter-pair,
@@ -8743,6 +8740,7 @@ canvas {
   overflow: hidden;
   color: var(--carbon-text);
   background:
+    linear-gradient(180deg, rgba(7, 9, 13, 0.85) 0%, transparent 180px),
     linear-gradient(90deg, rgba(4, 7, 10, 0.92) 0%, rgba(4, 7, 10, 0.74) 34%, rgba(4, 7, 10, 0.26) 62%, rgba(4, 7, 10, 0.36) 100%),
     linear-gradient(0deg, rgba(4, 7, 10, 0.88) 0%, rgba(4, 7, 10, 0.06) 48%, rgba(4, 7, 10, 0.45) 100%),
     url("/contact-rendezvous-bg.png") center right / cover no-repeat,
@@ -8764,7 +8762,7 @@ canvas {
   max-width: none;
   min-height: 600px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(420px, 580px);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: clamp(42px, 7vw, 110px);
   margin: 0 auto;
@@ -8827,10 +8825,16 @@ canvas {
   margin-top: 50px;
 }
 
+.rv-proof-divider {
+  height: 1px;
+  margin-top: 50px;
+  background: var(--carbon-line);
+}
+
 .rv-proof-item {
   min-height: 44px;
   display: grid;
-  grid-template-columns: 38px minmax(0, auto);
+  grid-template-columns: 58px minmax(0, auto);
   align-items: center;
   gap: 13px;
   padding: 0 clamp(20px, 2.2vw, 32px);
@@ -8879,8 +8883,8 @@ canvas {
 }
 
 .rv-proof-icon {
-  width: 38px;
-  height: 38px;
+  width: 58px;
+  height: 58px;
   border: 1px solid rgba(225, 29, 46, 0.76);
   border-radius: 10px;
   color: #e11d2e;
@@ -8891,12 +8895,6 @@ canvas {
   opacity: 0;
   transform: translateX(-7px) scale(0.9);
   animation: rvProofIconPop 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.rv-proof-icon svg {
-  width: 20px;
-  height: 20px;
-  stroke-width: 2;
 }
 
 .rv-proof-item:nth-child(1) .rv-proof-icon {
@@ -8919,7 +8917,7 @@ canvas {
 
 .rv-proof-text strong {
   color: #ffffff;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 780;
   line-height: 1;
   letter-spacing: 0;
@@ -8930,7 +8928,7 @@ canvas {
 
 .rv-proof-text small {
   color: rgba(242, 240, 236, 0.64);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 450;
   line-height: 1;
   letter-spacing: 0;
@@ -10193,6 +10191,7 @@ body {
   margin: 0;
   color: #ffffff;
   background:
+    linear-gradient(180deg, rgba(27, 35, 41, 0.9) 0%, transparent 180px),
     radial-gradient(circle at 74% 16%, rgba(225, 29, 46, 0.12), transparent 34%),
     linear-gradient(180deg, #07090d 0%, #0a0d12 52%, #07090d 100%);
 }
@@ -10481,6 +10480,7 @@ body {
 }
 
 .home-trust-icon svg,
+.rv-proof-icon svg,
 .rv-card-icon svg,
 .rv-info-icon svg,
 .faq-red-contact-icon svg,
@@ -10490,7 +10490,6 @@ body {
   height: 58px;
 }
 
-.rv-proof-icon svg,
 .data-row-icon svg {
   width: 26px;
   height: 26px;
@@ -10589,12 +10588,7 @@ body {
 
 /* Stock section: same solid 3D rule as contact, without visible contours. */
 .stock-search-wide,
-.stock-sidebar .stock-filters-panel,
-.stock-sidebar .stock-filter-actions,
-.stock-results-head.sort-open,
-.stock-card,
-.stock-mobile-action,
-.button.neutral.stock-desktop-sort-toggle {
+.stock-card {
   border-color: transparent !important;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.016) 42%, rgba(0, 0, 0, 0.18)),
@@ -10605,6 +10599,17 @@ body {
     0 2px 0 rgba(255, 255, 255, 0.03),
     0 20px 38px rgba(0, 0, 0, 0.28),
     0 46px 86px rgba(0, 0, 0, 0.26) !important;
+}
+
+/* Filter sidebar: sober flat panel, no glossy/embossed "bubble" skin. */
+.stock-sidebar .stock-filters-panel,
+.stock-sidebar .stock-filter-actions,
+.stock-results-head.sort-open,
+.stock-mobile-action,
+.button.neutral.stock-desktop-sort-toggle {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: none !important;
 }
 
 .stock-card {
@@ -10626,21 +10631,13 @@ body {
 .stock-sidebar .stock-filter-applied,
 .stock-sidebar .stock-choice-options,
 .stock-sort .stock-choice-options {
-  border-color: transparent !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.018)),
-    #151b22 !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -10px 22px rgba(0, 0, 0, 0.2),
-    0 12px 24px rgba(0, 0, 0, 0.18) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  box-shadow: none !important;
 }
 
-.stock-sidebar .stock-choice-option,
-.stock-sort .stock-choice-option,
 .stock-card-specs span,
-.stock-card-reference,
-.stock-filter-applied-chips span {
+.stock-card-reference {
   border-color: transparent !important;
   background: rgba(255, 255, 255, 0.055) !important;
   box-shadow:
@@ -10649,17 +10646,38 @@ body {
     0 8px 18px rgba(0, 0, 0, 0.16) !important;
 }
 
+.stock-sidebar .stock-choice-option,
+.stock-sort .stock-choice-option,
+.stock-filter-applied-chips span {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 .stock-sidebar .stock-choice-option:hover,
 .stock-sidebar .stock-choice-option:focus-visible,
 .stock-sort .stock-choice-option:hover,
 .stock-sort .stock-choice-option:focus-visible {
   border-color: transparent !important;
-  background: rgba(255, 255, 255, 0.07) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  box-shadow: none !important;
   transform: none !important;
 }
 
-.stock-sidebar .stock-choice-option.is-selected,
-.stock-sort .stock-choice-option.is-selected,
+.stock-sidebar .stock-choice-option.is-selected {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Sort chips have no checkbox, so the selected one still needs a visible
+   (but flat, non-glossy) fill to read as chosen. */
+.stock-sort .stock-choice-option.is-selected {
+  border-color: transparent !important;
+  background: rgba(225, 29, 46, 0.88) !important;
+  box-shadow: none !important;
+}
+
 .stock-sidebar .stock-show-results,
 .stock-card-cta {
   border-color: transparent !important;
