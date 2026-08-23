@@ -94,7 +94,7 @@ export default async function CarDetailPage({ params }) {
           <div className="detail-header">
             <div className="detail-header-title">
               <h1>
-                {car.brand} {car.model}
+                {car.brand} <span className="detail-model">{car.model}</span>
               </h1>
               <p className="detail-reference">Reference {car.reference}</p>
             </div>

@@ -6,7 +6,12 @@ export default function CarCard({ car }) {
   const sold = car.status === "sold";
   const photoCount = car.images?.length || 0;
   const showStatusBadge = reserved || sold;
-  const specs = [car.fuel, formatKm(car.mileage), car.year, car.gearbox].filter(Boolean);
+  const specs = [
+    { icon: "/icons/carburant.png", value: car.fuel },
+    { icon: "/icons/kilometrage.png", value: formatKm(car.mileage) },
+    { icon: "/icons/annee.png", value: car.year },
+    { icon: "/icons/boite-vitesses.png", value: car.gearbox },
+  ].filter((spec) => spec.value);
 
   return (
     <a
@@ -33,7 +38,7 @@ export default function CarCard({ car }) {
       <div className="stock-card-body">
         <span className="stock-card-reference">{car.reference}</span>
         <h3 className="stock-card-title">
-          {car.brand} {car.model}
+          {car.brand} <span className="stock-card-model">{car.model}</span>
         </h3>
         <p className="stock-card-subtitle">
           {car.description
@@ -41,14 +46,20 @@ export default function CarCard({ car }) {
             : "Contactez-nous pour plus d'informations."}
         </p>
         <div className="stock-card-specs" aria-label="Caracteristiques principales">
-          {specs.map((spec) => (
-            <span key={spec}>{spec}</span>
+          {specs.map(({ icon, value }) => (
+            <span key={value}>
+              <img src={icon} alt="" width={16} height={16} />
+              {value}
+            </span>
           ))}
         </div>
 
         <div className="stock-card-footer">
           <span className="stock-card-price">{formatPrice(car.price)}</span>
-          <span className="stock-card-cta">Voir la fiche</span>
+          <span className="stock-card-cta">
+            <img src="/icons/voir-la-fiche.png" alt="" width={18} height={18} />
+            Voir la fiche
+          </span>
         </div>
       </div>
     </a>

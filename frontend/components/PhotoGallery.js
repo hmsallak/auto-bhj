@@ -16,14 +16,6 @@ function CameraIcon(props) {
   );
 }
 
-function ZoomIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4" />
-    </svg>
-  );
-}
-
 function CloseIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...props}>
@@ -139,17 +131,6 @@ export default function PhotoGallery({ images, alt, status }) {
           onClick={() => setLightboxOpen(false)}
         />
 
-        {photos.length > 1 && (
-          <button
-            type="button"
-            className="gallery-lightbox-nav prev"
-            aria-label="Photo precedente"
-            onClick={showPrev}
-          >
-            <ChevronIcon direction="left" />
-          </button>
-        )}
-
         <div className="gallery-lightbox-stage">
           <Image
             src={active}
@@ -160,6 +141,29 @@ export default function PhotoGallery({ images, alt, status }) {
             unoptimized
             className="gallery-lightbox-image"
           />
+
+          {photos.length > 1 && (
+            <button
+              type="button"
+              className="gallery-lightbox-nav prev"
+              aria-label="Photo precedente"
+              onClick={showPrev}
+            >
+              <ChevronIcon direction="left" />
+            </button>
+          )}
+
+          {photos.length > 1 && (
+            <button type="button" className="gallery-lightbox-nav next" aria-label="Photo suivante" onClick={showNext}>
+              <ChevronIcon direction="right" />
+            </button>
+          )}
+
+          {photos.length > 1 && (
+            <span className="gallery-lightbox-counter">
+              {activeIndex + 1} / {photos.length}
+            </span>
+          )}
 
           {photos.length > 1 && (
             <div className="gallery-lightbox-thumbs" aria-label="Toutes les photos">
@@ -185,24 +189,16 @@ export default function PhotoGallery({ images, alt, status }) {
             </div>
           )}
         </div>
-
-        {photos.length > 1 && (
-          <button type="button" className="gallery-lightbox-nav next" aria-label="Photo suivante" onClick={showNext}>
-            <ChevronIcon direction="right" />
-          </button>
-        )}
-
-        {photos.length > 1 && (
-          <span className="gallery-lightbox-counter">
-            {activeIndex + 1} / {photos.length}
-          </span>
-        )}
       </div>
     ) : null;
 
   return (
     <div className="gallery">
-      <div className={`gallery-main ${reserved ? "is-reserved" : ""} ${sold ? "is-sold" : ""}`}>
+      <div
+        className={`gallery-main ${reserved ? "is-reserved" : ""} ${sold ? "is-sold" : ""}`}
+        onTouchStart={active && !sold ? handleTouchStart : undefined}
+        onTouchEnd={active && !sold ? handleTouchEnd : undefined}
+      >
         {active ? (
           <Image
             src={active}
@@ -212,6 +208,9 @@ export default function PhotoGallery({ images, alt, status }) {
             sizes="(max-width: 820px) 100vw, 56vw"
             priority
             unoptimized
+            onClick={!sold ? () => setLightboxOpen(true) : undefined}
+            role={!sold ? "button" : undefined}
+            aria-label={!sold ? "Voir toutes les photos en plein ecran" : undefined}
           />
         ) : (
           <div className="detail-media-placeholder">Pas de photo</div>
@@ -221,16 +220,28 @@ export default function PhotoGallery({ images, alt, status }) {
             <br />Photos non disponibles</div>
         )}
         <span className={`status ${status}`}>{statusLabel(status)}</span>
-        {active && !sold && (
-          <button
-            type="button"
-            className="gallery-zoom-button"
-            aria-label="Voir toutes les photos en plein ecran"
-            onClick={() => setLightboxOpen(true)}
-          >
-            <ZoomIcon />
-            {photos.length > 1 && <span className="gallery-zoom-count">{photos.length}</span>}
-          </button>
+        {active && !sold && photos.length > 1 && (
+          <>
+            <button
+              type="button"
+              className="gallery-main-nav prev"
+              aria-label="Photo precedente"
+              onClick={showPrev}
+            >
+              <ChevronIcon direction="left" />
+            </button>
+            <button
+              type="button"
+              className="gallery-main-nav next"
+              aria-label="Photo suivante"
+              onClick={showNext}
+            >
+              <ChevronIcon direction="right" />
+            </button>
+            <span className="gallery-main-counter">
+              {activeIndex + 1}/{photos.length}
+            </span>
+          </>
         )}
       </div>
 

@@ -3,11 +3,9 @@
 import { useEffect, useState } from "react";
 import { formatKm } from "../lib/format";
 import {
-  GaugeIcon,
   GearboxIcon,
   FuelIcon,
   CloudIcon,
-  CalendarIcon,
   ChevronDownIcon,
   PaintDropIcon,
   SeatIcon,
@@ -17,6 +15,35 @@ import {
   CarBodyIcon,
   OwnersIcon,
 } from "./CarSpecIcons";
+
+function InfoIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5" />
+      <circle cx="12" cy="8" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function EquipmentIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <path d="M10.5 4.5 6 9v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V9l-4.5-4.5" />
+      <path d="M9 13l2 2 4-4" />
+    </svg>
+  );
+}
+
+function DocSpecIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <path d="M7 3.5h6.5L18 8v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1Z" />
+      <path d="M13.5 3.5V8H18" />
+      <path d="M9 13h6M9 16h6" />
+    </svg>
+  );
+}
 
 function RowIcon({ type }) {
   const icons = {
@@ -54,19 +81,19 @@ function iconTypeForLabel(label) {
 
 export function SpecHighlights({ car }) {
   const cells = [
-    { Icon: GaugeIcon, label: "Kilometrage", value: formatKm(car.mileage) },
-    { Icon: CalendarIcon, label: "1ere immat.", value: car.year },
-    { Icon: FuelIcon, label: "Carburant", value: car.fuel },
-    { Icon: GearboxIcon, label: "Boite de vitesse", value: car.gearbox },
+    { icon: "/icons/kilometrage.png", label: "Kilometrage", value: formatKm(car.mileage) },
+    { icon: "/icons/annee.png", label: "1ere immat.", value: car.year },
+    { icon: "/icons/carburant.png", label: "Carburant", value: car.fuel },
+    { icon: "/icons/boite-vitesses.png", label: "Transmission", value: car.gearbox },
     { Icon: CloudIcon, label: "Classe d'emission", value: car.emissionClass || "Non communique" },
   ];
 
   return (
     <div className="spec-highlights">
-      {cells.map(({ Icon, label, value }) => (
+      {cells.map(({ icon, Icon, label, value }) => (
         <div className="spec-highlight" key={label}>
           <span className="spec-highlight-icon">
-            <Icon />
+            {icon ? <img src={icon} alt="" /> : <Icon />}
           </span>
           <div>
             <span className="spec-highlight-label">{label}</span>
@@ -139,8 +166,11 @@ export default function CarSpecSheet({ car }) {
           onToggle={(event) => setGeneralOpen(event.target.open)}
         >
           <summary>
-            <h3>Donnees generales</h3>
-            <ChevronDownIcon />
+            <span className="spec-block-title">
+              <InfoIcon className="spec-block-icon" />
+              <h3>Donnees generales</h3>
+            </span>
+            <ChevronDownIcon className="spec-block-chevron" />
           </summary>
           <div className="data-grid">{rows}</div>
         </details>
@@ -153,8 +183,11 @@ export default function CarSpecSheet({ car }) {
           onToggle={(event) => setEquipmentOpen(event.target.open)}
         >
           <summary>
-            <h3>Equipement</h3>
-            <ChevronDownIcon />
+            <span className="spec-block-title">
+              <EquipmentIcon className="spec-block-icon" />
+              <h3>Equipement</h3>
+            </span>
+            <ChevronDownIcon className="spec-block-chevron" />
           </summary>
           <div className="equipment-columns">
             {Object.entries(car.equipment).map(([category, items]) => (
@@ -177,8 +210,11 @@ export default function CarSpecSheet({ car }) {
         onToggle={(event) => setInfoOpen(event.target.open)}
       >
         <summary>
-          <h3>Info supplementaire</h3>
-          <ChevronDownIcon />
+          <span className="spec-block-title">
+            <DocSpecIcon className="spec-block-icon" />
+            <h3>Info supplementaire</h3>
+          </span>
+          <ChevronDownIcon className="spec-block-chevron" />
         </summary>
         <p className="car-description">
           {car.description || "Contactez-nous pour plus d'informations."}
