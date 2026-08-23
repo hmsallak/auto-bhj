@@ -1,4 +1,7 @@
-import { RefreshIcon, ShieldIcon, TagIcon } from "./icons";
+"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
+import { ShieldIcon, TagIcon, RefreshIcon } from "./icons";
 
 const ITEMS = [
   {
@@ -18,42 +21,59 @@ const ITEMS = [
   },
 ];
 
+const EASE = [0.16, 1, 0.3, 1];
+
+const gridContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+};
+
+const cardItem = {
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
+};
+
 export default function HomeTrustCards() {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
-    <section className="home-trust" aria-labelledby="home-trust-title">
-      <div className="home-trust-inner">
-        <div className="home-trust-content">
-          <header className="home-trust-copy">
-            <p className="eyebrow">Pourquoi nous choisir</p>
-            <h2 id="home-trust-title">Des voitures pretes a rouler, choisies avec serieux.</h2>
-            <p>
-              Chez Auto BHJ, on va droit au plus important: des vehicules propres,
-              controles et proposes au bon prix pour acheter avec confiance.
-            </p>
-          </header>
-
-          <div className="home-trust-grid">
-            {ITEMS.map(({ title, text, Icon }, index) => (
-              <article className="home-trust-card" key={title} style={{ "--delay": `${index * 90}ms` }}>
-                <span className="home-trust-icon" aria-hidden="true">
-                  <Icon width="24" height="24" />
-                </span>
-                <div>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                </div>
-              </article>
-            ))}
-          </div>
+    <section className="reasons-section" aria-labelledby="reasons-title">
+      <div className="reasons-intro-canvas">
+        <div className="reasons-copy">
+          <p className="reasons-kicker">Pourquoi nous choisir</p>
+          <h2 id="reasons-title" className="reasons-heading">
+            Des voitures pretes a rouler, choisies avec{" "}
+            <span className="reasons-accent">serieux.</span>
+          </h2>
+          <p className="reasons-lede">
+            Chez Auto BHJ, on va droit au plus important: des vehicules propres,
+            controles et proposes au bon prix pour acheter avec confiance.
+          </p>
         </div>
+      </div>
 
-        <figure className="home-trust-media">
-          <img
-            src="/home-key-handover.png"
-            alt="Remise de cles de voiture a un client"
-            loading="lazy"
-          />
-        </figure>
+      <motion.div
+        className="reasons-grid"
+        variants={gridContainer}
+        initial={prefersReducedMotion ? "show" : "hidden"}
+        whileInView="show"
+        viewport={{ once: false, amount: 0.25 }}
+      >
+        {ITEMS.map(({ title, text, Icon }) => (
+          <motion.div className="reasons-card" key={title} variants={cardItem}>
+            <span className="reasons-icon" aria-hidden="true">
+              <Icon width="24" height="24" />
+            </span>
+            <h3 className="reasons-card-title">{title}</h3>
+            <p className="reasons-card-text">{text}</p>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      <div className="reasons-contact">
+        <a className="reasons-contact-button" href="tel:+32483208801">
+          Nous contacter
+        </a>
       </div>
     </section>
   );

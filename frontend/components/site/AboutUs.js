@@ -34,7 +34,7 @@ const FEATURES = [
   {
     title: "Notre histoire",
     text:
-      "Nee d'une passion commune pour l'automobile, Auto BHJ a ete creee il y a 5 ans par une famille, avec une vision claire : proposer des vehicules de qualite en toute confiance.",
+      "Nee d'une passion commune pour l'automobile, Auto BHJ a ete creee il y a 10 ans par une famille, avec une vision claire : proposer des vehicules de qualite en toute confiance.",
     icon: "people",
   },
   {
@@ -109,7 +109,7 @@ export default function AboutUs() {
             variants={introContainer}
             initial={prefersReducedMotion ? "show" : "hidden"}
             whileInView="show"
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ once: false, amount: 0.3 }}
           >
             <motion.p className="about-bhj-eyebrow" variants={introItem}>
               <span />
@@ -117,7 +117,7 @@ export default function AboutUs() {
             </motion.p>
 
             <motion.h2 id="about-bhj-title" variants={introItem}>
-              Une entreprise familiale, depuis <span>5 ans.</span>
+              Une entreprise familiale, depuis <span>10 ans.</span>
             </motion.h2>
 
             <motion.div className="about-bhj-divider" variants={introItem} aria-hidden="true" />
@@ -128,7 +128,7 @@ export default function AboutUs() {
             variants={featuresContainer}
             initial={prefersReducedMotion ? "show" : "hidden"}
             whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
+            viewport={{ once: false, amount: 0.2 }}
           >
             {FEATURES.map((item) => (
               <motion.article className="about-bhj-feature" key={item.title} variants={featureItem}>

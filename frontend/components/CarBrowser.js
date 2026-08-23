@@ -1,7 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import CarGrid from "./CarGrid";
+
+const PROOF_EASE = [0.16, 1, 0.3, 1];
+
+const proofContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+};
+
+const proofItem = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: PROOF_EASE } },
+};
 
 const DEFAULT_FILTERS = {
   brand: "",
@@ -246,6 +259,7 @@ function ChoiceGroup({
 }
 
 export default function CarBrowser() {
+  const prefersReducedMotion = useReducedMotion();
   const [cars, setCars] = useState([]);
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -514,7 +528,9 @@ export default function CarBrowser() {
             <CarLineIcon aria-hidden="true" />
             <span>Catalogue</span>
           </p>
-          <h2 id="stock-catalog-title">Trouvez la voiture ideale</h2>
+          <h2 id="stock-catalog-title">
+            Trouvez la voiture <span className="stock-catalog-accent">ideale</span>
+          </h2>
           <span className="stock-catalog-mark" aria-hidden="true" />
           <p>
             Des occasions soigneusement selectionnees, pretes a prendre la route,
@@ -522,23 +538,30 @@ export default function CarBrowser() {
           </p>
         </div>
 
-        <div className="stock-catalog-proof" aria-label="Garanties Auto BHJ">
-          <div className="stock-catalog-proof-item">
+        <motion.div
+          className="stock-catalog-proof"
+          aria-label="Garanties Auto BHJ"
+          variants={proofContainer}
+          initial={prefersReducedMotion ? "show" : "hidden"}
+          whileInView="show"
+          viewport={{ once: false, amount: 0.3 }}
+        >
+          <motion.div className="stock-catalog-proof-item" variants={proofItem}>
             <ShieldCheckIcon aria-hidden="true" />
             <strong>Vehicules</strong>
             <span>controles</span>
-          </div>
-          <div className="stock-catalog-proof-item">
+          </motion.div>
+          <motion.div className="stock-catalog-proof-item" variants={proofItem}>
             <AwardLineIcon aria-hidden="true" />
             <strong>Garantie</strong>
             <span>incluse</span>
-          </div>
-          <div className="stock-catalog-proof-item">
+          </motion.div>
+          <motion.div className="stock-catalog-proof-item" variants={proofItem}>
             <HandshakeLineIcon aria-hidden="true" />
-            <strong>Accompagnement</strong>
+            <strong>Suivi</strong>
             <span>personnalise</span>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       <label className="search stock-search stock-search-wide">
@@ -860,6 +883,12 @@ export default function CarBrowser() {
             </nav>
           )}
         </div>
+      </div>
+
+      <div className="stock-catalog-more">
+        <a className="stock-catalog-more-button" href="/stock">
+          Voir plus
+        </a>
       </div>
     </div>
   );

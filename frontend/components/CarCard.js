@@ -57,8 +57,8 @@ export default function CarCard({ car }) {
         <div className="stock-card-footer">
           <span className="stock-card-price">{formatPrice(car.price)}</span>
           <span className="stock-card-cta">
+            Voir plus
             <img src="/icons/voir-la-fiche.png" alt="" width={18} height={18} />
-            Voir la fiche
           </span>
         </div>
       </div>
