@@ -7089,29 +7089,26 @@ textarea,
   }
 
   .stock-catalog-proof {
-    grid-template-columns: 1fr;
-    gap: 14px;
-    justify-items: start;
+    gap: 4px;
     padding-top: 18px;
   }
 
   .stock-catalog-proof-item {
-    grid-template-columns: 42px minmax(0, auto);
-    justify-items: start;
-    align-items: center;
-    gap: 6px 12px;
-    padding: 0;
-    text-align: left;
-  }
-
-  .stock-catalog-proof-item + .stock-catalog-proof-item {
-    border-left: 0;
+    gap: 6px;
+    padding: 6px 4px;
   }
 
   .stock-catalog-proof-item svg {
-    grid-row: span 2;
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .stock-catalog-proof-item strong {
+    font-size: 13px;
+  }
+
+  .stock-catalog-proof-item span {
+    font-size: 11px;
   }
 
   .stock-reset-inline {
@@ -10673,13 +10670,19 @@ body {
 }
 
 /* Filter sidebar: sober flat panel, no glossy/embossed "bubble" skin. */
-.stock-sidebar .stock-filters-panel,
 .stock-sidebar .stock-filter-actions,
 .stock-results-head.sort-open,
 .stock-mobile-action,
 .button.neutral.stock-desktop-sort-toggle {
   border-color: rgba(255, 255, 255, 0.1) !important;
   background: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: none !important;
+}
+
+/* Mobile drawer: opaque, not see-through to the page content behind it. */
+.stock-sidebar .stock-filters-panel {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: #16161a !important;
   box-shadow: none !important;
 }
 

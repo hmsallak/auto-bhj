@@ -248,7 +248,7 @@ function ChoiceGroup({
 export default function CarBrowser() {
   const [cars, setCars] = useState([]);
   const [query, setQuery] = useState("");
-  const [filtersOpen, setFiltersOpen] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(true);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [resetVersion, setResetVersion] = useState(0);
