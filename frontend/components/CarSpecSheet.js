@@ -5,6 +5,8 @@ import { formatKm } from "../lib/format";
 import {
   GearboxIcon,
   FuelIcon,
+  GaugeIcon,
+  CalendarIcon,
   CloudIcon,
   ChevronDownIcon,
   PaintDropIcon,
@@ -81,19 +83,19 @@ function iconTypeForLabel(label) {
 
 export function SpecHighlights({ car }) {
   const cells = [
-    { icon: "/icons/kilometrage.png", label: "Kilometrage", value: formatKm(car.mileage) },
-    { icon: "/icons/annee.png", label: "1ere immat.", value: car.year },
-    { icon: "/icons/carburant.png", label: "Carburant", value: car.fuel },
-    { icon: "/icons/boite-vitesses.png", label: "Transmission", value: car.gearbox },
+    { Icon: GaugeIcon, label: "Kilometrage", value: formatKm(car.mileage) },
+    { Icon: CalendarIcon, label: "1ere immat.", value: car.year },
+    { Icon: FuelIcon, label: "Carburant", value: car.fuel },
+    { Icon: GearboxIcon, label: "Transmission", value: car.gearbox },
     { Icon: CloudIcon, label: "Classe d'emission", value: car.emissionClass || "Non communique" },
   ];
 
   return (
     <div className="spec-highlights">
-      {cells.map(({ icon, Icon, label, value }) => (
+      {cells.map(({ Icon, label, value }) => (
         <div className="spec-highlight" key={label}>
           <span className="spec-highlight-icon">
-            {icon ? <img src={icon} alt="" /> : <Icon />}
+            <Icon aria-hidden="true" />
           </span>
           <div>
             <span className="spec-highlight-label">{label}</span>

@@ -75,7 +75,7 @@ export default function HomeLatestCars() {
   }, []);
 
   return (
-    <div className="stock-browser">
+    <div className="stock-browser home-latest-cars">
       <section className="stock-catalog-hero" aria-labelledby="stock-catalog-title">
         <div className="stock-catalog-hero-copy">
           <p className="stock-catalog-pill">

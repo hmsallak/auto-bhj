@@ -53,75 +53,18 @@ const STATUS_LABELS = {
   sold: "Vendu",
 };
 
-const MARKET_BRANDS = [
-  "Audi",
-  "BMW",
-  "Citroen",
-  "Dacia",
-  "Fiat",
-  "Ford",
-  "Hyundai",
-  "Kia",
-  "Mercedes-Benz",
-  "MINI",
-  "Nissan",
-  "Opel",
-  "Peugeot",
-  "Renault",
-  "SEAT",
-  "Skoda",
-  "Toyota",
-  "Volkswagen",
-  "Volvo",
-];
-
-const MARKET_MODELS_BY_BRAND = {
-  Audi: ["A1", "A3", "A4", "Q2", "Q3", "Q5"],
-  BMW: ["Serie 1", "Serie 3", "Serie 5", "X1", "X3"],
-  Citroen: ["C1", "C3", "C4", "C5 Aircross", "Berlingo"],
-  Dacia: ["Sandero", "Duster", "Logan", "Jogger"],
-  Fiat: ["500", "Panda", "Tipo", "Doblo"],
-  Ford: ["Fiesta", "Focus", "Puma", "Kuga", "Transit"],
-  Hyundai: ["i10", "i20", "i30", "Kona", "Tucson"],
-  Kia: ["Picanto", "Rio", "Ceed", "Sportage", "Niro"],
-  "Mercedes-Benz": ["Classe A", "Classe B", "Classe C", "CLA", "GLA"],
-  MINI: ["Cooper", "Countryman", "Clubman"],
-  Nissan: ["Micra", "Juke", "Qashqai", "X-Trail"],
-  Opel: ["Corsa", "Astra", "Mokka", "Crossland", "Insignia"],
-  Peugeot: ["108", "208", "308", "2008", "3008", "5008"],
-  Renault: ["Clio", "Megane", "Captur", "Kadjar", "Scenic"],
-  SEAT: ["Ibiza", "Leon", "Arona", "Ateca"],
-  Skoda: ["Fabia", "Octavia", "Scala", "Kamiq", "Karoq"],
-  Toyota: ["Aygo", "Yaris", "Corolla", "C-HR", "RAV4"],
-  Volkswagen: ["Polo", "Golf", "Golf Plus", "Passat", "Tiguan", "Touran"],
-  Volvo: ["V40", "V60", "XC40", "XC60"],
-};
-
-const MARKET_FUELS = [
-  "Essence",
-  "Diesel",
-  "Hybride",
-  "Hybride - Essence",
-  "Hybride - Diesel",
-  "Electrique",
-  "GPL",
-  "CNG",
-];
-
-const MARKET_GEARBOXES = ["Manuelle", "Automatique", "Semi-automatique"];
-
-const MARKET_BODY_TYPES = [
-  "Citadine",
-  "Berline",
-  "Break",
-  "SUV",
-  "Monospace",
-  "Coupe",
-  "Cabriolet",
-  "Utilitaire",
-];
-
 const MARKET_YEARS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012", "2011", "2010"];
+
+const MILEAGE_LIMITS = ["50000", "75000", "100000", "125000", "150000", "200000"];
+
+const SORT_LABELS = {
+  recommended: "Pertinence",
+  newest: "Plus recents",
+  price_asc: "Prix croissant",
+  price_desc: "Prix decroissant",
+  km_asc: "Kilometrage bas",
+  year_desc: "Annee recente",
+};
 
 function numberValue(value) {
   const number = Number(value);
@@ -145,6 +88,15 @@ function FilterIcon(props) {
       <path d="M4 17h2" />
       <path d="M10 17h10" />
       <path d="M8 15v4" />
+    </svg>
+  );
+}
+
+function SearchIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
     </svg>
   );
 }
@@ -212,6 +164,13 @@ function HandshakeLineIcon(props) {
   );
 }
 
+function closeSiblingChoiceGroups(currentDetails) {
+  const scope = currentDetails.closest(".stock-filter-scroll, .stock-sort-shell, .stock-mobile-sort-panel");
+  scope?.querySelectorAll("details.stock-choice-group[open]").forEach((details) => {
+    if (details !== currentDetails) details.open = false;
+  });
+}
+
 function ChoiceGroup({
   label,
   value,
@@ -229,10 +188,20 @@ function ChoiceGroup({
     detailsRef.current.open = defaultOpen;
   }, [defaultOpen, resetVersion]);
 
+  function handleToggle(event) {
+    if (event.currentTarget.open) closeSiblingChoiceGroups(event.currentTarget);
+  }
+
+  function chooseOption(nextValue) {
+    onChange(nextValue);
+    if (!defaultOpen && detailsRef.current) detailsRef.current.open = false;
+  }
+
   return (
     <details
       ref={detailsRef}
       className={`stock-choice-group ${className}`}
+      onToggle={handleToggle}
       {...(defaultOpen ? { open: true } : {})}
     >
       <summary>
@@ -246,7 +215,7 @@ function ChoiceGroup({
             type="button"
             className={`stock-choice-option ${option.value === value ? "is-selected" : ""}`}
             aria-pressed={option.value === value}
-            onClick={() => onChange(option.value)}
+            onClick={() => chooseOption(option.value)}
           >
             <span className="stock-choice-box" aria-hidden="true" />
             <span>{option.label}</span>
@@ -258,18 +227,85 @@ function ChoiceGroup({
   );
 }
 
+function MileageFilter({ value, onChange, resetVersion = 0 }) {
+  const detailsRef = useRef(null);
+  const selectedLabel = value ? `${Number(value).toLocaleString("fr-BE")} km` : "Tous";
+
+  useEffect(() => {
+    if (!detailsRef.current) return;
+    detailsRef.current.open = false;
+  }, [resetVersion]);
+
+  function chooseMileage(nextValue) {
+    onChange(nextValue);
+    if (detailsRef.current) detailsRef.current.open = false;
+  }
+
+  return (
+    <details
+      ref={detailsRef}
+      className="stock-choice-group stock-mileage-menu"
+      onToggle={(event) => {
+        if (event.currentTarget.open) closeSiblingChoiceGroups(event.currentTarget);
+      }}
+    >
+      <summary>
+        <span>Km max</span>
+        <strong>{selectedLabel}</strong>
+      </summary>
+      <div className="stock-choice-options stock-mileage-options">
+        <button
+          type="button"
+          className={`stock-choice-option ${!value ? "is-selected" : ""}`}
+          aria-pressed={!value}
+          onClick={() => chooseMileage("")}
+        >
+          <span className="stock-choice-box" aria-hidden="true" />
+          <span>Tous les km</span>
+        </button>
+        {MILEAGE_LIMITS.map((limit) => (
+          <button
+            key={limit}
+            type="button"
+            className={`stock-choice-option ${value === limit ? "is-selected" : ""}`}
+            aria-pressed={value === limit}
+            onClick={() => chooseMileage(limit)}
+          >
+            <span className="stock-choice-box" aria-hidden="true" />
+            <span>{Number(limit).toLocaleString("fr-BE")} km</span>
+          </button>
+        ))}
+        <label className="stock-mileage-custom">
+          <span>Valeur personnalisee</span>
+          <input
+            type="number"
+            min="0"
+            inputMode="numeric"
+            placeholder="Ex. 100000"
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+          />
+        </label>
+      </div>
+    </details>
+  );
+}
+
 export default function CarBrowser() {
   const prefersReducedMotion = useReducedMotion();
   const [cars, setCars] = useState([]);
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [sortOpen, setSortOpen] = useState(true);
+  const [desktopSortOpen, setDesktopSortOpen] = useState(false);
+  const [mobileSortOpen, setMobileSortOpen] = useState(false);
+  const [desktopFiltersExpanded, setDesktopFiltersExpanded] = useState(false);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [resetVersion, setResetVersion] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [urlReady, setUrlReady] = useState(false);
   const resultsRef = useRef(null);
+  const selectedSortLabel = SORT_LABELS[filters.sort] || SORT_LABELS.recommended;
 
   useEffect(() => {
     const mobileQuery = window.matchMedia("(max-width: 980px)");
@@ -277,7 +313,8 @@ export default function CarBrowser() {
     function syncMobilePanels(eventOrQuery = mobileQuery) {
       const desktop = !eventOrQuery.matches;
       setFiltersOpen(desktop);
-      setSortOpen(false);
+      setDesktopSortOpen(false);
+      setMobileSortOpen(false);
     }
 
     syncMobilePanels(mobileQuery);
@@ -334,19 +371,18 @@ export default function CarBrowser() {
       }, new Map());
     }
 
-    function mergeChoices(baseValues, counts) {
-      const values = [...baseValues, ...counts.keys()];
-      return [...new Set(values.filter(Boolean))]
+    function choicesFromCounts(counts) {
+      return [...counts.keys()]
         .sort((a, b) => String(a).localeCompare(String(b), "fr"))
         .map((value) => ({
           value,
           label: String(value),
-          count: counts.get(String(value)) || 0,
+          count: counts.get(value) || 0,
         }));
     }
 
-    function choices(key, baseValues, source = cars) {
-      return mergeChoices(baseValues, stockCounts(key, source));
+    function choices(key, source = cars) {
+      return choicesFromCounts(stockCounts(key, source));
     }
 
     function yearChoices() {
@@ -362,30 +398,16 @@ export default function CarBrowser() {
       return MARKET_YEARS.map((value) => ({ value, label: value, count: counts.get(value) || 0 }));
     }
 
-    function stockModelChoices(source = cars) {
-      const counts = source.reduce((map, car) => {
-        const value = car.model;
-        if (!value) return map;
-        map.set(String(value), (map.get(String(value)) || 0) + 1);
-        return map;
-      }, new Map());
-
-      return counts;
-    }
-
     const carsForModel = filters.brand
       ? cars.filter((car) => car.brand === filters.brand)
       : cars;
-    const modelBase = filters.brand
-      ? MARKET_MODELS_BY_BRAND[filters.brand] || []
-      : Object.values(MARKET_MODELS_BY_BRAND).flat();
 
     return {
-      brands: choices("brand", MARKET_BRANDS),
-      models: mergeChoices(modelBase, stockModelChoices(carsForModel)),
-      fuels: choices("fuel", MARKET_FUELS),
-      gearboxes: choices("gearbox", MARKET_GEARBOXES),
-      bodyTypes: choices("bodyType", MARKET_BODY_TYPES),
+      brands: choices("brand"),
+      models: choices("model", carsForModel),
+      fuels: choices("fuel"),
+      gearboxes: choices("gearbox"),
+      bodyTypes: choices("bodyType"),
       years: yearChoices(),
     };
   }, [cars, filters.brand]);
@@ -496,7 +518,8 @@ export default function CarBrowser() {
 
   function updateSort(value) {
     updateFilter("sort", value);
-    setSortOpen(false);
+    setDesktopSortOpen(false);
+    setMobileSortOpen(false);
   }
 
   function resetFilters() {
@@ -565,7 +588,11 @@ export default function CarBrowser() {
       </section>
 
       <label className="search stock-search stock-search-wide">
-        Recherche
+        <span className="stock-search-label-text">Recherche</span>
+        <span className="stock-search-kind">
+          Recherche
+        </span>
+        <SearchIcon className="stock-search-icon" aria-hidden="true" />
         <input
           type="search"
           placeholder="Reference, marque, modele, carburant..."
@@ -580,10 +607,11 @@ export default function CarBrowser() {
             <button
               className={`button neutral stock-desktop-sort-toggle${filters.sort !== DEFAULT_FILTERS.sort ? " is-active" : ""}`}
               type="button"
-              aria-expanded={sortOpen}
-              onClick={() => setSortOpen((value) => !value)}
+              aria-expanded={desktopSortOpen}
+              onClick={() => setDesktopSortOpen((value) => !value)}
             >
-              <span>Trier par</span>
+              <span className="stock-sort-prefix">Trier:</span>
+              <strong>{selectedSortLabel}</strong>
               <SortIcon aria-hidden="true" />
               {filters.sort !== DEFAULT_FILTERS.sort && (
                 <span className="stock-filter-count" aria-label="1 tri applique">
@@ -591,7 +619,7 @@ export default function CarBrowser() {
                 </span>
               )}
             </button>
-            <div className={`stock-results-head ${sortOpen ? "sort-open" : ""}`}>
+            <div className={`stock-results-head ${desktopSortOpen ? "sort-open" : ""}`}>
               <ChoiceGroup
                 className="stock-sort"
                 label="Trier"
@@ -629,8 +657,8 @@ export default function CarBrowser() {
             <button
               className={`button neutral stock-sort-toggle stock-mobile-action${filters.sort !== DEFAULT_FILTERS.sort ? " is-active" : ""}`}
               type="button"
-              aria-expanded={sortOpen}
-              onClick={() => setSortOpen((value) => !value)}
+              aria-expanded={mobileSortOpen}
+              onClick={() => setMobileSortOpen((value) => !value)}
             >
               <span>Trier par</span>
               <SortIcon aria-hidden="true" />
@@ -642,7 +670,7 @@ export default function CarBrowser() {
             </button>
           </div>
 
-          <div className={`stock-mobile-sort-panel ${sortOpen ? "sort-open" : ""}`}>
+          <div className={`stock-mobile-sort-panel ${mobileSortOpen ? "sort-open" : ""}`}>
             <ChoiceGroup
               className="stock-sort"
               label="Trier"
@@ -660,7 +688,9 @@ export default function CarBrowser() {
             />
           </div>
 
-          <div className={`stock-filters-panel ${filtersOpen ? "open" : ""}`}>
+          <div
+            className={`stock-filters-panel ${filtersOpen ? "open" : ""}${desktopFiltersExpanded ? " desktop-expanded" : ""}`}
+          >
             <div className="stock-filter-drawer-head">
               <button
                 className="stock-filter-clear"
@@ -686,6 +716,16 @@ export default function CarBrowser() {
               onClick={resetFilters}
             >
               Réinitialiser les filtres
+            </button>
+
+            <button
+              className={`stock-desktop-more-filters${desktopFiltersExpanded ? " is-active" : ""}`}
+              type="button"
+              aria-expanded={desktopFiltersExpanded}
+              onClick={() => setDesktopFiltersExpanded((value) => !value)}
+            >
+              <span>Tous les filtres</span>
+              <FilterIcon aria-hidden="true" />
             </button>
 
             <div className="stock-filter-applied">
@@ -731,6 +771,7 @@ export default function CarBrowser() {
                 ]}
               />
               <ChoiceGroup
+                className="stock-filter-secondary"
                 label="Carrosserie"
                 value={filters.bodyType}
                 onChange={(value) => updateFilter("bodyType", value)}
@@ -741,6 +782,7 @@ export default function CarBrowser() {
                 ]}
               />
               <ChoiceGroup
+                className="stock-filter-secondary"
                 label="Disponibilite"
                 value={filters.status}
                 onChange={(value) => updateFilter("status", value)}
@@ -766,7 +808,7 @@ export default function CarBrowser() {
               />
               <div className="stock-filter-pair">
                 <label>
-                  Prix min.
+                  <span>Prix min.</span>
                   <input
                     type="number"
                     min="0"
@@ -777,7 +819,7 @@ export default function CarBrowser() {
                   />
                 </label>
                 <label>
-                  Prix max.
+                  <span>Prix max.</span>
                   <input
                     type="number"
                     min="0"
@@ -789,6 +831,7 @@ export default function CarBrowser() {
                 </label>
               </div>
               <ChoiceGroup
+                className="stock-filter-secondary"
                 label="Annee minimum"
                 value={filters.yearMin}
                 onChange={(value) => updateFilter("yearMin", value)}
@@ -802,17 +845,11 @@ export default function CarBrowser() {
                   })),
                 ]}
               />
-              <label className="stock-filter-field stock-filter-mileage">
-                Kilometrage maximum
-                <input
-                  type="number"
-                  min="0"
-                  inputMode="numeric"
-                  placeholder="100000"
-                  value={filters.mileageMax}
-                  onChange={(event) => updateFilter("mileageMax", event.target.value)}
-                />
-              </label>
+              <MileageFilter
+                value={filters.mileageMax}
+                onChange={(value) => updateFilter("mileageMax", value)}
+                resetVersion={resetVersion}
+              />
               <ChoiceGroup
                 label="Carburant"
                 value={filters.fuel}
@@ -885,17 +922,6 @@ export default function CarBrowser() {
         </div>
       </div>
 
-      {!loading && currentPage < pageCount && (
-        <div className="stock-catalog-more">
-          <button
-            type="button"
-            className="stock-catalog-more-button"
-            onClick={() => goToPage(currentPage + 1)}
-          >
-            Suivant
-          </button>
-        </div>
-      )}
     </div>
   );
 }

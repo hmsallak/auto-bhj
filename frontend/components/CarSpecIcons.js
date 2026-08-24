@@ -6,7 +6,7 @@ function Svg({ children, ...props }) {
       height="20"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.8"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
@@ -19,9 +19,10 @@ function Svg({ children, ...props }) {
 export function GaugeIcon(props) {
   return (
     <Svg {...props}>
-      <path d="M4 15a8 8 0 1 1 16 0" />
-      <path d="M12 15l4-5" />
-      <path d="M12 15h.01" />
+      <path d="M4.5 16a7.5 7.5 0 1 1 15 0" />
+      <path d="M7.2 13.2h.01M8.8 9.5h.01M12 8.2h.01M15.2 9.5h.01M16.8 13.2h.01" />
+      <path d="M12 16l3.8-4.2" />
+      <path d="M9 18h6" />
     </Svg>
   );
 }
@@ -29,8 +30,11 @@ export function GaugeIcon(props) {
 export function GearboxIcon(props) {
   return (
     <Svg {...props}>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 3v3M12 18v3M4.2 7.5l2.6 1.5M17.2 15l2.6 1.5M4.2 16.5l2.6-1.5M17.2 9l2.6-1.5" />
+      <path d="M6 6v12M12 6v12M18 6v12" />
+      <path d="M6 12h12" />
+      <circle cx="6" cy="5" r="1.6" />
+      <circle cx="12" cy="5" r="1.6" />
+      <circle cx="18" cy="5" r="1.6" />
     </Svg>
   );
 }
@@ -38,9 +42,11 @@ export function GearboxIcon(props) {
 export function FuelIcon(props) {
   return (
     <Svg {...props}>
-      <path d="M4 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15" />
-      <path d="M4 11h8" />
-      <path d="M14 8l3 2v6a1.5 1.5 0 0 0 3 0V9l-3-3" />
+      <path d="M5 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15" />
+      <path d="M7.5 9.5h5" />
+      <path d="M4 21h12" />
+      <path d="M15 7l3 2.4V17a1.6 1.6 0 0 0 3.2 0v-5.5L18 8.3" />
+      <path d="M18 8.3V5.8" />
     </Svg>
   );
 }
@@ -114,6 +120,7 @@ export function CalendarIcon(props) {
     <Svg {...props}>
       <rect x="4" y="5" width="16" height="16" rx="2" />
       <path d="M4 10h16M8 3v4M16 3v4" />
+      <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
     </Svg>
   );
 }

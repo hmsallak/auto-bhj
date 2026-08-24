@@ -1,16 +1,16 @@
 import Image from "next/image";
-import { formatPrice, formatKm, statusLabel, carImage } from "../lib/format";
+import { formatPrice, formatKm, carImage } from "../lib/format";
+import { CalendarIcon, FuelIcon, GaugeIcon, GearboxIcon } from "./CarSpecIcons";
 
 export default function CarCard({ car }) {
   const reserved = car.status === "reserved";
   const sold = car.status === "sold";
   const photoCount = car.images?.length || 0;
-  const showStatusBadge = reserved || sold;
   const specs = [
-    { icon: "/icons/carburant.png", value: car.fuel },
-    { icon: "/icons/kilometrage.png", value: formatKm(car.mileage) },
-    { icon: "/icons/annee.png", value: car.year },
-    { icon: "/icons/boite-vitesses.png", value: car.gearbox },
+    { Icon: FuelIcon, value: car.fuel },
+    { Icon: GaugeIcon, value: formatKm(car.mileage) },
+    { Icon: CalendarIcon, value: car.year },
+    { Icon: GearboxIcon, value: car.gearbox },
   ].filter((spec) => spec.value);
 
   return (
@@ -28,15 +28,9 @@ export default function CarCard({ car }) {
           unoptimized
         />
         {photoCount > 1 && <span className="photo-count">1/{photoCount}</span>}
-        {showStatusBadge && (
-          <div className="stock-card-badges">
-            <span className={`status ${car.status}`}>{statusLabel(car.status)}</span>
-          </div>
-        )}
       </div>
 
       <div className="stock-card-body">
-        <span className="stock-card-reference">{car.reference}</span>
         <h3 className="stock-card-title">
           {car.brand} <span className="stock-card-model">{car.model}</span>
         </h3>
@@ -46,9 +40,9 @@ export default function CarCard({ car }) {
             : "Contactez-nous pour plus d'informations."}
         </p>
         <div className="stock-card-specs" aria-label="Caracteristiques principales">
-          {specs.map(({ icon, value }) => (
+          {specs.map(({ Icon, value }) => (
             <span key={value}>
-              <img src={icon} alt="" width={16} height={16} />
+              <Icon aria-hidden="true" />
               {value}
             </span>
           ))}
@@ -58,11 +52,10 @@ export default function CarCard({ car }) {
           <span className="stock-card-price">{formatPrice(car.price)}</span>
           <span className="stock-card-cta">
             Voir plus
-            <img src="/icons/voir-la-fiche.png" alt="" width={18} height={18} />
+            <span aria-hidden="true">→</span>
           </span>
         </div>
       </div>
     </a>
   );
 }
-
