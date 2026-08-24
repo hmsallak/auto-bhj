@@ -7,17 +7,37 @@ import AdminOverview from "../../components/admin/AdminOverview";
 import AdminStock from "../../components/admin/AdminStock";
 import AdminMessages from "../../components/admin/AdminMessages";
 import AdminUsers from "../../components/admin/AdminUsers";
+import AdminUserForm from "../../components/admin/AdminUserForm";
+import AdminProfile from "../../components/admin/AdminProfile";
 import AdminSettings from "../../components/admin/AdminSettings";
 import AdminCarForm from "../../components/AdminCarForm";
 
 const TAB_TITLES = {
-  overview: "Vue d'ensemble",
-  stock: "Stock",
+  overview: "Tableau de bord",
+  stock: "Vehicules",
   form: "Ajouter / Modifier une voiture",
   messages: "Messages",
   users: "Equipe",
+  userForm: "Creer / Modifier un membre",
+  profile: "Mon profil",
   settings: "Parametres",
 };
+
+const TAB_SUBTITLES = {
+  overview: "Bienvenue sur votre espace de gestion.",
+  stock: "Suivez, filtrez et mettez a jour les vehicules publies.",
+  form: "Renseignez les informations de l'annonce sans perdre le fil.",
+  messages: "Centralisez les demandes recues depuis le site.",
+  users: "Gerez les acces de l'equipe Auto BHJ.",
+  userForm: "Configurez les informations et les autorisations du membre.",
+  profile: "Consultez votre compte et gerez votre session.",
+  settings: "Gardez le compte administrateur securise.",
+};
+
+function hasPermission(user, permission) {
+  if (user?.role === "owner") return true;
+  return Boolean(user?.permissions?.includes(permission));
+}
 
 export default function AdminPage() {
   const [checking, setChecking] = useState(true);
@@ -50,6 +70,8 @@ export default function AdminPage() {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [activity, setActivity] = useState([]);
+  const [editingUser, setEditingUser] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   async function loadCars() {
     setCars(await api("/api/cars"));
@@ -70,7 +92,7 @@ export default function AdminPage() {
   async function loadForRole(currentUser) {
     const isOwner = currentUser?.role === "owner";
     const tasks = [loadCars()];
-    if (isOwner || currentUser?.permissions?.includes("messages")) {
+    if (isOwner || currentUser?.permissions?.includes("messages_read")) {
       tasks.push(loadMessages());
     }
     if (isOwner) {
@@ -84,7 +106,13 @@ export default function AdminPage() {
       .then(async (session) => {
         setAuthenticated(Boolean(session.authenticated));
         const currentUser = session.authenticated
-          ? { username: session.username, role: session.role, permissions: session.permissions }
+          ? {
+              username: session.username,
+              firstName: session.firstName,
+              lastName: session.lastName,
+              role: session.role,
+              permissions: session.permissions,
+            }
           : null;
         setUser(currentUser);
         if (currentUser) {
@@ -93,6 +121,31 @@ export default function AdminPage() {
       })
       .finally(() => setChecking(false));
   }, []);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") setMobileMenuOpen(false);
+    }
+
+    document.body.classList.add("admin-menu-open");
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.classList.remove("admin-menu-open");
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [mobileMenuOpen]);
+
+  function selectAdminTab(tab) {
+    setActiveTab(tab);
+    setMobileMenuOpen(false);
+    if (tab === "form") setEditingCar(null);
+    if (tab !== "userForm") setEditingUser(null);
+    setCarMessage("");
+    setCarMessageError(false);
+  }
 
   async function handleLogin(event) {
     event.preventDefault();
@@ -107,7 +160,13 @@ export default function AdminPage() {
       });
       event.target.reset();
       const session = await api("/api/admin/me");
-      const currentUser = { username: session.username, role: session.role, permissions: session.permissions };
+      const currentUser = {
+        username: session.username,
+        firstName: session.firstName,
+        lastName: session.lastName,
+        role: session.role,
+        permissions: session.permissions,
+      };
       setAuthenticated(true);
       setUser(currentUser);
       await loadForRole(currentUser);
@@ -121,6 +180,7 @@ export default function AdminPage() {
     setAuthenticated(false);
     setUser(null);
     setEditingCar(null);
+    setEditingUser(null);
     setActiveTab("overview");
   }
 
@@ -143,22 +203,18 @@ export default function AdminPage() {
     }
   }
 
-  async function handleDelete(car) {
-    if (!window.confirm(`Supprimer ${car.reference} (${car.brand} ${car.model}) du stock ?`)) {
-      return;
-    }
-
-    try {
-      await api(`/api/admin/cars/${car.id}`, { method: "DELETE" });
-      if (editingCar?.id === car.id) setEditingCar(null);
-      await loadCars();
-    } catch (error) {
-      setCarMessage(error.message);
-      setCarMessageError(true);
-    }
+  async function handleDelete(car, password) {
+    await api(`/api/admin/cars/${car.id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+    if (editingCar?.id === car.id) setEditingCar(null);
+    await loadCars();
   }
 
   function handleEdit(car) {
+    if (!hasPermission(user, "stock_write")) return;
     setEditingCar(car);
     setCarMessage("");
     setCarMessageError(false);
@@ -191,13 +247,24 @@ export default function AdminPage() {
     await loadMessages();
   }
 
-  async function handleCreateUser(payload) {
-    await api("/api/admin/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+  async function handleSaveUser(payload) {
+    if (editingUser) {
+      await api(`/api/admin/users/${editingUser.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } else {
+      await api("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    }
+
     await Promise.all([loadUsers(), loadActivity()]);
+    setEditingUser(null);
+    setActiveTab("users");
   }
 
   async function handleUpdatePermissions(id, permissions) {
@@ -226,23 +293,43 @@ export default function AdminPage() {
     <div className="dashboard">
       <AdminSidebar
         activeTab={activeTab}
-        onSelect={(tab) => {
-          setActiveTab(tab);
-          if (tab === "form") setEditingCar(null);
-          setCarMessage("");
-          setCarMessageError(false);
-        }}
+        onSelect={selectAdminTab}
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        onLogout={handleLogout}
         user={user}
         stockCount={cars.length}
         unreadCount={unreadCount}
       />
+      <button
+        className={`dash-mobile-backdrop ${mobileMenuOpen ? "open" : ""}`}
+        type="button"
+        aria-label="Fermer le menu"
+        onClick={() => setMobileMenuOpen(false)}
+      />
 
       <div className="dash-main">
         <header className="dash-topbar">
-          <h1>{TAB_TITLES[activeTab]}</h1>
-          <button className="link-button" type="button" onClick={handleLogout}>
-            Deconnexion
-          </button>
+          <div className="dash-topbar-title">
+            <button
+              className="dash-mobile-menu-toggle"
+              type="button"
+              aria-label="Ouvrir le menu"
+              aria-expanded={mobileMenuOpen}
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+            <div>
+              <h1>{TAB_TITLES[activeTab]}</h1>
+              <p>{TAB_SUBTITLES[activeTab]}</p>
+            </div>
+          </div>
+          <div className="dash-topbar-actions">
+            <span className="dash-period">Donnees actuelles</span>
+          </div>
         </header>
 
         <div className="dash-content">
@@ -251,11 +338,29 @@ export default function AdminPage() {
           )}
 
           {activeTab === "overview" && (
-            <AdminOverview cars={cars} onGoToForm={() => setActiveTab("form")} />
+            <AdminOverview
+              cars={cars}
+              messages={messages}
+              activity={activity}
+              onGoToForm={() => setActiveTab("form")}
+              onGoToStock={() => setActiveTab("stock")}
+              canCreateCar={hasPermission(user, "stock_create")}
+            />
           )}
 
           {activeTab === "stock" && (
-            <AdminStock cars={cars} onEdit={handleEdit} onDelete={handleDelete} />
+            <AdminStock
+              cars={cars}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              canEdit={hasPermission(user, "stock_write")}
+              canDelete={hasPermission(user, "stock_delete")}
+              canCreate={hasPermission(user, "stock_create")}
+              onCreate={() => {
+                setEditingCar(null);
+                setActiveTab("form");
+              }}
+            />
           )}
 
           {activeTab === "form" && (
@@ -274,6 +379,7 @@ export default function AdminPage() {
               messages={messages}
               onToggleRead={handleToggleMessageRead}
               onDelete={handleDeleteMessage}
+              canDelete={hasPermission(user, "messages_delete")}
             />
           )}
 
@@ -281,13 +387,39 @@ export default function AdminPage() {
             <AdminUsers
               users={users}
               activity={activity}
-              onCreateUser={handleCreateUser}
               onUpdatePermissions={handleUpdatePermissions}
               onDeleteUser={handleDeleteUser}
+              onCreateClick={() => {
+                setEditingUser(null);
+                setActiveTab("userForm");
+              }}
+              onEditUser={(targetUser) => {
+                setEditingUser(targetUser);
+                setActiveTab("userForm");
+              }}
             />
           )}
 
-          {activeTab === "settings" && (
+          {activeTab === "userForm" && user?.role === "owner" && (
+            <AdminUserForm
+              editingUser={editingUser}
+              onSubmit={handleSaveUser}
+              onCancel={() => {
+                setEditingUser(null);
+                setActiveTab("users");
+              }}
+            />
+          )}
+
+          {activeTab === "profile" && (
+            <AdminProfile
+              user={user}
+              onChangePassword={handleChangePassword}
+              onLogout={handleLogout}
+            />
+          )}
+
+          {activeTab === "settings" && user?.role === "owner" && (
             <AdminSettings username={user?.username} onChangePassword={handleChangePassword} />
           )}
         </div>

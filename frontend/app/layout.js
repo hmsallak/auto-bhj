@@ -1,4 +1,4 @@
-import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -15,6 +15,13 @@ const outfit = Outfit({
   display: "swap",
 });
 
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-admin",
+  display: "swap",
+});
+
 export const metadata = {
   title: "Auto BHJ - Vehicules d'occasion",
   description: "Auto BHJ presente son stock de vehicules d'occasion en ligne.",
@@ -27,7 +34,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="fr" className={`${jakarta.variable} ${outfit.variable}`}>
+    <html lang="fr" className={`${jakarta.variable} ${outfit.variable} ${poppins.variable}`}>
       <head>
       </head>
       <body>{children}</body>

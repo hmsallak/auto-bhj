@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { updateUserPermissions, deleteUser } from "../../../../../../backend/models/adminUsers";
+import { updateUser, deleteUser } from "../../../../../../backend/models/adminUsers";
 import { requireOwner, authError } from "../../../../../lib/adminAuth";
 
 export async function PATCH(request, { params }) {
@@ -11,7 +11,7 @@ export async function PATCH(request, { params }) {
 
   const { id } = await params;
   const payload = await request.json().catch(() => ({}));
-  const result = updateUserPermissions(Number(id), payload.permissions, user.username);
+  const result = updateUser(Number(id), payload, user.username);
   if (result.error) {
     const status = result.error === "Utilisateur introuvable." ? 404 : 400;
     return NextResponse.json({ error: result.error }, { status });

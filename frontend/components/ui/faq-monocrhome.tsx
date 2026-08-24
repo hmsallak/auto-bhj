@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import OfficialIcon from "@/components/OfficialIcon";
 
 type FaqItem = {
   question: string;
@@ -44,74 +45,33 @@ const TRUST_ITEMS = [
   {
     title: "Visite sur rendez-vous",
     text: "Simple et calme",
-    icon: "clock",
+    icon: "appointment",
   },
   {
     title: "Vehicules controles",
     text: "Informations claires",
-    icon: "shield",
+    icon: "inspection",
   },
   {
     title: "Equipe a votre ecoute",
     text: "Conseils et accompagnement",
-    icon: "headset",
+    icon: "contact",
   },
 ];
 
 function Icon({ name }: { name: string }) {
-  if (name === "question") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 17h.01" />
-        <path d="M9.2 9a3 3 0 1 1 5.1 2.1c-.9.8-1.6 1.3-1.8 2.7" />
-        <path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.5A8.5 8.5 0 1 1 21 11.5Z" />
-      </svg>
-    );
-  }
+  const icons: Record<string, string> = {
+    question: "contact",
+    phone: "phone",
+  };
 
-  if (name === "phone") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4 5c0 8.8 6.2 15 15 15l2-3.5-5-2-2 2c-2-1-4-3-5-5l2-2-2-5L5 4Z" />
-      </svg>
-    );
-  }
-
-  if (name === "shield") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" />
-        <path d="M9 12l2 2 4-4" />
-      </svg>
-    );
-  }
-
-  if (name === "headset") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4 13v-1a8 8 0 0 1 16 0v1" />
-        <rect x="3" y="13" width="4" height="6" rx="1.5" />
-        <rect x="17" y="13" width="4" height="6" rx="1.5" />
-        <path d="M19 19a5 5 0 0 1-5 3h-2" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3.5 2" />
-    </svg>
-  );
+  return <OfficialIcon name={icons[name] || name} width={28} height={28} />;
 }
 
 function PlusIcon({ open }: { open: boolean }) {
   return (
     <span className={`faq-red-plus${open ? " is-open" : ""}`} aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 5v14" />
-        <path d="M5 12h14" />
-      </svg>
+      +
     </span>
   );
 }
@@ -119,9 +79,7 @@ function PlusIcon({ open }: { open: boolean }) {
 function ChevronIcon({ open }: { open: boolean }) {
   return (
     <span className={`faq-red-chevron${open ? " is-open" : ""}`} aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M6 9l6 6 6-6" />
-      </svg>
+      ⌄
     </span>
   );
 }

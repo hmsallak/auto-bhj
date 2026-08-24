@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import CarGrid from "./CarGrid";
+import OfficialIcon from "./OfficialIcon";
 
 const PROOF_EASE = [0.16, 1, 0.3, 1];
 
@@ -77,91 +78,6 @@ function formatEuro(value) {
     currency: "EUR",
     maximumFractionDigits: 0,
   }).format(value);
-}
-
-function FilterIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M4 7h10" />
-      <path d="M18 7h2" />
-      <path d="M16 5v4" />
-      <path d="M4 17h2" />
-      <path d="M10 17h10" />
-      <path d="M8 15v4" />
-    </svg>
-  );
-}
-
-function SearchIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
-    </svg>
-  );
-}
-
-function SortIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M8 4v16" />
-      <path d="M4 8l4-4 4 4" />
-      <path d="M16 20V4" />
-      <path d="M12 16l4 4 4-4" />
-    </svg>
-  );
-}
-
-function CloseIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...props}>
-      <path d="M5 5l14 14M19 5 5 19" />
-    </svg>
-  );
-}
-
-function CarLineIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M5 13h14l-1.4-4.1A2 2 0 0 0 15.7 7H8.3a2 2 0 0 0-1.9 1.9L5 13Z" />
-      <path d="M4 13v4h2" />
-      <path d="M18 17h2v-4" />
-      <circle cx="8" cy="17" r="1.5" />
-      <circle cx="16" cy="17" r="1.5" />
-    </svg>
-  );
-}
-
-function ShieldCheckIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" />
-      <path d="M9 12l2 2 4-4" />
-    </svg>
-  );
-}
-
-function AwardLineIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <circle cx="12" cy="8" r="4" />
-      <path d="M8.5 11.5 7 21l5-3 5 3-1.5-9.5" />
-      <path d="M10 8l1.3 1.3L14.5 6" />
-    </svg>
-  );
-}
-
-function HandshakeLineIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M7 11l3-3 3 3 2-2" />
-      <path d="M3 12l4 4 3-3" />
-      <path d="M21 12l-4 4-3-3" />
-      <path d="M8 17l2 2a2 2 0 0 0 3 0l3-3" />
-      <path d="M3 8l4-3 3 3" />
-      <path d="M21 8l-4-3-3 3" />
-    </svg>
-  );
 }
 
 function closeSiblingChoiceGroups(currentDetails) {
@@ -548,7 +464,7 @@ export default function CarBrowser() {
       <section className="stock-catalog-hero" aria-labelledby="stock-catalog-title">
         <div className="stock-catalog-hero-copy">
           <p className="stock-catalog-pill">
-            <CarLineIcon aria-hidden="true" />
+            <OfficialIcon name="car" width={18} height={18} />
             <span>Catalogue</span>
           </p>
           <h2 id="stock-catalog-title">
@@ -570,17 +486,17 @@ export default function CarBrowser() {
           viewport={{ once: false, amount: 0.3 }}
         >
           <motion.div className="stock-catalog-proof-item" variants={proofItem}>
-            <ShieldCheckIcon aria-hidden="true" />
+            <OfficialIcon name="warranty" width={42} height={42} />
             <strong>Vehicules</strong>
             <span>controles</span>
           </motion.div>
           <motion.div className="stock-catalog-proof-item" variants={proofItem}>
-            <AwardLineIcon aria-hidden="true" />
+            <OfficialIcon name="quality" width={42} height={42} />
             <strong>Garantie</strong>
             <span>incluse</span>
           </motion.div>
           <motion.div className="stock-catalog-proof-item" variants={proofItem}>
-            <HandshakeLineIcon aria-hidden="true" />
+            <OfficialIcon name="commitment" width={42} height={42} />
             <strong>Suivi</strong>
             <span>personnalise</span>
           </motion.div>
@@ -592,7 +508,6 @@ export default function CarBrowser() {
         <span className="stock-search-kind">
           Recherche
         </span>
-        <SearchIcon className="stock-search-icon" aria-hidden="true" />
         <input
           type="search"
           placeholder="Reference, marque, modele, carburant..."
@@ -612,7 +527,7 @@ export default function CarBrowser() {
             >
               <span className="stock-sort-prefix">Trier:</span>
               <strong>{selectedSortLabel}</strong>
-              <SortIcon aria-hidden="true" />
+              <OfficialIcon name="filters" width={16} height={16} />
               {filters.sort !== DEFAULT_FILTERS.sort && (
                 <span className="stock-filter-count" aria-label="1 tri applique">
                   1
@@ -646,7 +561,7 @@ export default function CarBrowser() {
               onClick={() => setFiltersOpen((value) => !value)}
             >
               <span>Filtres</span>
-              <FilterIcon aria-hidden="true" />
+              <OfficialIcon name="filters" width={18} height={18} />
               {activeFilterLabels.length > 0 && (
                 <span className="stock-filter-count" aria-label={`${activeFilterLabels.length} filtres appliques`}>
                   {activeFilterLabels.length}
@@ -661,7 +576,7 @@ export default function CarBrowser() {
               onClick={() => setMobileSortOpen((value) => !value)}
             >
               <span>Trier par</span>
-              <SortIcon aria-hidden="true" />
+              <OfficialIcon name="filters" width={16} height={16} />
               {filters.sort !== DEFAULT_FILTERS.sort && (
                 <span className="stock-filter-count" aria-label="1 tri applique">
                   1
@@ -706,7 +621,7 @@ export default function CarBrowser() {
                 aria-label="Fermer les filtres"
                 onClick={() => setFiltersOpen(false)}
               >
-                <CloseIcon aria-hidden="true" />
+                <span aria-hidden="true">×</span>
               </button>
             </div>
 
@@ -725,7 +640,7 @@ export default function CarBrowser() {
               onClick={() => setDesktopFiltersExpanded((value) => !value)}
             >
               <span>Tous les filtres</span>
-              <FilterIcon aria-hidden="true" />
+              <OfficialIcon name="filters" width={16} height={16} />
             </button>
 
             <div className="stock-filter-applied">

@@ -4,33 +4,9 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { statusLabel } from "../lib/format";
+import OfficialIcon from "./OfficialIcon";
 
 const THUMB_LIMIT = 4;
-
-function CameraIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" />
-      <circle cx="12" cy="13" r="3.2" />
-    </svg>
-  );
-}
-
-function CloseIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...props}>
-      <path d="M5 5l14 14M19 5L5 19" />
-    </svg>
-  );
-}
-
-function ChevronIcon({ direction = "left", ...props }) {
-  return (
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d={direction === "left" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} />
-    </svg>
-  );
-}
 
 const SWIPE_THRESHOLD = 40;
 
@@ -121,7 +97,7 @@ export default function PhotoGallery({ images, alt, status }) {
           aria-label="Fermer"
           onClick={() => setLightboxOpen(false)}
         >
-          <CloseIcon />
+          <span aria-hidden="true">×</span>
         </button>
 
         <button
@@ -149,13 +125,13 @@ export default function PhotoGallery({ images, alt, status }) {
               aria-label="Photo precedente"
               onClick={showPrev}
             >
-              <ChevronIcon direction="left" />
+              <span aria-hidden="true">‹</span>
             </button>
           )}
 
           {photos.length > 1 && (
             <button type="button" className="gallery-lightbox-nav next" aria-label="Photo suivante" onClick={showNext}>
-              <ChevronIcon direction="right" />
+              <span aria-hidden="true">›</span>
             </button>
           )}
 
@@ -228,7 +204,7 @@ export default function PhotoGallery({ images, alt, status }) {
               aria-label="Photo precedente"
               onClick={showPrev}
             >
-              <ChevronIcon direction="left" />
+              <span aria-hidden="true">‹</span>
             </button>
             <button
               type="button"
@@ -236,7 +212,7 @@ export default function PhotoGallery({ images, alt, status }) {
               aria-label="Photo suivante"
               onClick={showNext}
             >
-              <ChevronIcon direction="right" />
+              <span aria-hidden="true">›</span>
             </button>
             <span className="gallery-main-counter">
               {activeIndex + 1}/{photos.length}
@@ -269,7 +245,7 @@ export default function PhotoGallery({ images, alt, status }) {
                 />
                 {isLastVisible && (
                   <span className="gallery-thumb-more">
-                    {photos.length} <CameraIcon />
+                    {photos.length} <OfficialIcon name="car" width={14} height={14} />
                   </span>
                 )}
               </button>

@@ -4,7 +4,7 @@ import { requirePermission, authError } from "../../../../lib/adminAuth";
 import { readCarPayload } from "../../../../lib/carPayload";
 
 export async function POST(request) {
-  const user = await requirePermission("stock");
+  const user = await requirePermission("stock_create");
   if (!user) {
     const { status, error } = await authError();
     return NextResponse.json({ error }, { status });

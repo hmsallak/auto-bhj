@@ -9,7 +9,7 @@ function relativeTime(iso) {
   return `il y a ${days} j`;
 }
 
-export default function AdminMessages({ messages, onToggleRead, onDelete }) {
+export default function AdminMessages({ messages, onToggleRead, onDelete, canDelete = true }) {
   return (
     <div className="panel dash-panel">
       <div className="dash-panel-head">
@@ -41,9 +41,11 @@ export default function AdminMessages({ messages, onToggleRead, onDelete }) {
                 >
                   {msg.isRead ? "Marquer non lu" : "Marquer lu"}
                 </button>
-                <button className="danger" type="button" onClick={() => onDelete(msg)}>
-                  Supprimer
-                </button>
+                {canDelete && (
+                  <button className="danger" type="button" onClick={() => onDelete(msg)}>
+                    Supprimer
+                  </button>
+                )}
               </div>
             </article>
           ))}

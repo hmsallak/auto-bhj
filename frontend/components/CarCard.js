@@ -1,16 +1,16 @@
 import Image from "next/image";
 import { formatPrice, formatKm, carImage } from "../lib/format";
-import { CalendarIcon, FuelIcon, GaugeIcon, GearboxIcon } from "./CarSpecIcons";
+import OfficialIcon from "./OfficialIcon";
 
 export default function CarCard({ car }) {
   const reserved = car.status === "reserved";
   const sold = car.status === "sold";
   const photoCount = car.images?.length || 0;
   const specs = [
-    { Icon: FuelIcon, value: car.fuel },
-    { Icon: GaugeIcon, value: formatKm(car.mileage) },
-    { Icon: CalendarIcon, value: car.year },
-    { Icon: GearboxIcon, value: car.gearbox },
+    { icon: "fuel", value: car.fuel },
+    { icon: "mileage", value: formatKm(car.mileage) },
+    { icon: "year", value: car.year },
+    { icon: "gearbox", value: car.gearbox },
   ].filter((spec) => spec.value);
 
   return (
@@ -40,9 +40,9 @@ export default function CarCard({ car }) {
             : "Contactez-nous pour plus d'informations."}
         </p>
         <div className="stock-card-specs" aria-label="Caracteristiques principales">
-          {specs.map(({ Icon, value }) => (
+          {specs.map(({ icon, value }) => (
             <span key={value}>
-              <Icon aria-hidden="true" />
+              <OfficialIcon name={icon} width={22} height={22} />
               {value}
             </span>
           ))}

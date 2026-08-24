@@ -309,6 +309,9 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
     <div className="panel dash-panel">
       <p className="eyebrow">{editingCar ? "Modifier une voiture" : "Ajouter une voiture"}</p>
       <h2>{editingCar ? `Modifier ${editingCar.brand} ${editingCar.model}` : "Nouvelle annonce"}</h2>
+      <p className="wizard-mobile-progress">
+        Etape {stepIndex + 1} sur {STEPS.length} - {STEPS[stepIndex].label}
+      </p>
 
       <ol className="wizard-steps">
         {STEPS.map((step, index) => (
@@ -346,17 +349,17 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
           <div className="two-cols">
             <label>
               Annee
-              <input name="year" type="number" min="1980" max="2035" required />
+              <input name="year" type="number" min="1980" max="2035" inputMode="numeric" required />
             </label>
             <label>
               Kilometrage
-              <input name="mileage" type="number" min="0" required />
+              <input name="mileage" type="number" min="0" inputMode="numeric" required />
             </label>
           </div>
           <div className="two-cols">
             <label>
               Prix EUR
-              <input name="price" type="number" min="1" required />
+              <input name="price" type="number" min="1" inputMode="numeric" required />
             </label>
             <label>
               Carburant
@@ -495,37 +498,37 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
           <div className="two-cols">
             <label>
               Sieges
-              <input name="seats" type="number" min="1" max="9" />
+              <input name="seats" type="number" min="1" max="9" inputMode="numeric" />
             </label>
             <label>
               Portes
-              <input name="doors" type="number" min="2" max="6" />
+              <input name="doors" type="number" min="2" max="6" inputMode="numeric" />
             </label>
           </div>
           <div className="two-cols">
             <label>
               Puissance (kW)
-              <input name="powerKw" type="number" min="0" />
+              <input name="powerKw" type="number" min="0" inputMode="numeric" />
             </label>
             <label>
               Puissance (ch)
-              <input name="powerCh" type="number" min="0" />
+              <input name="powerCh" type="number" min="0" inputMode="numeric" />
             </label>
           </div>
           <div className="two-cols">
             <label>
               Cylindree (cm3)
-              <input name="engineCc" type="number" min="0" />
+              <input name="engineCc" type="number" min="0" inputMode="numeric" />
             </label>
             <label>
               Vitesses
-              <input name="gears" type="number" min="1" max="10" />
+              <input name="gears" type="number" min="1" max="10" inputMode="numeric" />
             </label>
           </div>
           <div className="two-cols">
             <label>
               Cylindres
-              <input name="cylinders" type="number" min="1" max="16" />
+              <input name="cylinders" type="number" min="1" max="16" inputMode="numeric" />
             </label>
             <label>
               Classe d&apos;emission

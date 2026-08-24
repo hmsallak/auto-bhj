@@ -1,11 +1,8 @@
 "use client";
 
-import { useState } from "react";
-
-const PERMISSIONS = [
-  { key: "stock", label: "Stock" },
-  { key: "messages", label: "Messages" },
-];
+import { useMemo, useState } from "react";
+import OfficialIcon from "../OfficialIcon";
+import { USER_PERMISSIONS } from "./userPermissions";
 
 const ACTION_LABELS = {
   car_created: "Voiture ajoutee",
@@ -29,61 +26,38 @@ function relativeTime(iso) {
   return `il y a ${days} j`;
 }
 
+function roleLabel(role) {
+  return role === "owner" ? "Proprietaire" : "Membre";
+}
+
+function hasFullAccess(user) {
+  if (user.role === "owner") return true;
+  return USER_PERMISSIONS.every((permission) => user.permissions?.includes(permission.key));
+}
+
 export default function AdminUsers({
   users,
   activity,
-  onCreateUser,
-  onUpdatePermissions,
   onDeleteUser,
+  onCreateClick,
+  onEditUser,
 }) {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [query, setQuery] = useState("");
+  const [openMenuId, setOpenMenuId] = useState(null);
 
-  async function handleCreate(event) {
-    event.preventDefault();
-    setMessage("");
-    setIsError(false);
+  const filteredUsers = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    if (!term) return users;
 
-    const formData = new FormData(event.target);
-    const permissions = PERMISSIONS.filter((p) => formData.get(`permission-${p.key}`)).map(
-      (p) => p.key
-    );
-
-    setSubmitting(true);
-    try {
-      await onCreateUser({
-        username: formData.get("username"),
-        password: formData.get("password"),
-        permissions,
-      });
-      setMessage("Membre cree.");
-      event.target.reset();
-    } catch (error) {
-      setMessage(error.message);
-      setIsError(true);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleTogglePermission(user, key) {
-    const has = user.permissions.includes(key);
-    const next = has ? user.permissions.filter((p) => p !== key) : [...user.permissions, key];
-
-    try {
-      await onUpdatePermissions(user.id, next);
-    } catch (error) {
-      setMessage(error.message);
-      setIsError(true);
-    }
-  }
+    return users.filter((user) => {
+      const permissions = user.permissions?.join(" ") || "";
+      return `${user.username} ${user.role} ${permissions}`.toLowerCase().includes(term);
+    });
+  }, [query, users]);
 
   async function handleDelete(user) {
-    if (!window.confirm(`Supprimer le membre ${user.username} ? Cette action est irreversible.`)) {
-      return;
-    }
-
     try {
       await onDeleteUser(user.id);
     } catch (error) {
@@ -93,104 +67,152 @@ export default function AdminUsers({
   }
 
   return (
-    <div>
-      <div className="panel dash-panel">
-        <p className="eyebrow">Equipe</p>
-        <h2>Ajouter un membre</h2>
-        <form className="form" onSubmit={handleCreate}>
-          <div className="two-cols">
-            <label>
-              Identifiant
-              <input name="username" type="text" minLength={3} required />
-            </label>
-            <label>
-              Mot de passe
-              <input name="password" type="password" autoComplete="new-password" minLength={8} required />
-            </label>
+    <div className="team-page">
+      {message && <p className={`message ${isError ? "error" : ""}`}>{message}</p>}
+
+      <div className="team-layout">
+        <section className="team-members" aria-labelledby="team-members-title">
+          <div className="team-section-head">
+            <div>
+              <h2 id="team-members-title">Membres</h2>
+              <p>{filteredUsers.length} sur {users.length} comptes</p>
+            </div>
+            <input
+              type="search"
+              placeholder="Rechercher un membre..."
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
           </div>
-          <div className="member-permissions">
-            {PERMISSIONS.map((p) => (
-              <label key={p.key}>
-                <input type="checkbox" name={`permission-${p.key}`} /> {p.label}
-              </label>
-            ))}
-          </div>
-          <div className="form-actions">
-            <button className="button primary" type="submit" disabled={submitting}>
-              {submitting ? "Creation..." : "Creer le membre"}
+
+          {filteredUsers.length ? (
+            <div className="team-table">
+              <div className="team-table-head" aria-hidden="true">
+                <span>Membre</span>
+                <span>Role</span>
+                <span>Statut</span>
+                <span>Permissions</span>
+                <span>Derniere connexion</span>
+                <span>Actions</span>
+              </div>
+
+              {filteredUsers.map((user) => (
+                <article className="team-row" key={user.id}>
+                  <div className="team-member-main">
+                    <span className="team-avatar">{user.username.slice(0, 2).toUpperCase()}</span>
+                    <div>
+                      <strong>
+                        {[user.firstName, user.lastName].filter(Boolean).join(" ") || user.username}
+                      </strong>
+                      <small>{user.role === "owner" ? "Acces complet" : "Acces limite"}</small>
+                    </div>
+                  </div>
+
+                  <div className="team-cell" data-label="Role">
+                    <span className={`team-badge ${user.role === "owner" ? "owner" : ""}`}>
+                      {roleLabel(user.role)}
+                    </span>
+                  </div>
+                  <div className="team-cell" data-label="Statut">
+                    <span className="team-badge success">Actif</span>
+                  </div>
+
+                  <div className="team-permission-summary team-cell" data-label="Permissions">
+                    {user.role === "owner" ? (
+                      <>
+                        <span className="team-badge owner">Full acces Admin</span>
+                        <span className="team-badge">Protege</span>
+                      </>
+                    ) : hasFullAccess(user) ? (
+                      <span className="team-badge owner">Full acces</span>
+                    ) : (
+                      <span className="team-badge">Acces limite</span>
+                    )}
+                  </div>
+
+                  <span className="team-muted team-cell" data-label="Derniere connexion">A connecter</span>
+
+                  <div className="team-actions team-cell" data-label="Actions">
+                    {user.role === "owner" ? (
+                      <span className="team-muted">Protege</span>
+                    ) : (
+                      <div className="admin-action-menu">
+                        <button
+                          className="admin-action-toggle"
+                          type="button"
+                          aria-label={`Actions pour ${user.username}`}
+                          aria-expanded={openMenuId === user.id}
+                          onClick={() => setOpenMenuId(openMenuId === user.id ? null : user.id)}
+                        >
+                          <OfficialIcon name="edit" width={18} height={18} />
+                        </button>
+                        {openMenuId === user.id && (
+                          <div className="admin-action-dropdown">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOpenMenuId(null);
+                                onEditUser(user);
+                              }}
+                            >
+                              Modifier
+                            </button>
+                            <button
+                              className="danger-text"
+                              type="button"
+                              onClick={() => {
+                                setOpenMenuId(null);
+                                handleDelete(user);
+                              }}
+                            >
+                              Supprimer
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="empty">Aucun membre ne correspond a cette recherche.</p>
+          )}
+
+          <div className="team-add-row">
+            <button className="button primary small" type="button" onClick={onCreateClick}>
+              Ajouter un membre
             </button>
           </div>
-        </form>
-        {message && <p className={`message ${isError ? "error" : ""}`}>{message}</p>}
-      </div>
+        </section>
 
-      <div className="panel dash-panel">
-        <div className="dash-panel-head">
-          <h2>Membres ({users.length})</h2>
-        </div>
+        <aside className="team-activity" aria-labelledby="team-activity-title">
+          <div className="team-section-head">
+            <div>
+              <h2 id="team-activity-title">Activite</h2>
+              <p>Dernieres actions enregistrees.</p>
+            </div>
+          </div>
 
-        {users.length ? (
-          <div className="member-list">
-            {users.map((user) => (
-              <div className="member-item" key={user.id}>
-                <header>
-                  <span>
-                    {user.username} {user.role === "owner" && <span className="recent-ref">Proprietaire</span>}
-                  </span>
-                </header>
-
-                {user.role === "owner" ? (
-                  <p className="empty">Acces complet, non modifiable.</p>
-                ) : (
-                  <div className="member-item-body">
-                    <div className="member-permissions">
-                      {PERMISSIONS.map((p) => (
-                        <label key={p.key}>
-                          <input
-                            type="checkbox"
-                            checked={user.permissions.includes(p.key)}
-                            onChange={() => handleTogglePermission(user, p.key)}
-                          />
-                          {p.label}
-                        </label>
-                      ))}
-                    </div>
-                    <button className="danger" type="button" onClick={() => handleDelete(user)}>
-                      Supprimer
-                    </button>
+          {activity.length ? (
+            <div className="team-activity-list">
+              {activity.slice(0, 8).map((entry) => (
+                <article className="team-activity-row" key={entry.id}>
+                  <div>
+                    <strong>{ACTION_LABELS[entry.action] || entry.action}</strong>
+                    <span>
+                      {entry.actor}
+                      {entry.target ? ` - ${entry.target}` : ""}
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="empty">Aucun membre pour le moment.</p>
-        )}
-      </div>
-
-      <div className="panel dash-panel">
-        <div className="dash-panel-head">
-          <h2>Activite recente</h2>
-        </div>
-
-        {activity.length ? (
-          <div className="member-list">
-            {activity.map((entry) => (
-              <div className="member-item" key={entry.id}>
-                <header>
-                  <span>
-                    <span className="recent-ref">{entry.actor}</span> —{" "}
-                    {ACTION_LABELS[entry.action] || entry.action}
-                    {entry.target && ` : ${entry.target}`}
-                  </span>
-                  <span className="recent-time">{relativeTime(entry.createdAt)}</span>
-                </header>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="empty">Aucune activite pour le moment.</p>
-        )}
+                  <time>{relativeTime(entry.createdAt)}</time>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="empty">Aucune activite pour le moment.</p>
+          )}
+        </aside>
       </div>
     </div>
   );

@@ -2,68 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { formatKm } from "../lib/format";
-import {
-  GearboxIcon,
-  FuelIcon,
-  GaugeIcon,
-  CalendarIcon,
-  CloudIcon,
-  ChevronDownIcon,
-  PaintDropIcon,
-  SeatIcon,
-  PistonIcon,
-  BoltIcon,
-  DoorIcon,
-  CarBodyIcon,
-  OwnersIcon,
-} from "./CarSpecIcons";
-
-function InfoIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 11v5" />
-      <circle cx="12" cy="8" r="0.9" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-function EquipmentIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
-      <path d="M10.5 4.5 6 9v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V9l-4.5-4.5" />
-      <path d="M9 13l2 2 4-4" />
-    </svg>
-  );
-}
-
-function DocSpecIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
-      <path d="M7 3.5h6.5L18 8v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1Z" />
-      <path d="M13.5 3.5V8H18" />
-      <path d="M9 13h6M9 16h6" />
-    </svg>
-  );
-}
+import OfficialIcon from "./OfficialIcon";
 
 function RowIcon({ type }) {
   const icons = {
-    brand: CarBodyIcon,
-    body: CarBodyIcon,
-    seats: SeatIcon,
-    doors: DoorIcon,
-    gearbox: GearboxIcon,
-    engine: PistonIcon,
-    power: BoltIcon,
-    color: PaintDropIcon,
-    material: SeatIcon,
-    owner: OwnersIcon,
-    consumption: FuelIcon,
+    brand: "car",
+    body: "car",
+    seats: "car",
+    doors: "car",
+    gearbox: "gearbox",
+    engine: "inspection",
+    power: "quality",
+    color: "quality",
+    material: "quality",
+    owner: "about",
+    consumption: "fuel",
   };
 
-  const Icon = icons[type] || CarBodyIcon;
-  return <Icon width="16" height="16" aria-hidden="true" />;
+  return <OfficialIcon name={icons[type] || "car"} width={18} height={18} />;
 }
 
 function iconTypeForLabel(label) {
@@ -83,19 +39,19 @@ function iconTypeForLabel(label) {
 
 export function SpecHighlights({ car }) {
   const cells = [
-    { Icon: GaugeIcon, label: "Kilometrage", value: formatKm(car.mileage) },
-    { Icon: CalendarIcon, label: "1ere immat.", value: car.year },
-    { Icon: FuelIcon, label: "Carburant", value: car.fuel },
-    { Icon: GearboxIcon, label: "Transmission", value: car.gearbox },
-    { Icon: CloudIcon, label: "Classe d'emission", value: car.emissionClass || "Non communique" },
+    { icon: "mileage", label: "Kilometrage", value: formatKm(car.mileage) },
+    { icon: "year", label: "1ere immat.", value: car.year },
+    { icon: "fuel", label: "Carburant", value: car.fuel },
+    { icon: "gearbox", label: "Transmission", value: car.gearbox },
+    { icon: "inspection", label: "Classe d'emission", value: car.emissionClass || "Non communique" },
   ];
 
   return (
     <div className="spec-highlights">
-      {cells.map(({ Icon, label, value }) => (
+      {cells.map(({ icon, label, value }) => (
         <div className="spec-highlight" key={label}>
           <span className="spec-highlight-icon">
-            <Icon aria-hidden="true" />
+            <OfficialIcon name={icon} width={38} height={38} />
           </span>
           <div>
             <span className="spec-highlight-label">{label}</span>
@@ -169,10 +125,10 @@ export default function CarSpecSheet({ car }) {
         >
           <summary>
             <span className="spec-block-title">
-              <InfoIcon className="spec-block-icon" />
+              <OfficialIcon name="inspection" className="spec-block-icon" width={22} height={22} />
               <h3>Donnees generales</h3>
             </span>
-            <ChevronDownIcon className="spec-block-chevron" />
+            <span className="spec-block-chevron" aria-hidden="true">⌄</span>
           </summary>
           <div className="data-grid">{rows}</div>
         </details>
@@ -186,10 +142,10 @@ export default function CarSpecSheet({ car }) {
         >
           <summary>
             <span className="spec-block-title">
-              <EquipmentIcon className="spec-block-icon" />
+              <OfficialIcon name="quality" className="spec-block-icon" width={22} height={22} />
               <h3>Equipement</h3>
             </span>
-            <ChevronDownIcon className="spec-block-chevron" />
+            <span className="spec-block-chevron" aria-hidden="true">⌄</span>
           </summary>
           <div className="equipment-columns">
             {Object.entries(car.equipment).map(([category, items]) => (
@@ -213,10 +169,10 @@ export default function CarSpecSheet({ car }) {
       >
         <summary>
           <span className="spec-block-title">
-            <DocSpecIcon className="spec-block-icon" />
+            <OfficialIcon name="contact" className="spec-block-icon" width={22} height={22} />
             <h3>Info supplementaire</h3>
           </span>
-          <ChevronDownIcon className="spec-block-chevron" />
+          <span className="spec-block-chevron" aria-hidden="true">⌄</span>
         </summary>
         <p className="car-description">
           {car.description || "Contactez-nous pour plus d'informations."}

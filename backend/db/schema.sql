@@ -44,12 +44,13 @@ CREATE TABLE IF NOT EXISTS car_images (
 CREATE INDEX IF NOT EXISTS idx_car_images_car_id ON car_images (car_id, position);
 
 -- role 'owner' can manage other users and always has every permission.
--- role 'member' only sees the tabs listed in its permissions (JSON array
--- of: "stock", "messages").
+-- role 'member' only sees the actions listed in its permissions (JSON array).
 CREATE TABLE IF NOT EXISTS admin_users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
+  first_name TEXT,
+  last_name TEXT,
   role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('owner', 'member')),
   permissions TEXT NOT NULL DEFAULT '[]',
   created_at TEXT NOT NULL

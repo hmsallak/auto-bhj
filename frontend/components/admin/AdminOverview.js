@@ -1,4 +1,4 @@
-import { formatPrice, statusLabel } from "../../lib/format";
+import { formatPrice, statusLabel, carImage } from "../../lib/format";
 
 function relativeTime(iso) {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -11,66 +11,115 @@ function relativeTime(iso) {
   return `il y a ${days} j`;
 }
 
-export default function AdminOverview({ cars, onGoToForm }) {
+const ACTION_LABELS = {
+  car_created: "Vehicule publie",
+  car_updated: "Vehicule modifie",
+  car_deleted: "Vehicule supprime",
+  message_received: "Nouvelle demande recue",
+  message_deleted: "Message supprime",
+  user_created: "Membre cree",
+  user_permissions_updated: "Permissions modifiees",
+  user_deleted: "Membre supprime",
+};
+
+export default function AdminOverview({
+  cars,
+  messages = [],
+  activity = [],
+  onGoToStock,
+}) {
   const total = cars.length;
   const available = cars.filter((car) => car.status === "available").length;
   const reserved = cars.filter((car) => car.status === "reserved").length;
   const sold = cars.filter((car) => car.status === "sold").length;
-  const stockValue = cars
-    .filter((car) => car.status === "available")
-    .reduce((sum, car) => sum + car.price, 0);
-  const avgPrice = total ? Math.round(cars.reduce((sum, car) => sum + car.price, 0) / total) : 0;
+  const unread = messages.filter((msg) => !msg.isRead).length;
 
   const recent = [...cars]
     .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-    .slice(0, 6);
+    .slice(0, 4);
+
+  const recentActivity = activity.slice(0, 4);
 
   const tiles = [
-    { label: "Voitures en stock", value: total },
-    { label: "Disponibles", value: available, tone: "positive" },
-    { label: "Reservees", value: reserved, tone: "warning" },
-    { label: "Vendues", value: sold, tone: "sold" },
-    { label: "Valeur du stock", value: formatPrice(stockValue) },
-    { label: "Prix moyen", value: total ? formatPrice(avgPrice) : "-" },
+    { label: "Stock", value: total, meta: `${available} disponibles` },
+    { label: "Messages", value: messages.length, meta: `${unread} non lus`, tone: unread ? "warning" : "positive" },
+    { label: "Reservees", value: reserved, meta: "A suivre", tone: reserved ? "warning" : "" },
+    { label: "Vendues", value: sold, meta: "Archive", tone: "sold" },
   ];
 
   return (
-    <div>
+    <div className="dash-overview">
       <div className="kpi-grid">
         {tiles.map((tile) => (
           <div className="kpi-tile" key={tile.label}>
-            <span className="kpi-label">{tile.label}</span>
-            <span className={`kpi-value ${tile.tone || ""}`}>{tile.value}</span>
+            <div>
+              <span className="kpi-label">{tile.label}</span>
+              <span className={`kpi-value ${tile.tone || ""}`}>{tile.value}</span>
+            </div>
+            <span className="kpi-meta">{tile.meta}</span>
           </div>
         ))}
       </div>
 
-      <div className="panel dash-panel">
+      <div className="dash-overview-grid">
+        <section className="panel dash-panel dash-recent-panel">
+          <div className="dash-panel-head">
+            <div>
+              <h2>Vehicules recents</h2>
+              <p>Dernieres annonces modifiees.</p>
+            </div>
+            <button className="button neutral small" type="button" onClick={onGoToStock}>
+              Voir tout
+            </button>
+          </div>
+
+          {recent.length ? (
+            <div className="recent-vehicles">
+              {recent.map((car) => (
+                <article className="recent-vehicle" key={car.id}>
+                  <img src={carImage(car)} alt="" />
+                  <div>
+                    <strong>
+                      {car.brand} {car.model}
+                    </strong>
+                    <span>
+                      {car.year} - {car.fuel} - {car.mileage.toLocaleString("fr-BE")} km
+                    </span>
+                  </div>
+                  <b>{formatPrice(car.price)}</b>
+                  <span className={`status ${car.status}`}>{statusLabel(car.status)}</span>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="empty">Aucune voiture pour le moment.</p>
+          )}
+        </section>
+      </div>
+
+      <section className="panel dash-panel">
         <div className="dash-panel-head">
-          <h2>Activite recente</h2>
-          <button className="button primary small" type="button" onClick={onGoToForm}>
-            Ajouter une voiture
-          </button>
+          <div>
+            <h2>Activites recentes</h2>
+            <p>Dernieres actions dans l'administration.</p>
+          </div>
         </div>
 
-        {recent.length ? (
+        {recentActivity.length ? (
           <div className="recent-table">
-            {recent.map((car) => (
-              <div className="recent-row" key={car.id}>
-                <span className="recent-ref">{car.reference}</span>
-                <span>
-                  {car.brand} {car.model}
-                </span>
-                <span>{formatPrice(car.price)}</span>
-                <span className={`status ${car.status}`}>{statusLabel(car.status)}</span>
-                <span className="recent-time">{relativeTime(car.updatedAt)}</span>
+            {recentActivity.map((entry) => (
+              <div className="recent-row recent-activity-row" key={entry.id}>
+                <span className="recent-ref">{entry.actor}</span>
+                <span>{ACTION_LABELS[entry.action] || entry.action}</span>
+                <span>{entry.target || "-"}</span>
+                <span className="recent-time">{relativeTime(entry.createdAt)}</span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="empty">Aucune voiture pour le moment.</p>
+          <p className="empty">Aucune activite disponible pour le moment.</p>
         )}
-      </div>
+      </section>
     </div>
   );
 }

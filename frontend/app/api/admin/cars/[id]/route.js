@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { updateCar, deleteCar } from "../../../../../../backend/models/cars";
+import { findByUsername } from "../../../../../../backend/models/adminUsers";
+import { verifyPassword } from "../../../../../../backend/auth/passwords";
 import { requirePermission, authError } from "../../../../../lib/adminAuth";
 import { readCarPayload } from "../../../../../lib/carPayload";
 
 async function handleUpdate(request, { params }) {
-  const user = await requirePermission("stock");
+  const user = await requirePermission("stock_write");
   if (!user) {
     const { status, error } = await authError();
     return NextResponse.json({ error }, { status });
@@ -32,10 +34,16 @@ export const POST = handleUpdate;
 export const PUT = handleUpdate;
 
 export async function DELETE(request, { params }) {
-  const user = await requirePermission("stock");
+  const user = await requirePermission("stock_delete");
   if (!user) {
     const { status, error } = await authError();
     return NextResponse.json({ error }, { status });
+  }
+
+  const payload = await request.json().catch(() => ({}));
+  const row = findByUsername(user.username);
+  if (!verifyPassword(payload.password, row?.password_hash)) {
+    return NextResponse.json({ error: "Mot de passe incorrect." }, { status: 403 });
   }
 
   const { id: rawId } = await params;

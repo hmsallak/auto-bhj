@@ -3,7 +3,7 @@ import { markMessageRead, deleteMessage } from "../../../../../../backend/models
 import { requirePermission, authError } from "../../../../../lib/adminAuth";
 
 export async function PATCH(request, { params }) {
-  const user = await requirePermission("messages");
+  const user = await requirePermission("messages_read");
   if (!user) {
     const { status, error } = await authError();
     return NextResponse.json({ error }, { status });
@@ -17,7 +17,7 @@ export async function PATCH(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  const user = await requirePermission("messages");
+  const user = await requirePermission("messages_delete");
   if (!user) {
     const { status, error } = await authError();
     return NextResponse.json({ error }, { status });

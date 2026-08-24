@@ -2,7 +2,19 @@ const { getDb } = require("../db/connection");
 const { hashPassword } = require("../auth/passwords");
 const activityLog = require("./activityLog");
 
-const VALID_PERMISSIONS = ["stock", "messages"];
+const VALID_PERMISSIONS = [
+  "stock_read",
+  "stock_write",
+  "stock_create",
+  "stock_delete",
+  "messages_read",
+  "messages_delete",
+];
+
+const LEGACY_PERMISSION_MAP = {
+  stock: ["stock_read", "stock_write", "stock_create", "stock_delete"],
+  messages: ["messages_read", "messages_delete"],
+};
 
 function cleanText(value) {
   return String(value ?? "").trim();
@@ -11,10 +23,39 @@ function cleanText(value) {
 function parsePermissions(raw) {
   try {
     const list = JSON.parse(raw || "[]");
-    return Array.isArray(list) ? list.filter((p) => VALID_PERMISSIONS.includes(p)) : [];
+    return normalizePermissions(Array.isArray(list) ? list : []);
   } catch {
     return [];
   }
+}
+
+function normalizePermissions(permissions) {
+  const expanded = new Set();
+
+  for (const permission of permissions || []) {
+    if (VALID_PERMISSIONS.includes(permission)) {
+      expanded.add(permission);
+      continue;
+    }
+
+    for (const mapped of LEGACY_PERMISSION_MAP[permission] || []) {
+      expanded.add(mapped);
+    }
+  }
+
+  if (
+    expanded.has("stock_write") ||
+    expanded.has("stock_create") ||
+    expanded.has("stock_delete")
+  ) {
+    expanded.add("stock_read");
+  }
+
+  if (expanded.has("messages_delete")) {
+    expanded.add("messages_read");
+  }
+
+  return [...expanded].filter((p) => VALID_PERMISSIONS.includes(p));
 }
 
 function rowToUser(row) {
@@ -22,6 +63,8 @@ function rowToUser(row) {
   return {
     id: row.id,
     username: row.username,
+    firstName: row.first_name || "",
+    lastName: row.last_name || "",
     role: row.role,
     permissions: row.role === "owner" ? [...VALID_PERMISSIONS] : parsePermissions(row.permissions),
     createdAt: row.created_at,
@@ -75,12 +118,14 @@ function ensureSeedAdmin(username, password) {
 
   const db = getDb();
   db.prepare(
-    "INSERT INTO admin_users (username, password_hash, role, permissions, created_at) VALUES (?, ?, 'owner', '[]', ?)"
+    "INSERT INTO admin_users (username, password_hash, first_name, last_name, role, permissions, created_at) VALUES (?, ?, '', '', 'owner', '[]', ?)"
   ).run(cleanText(username), hashPassword(password), new Date().toISOString());
 }
 
-function createUser({ username, password, permissions }, actor) {
+function createUser({ username, password, firstName, lastName, permissions }, actor) {
   const cleanUsername = cleanText(username);
+  const cleanFirstName = cleanText(firstName);
+  const cleanLastName = cleanText(lastName);
 
   if (!cleanUsername || cleanUsername.length < 3) {
     return { error: "Identifiant invalide (3 caracteres minimum)." };
@@ -94,33 +139,38 @@ function createUser({ username, password, permissions }, actor) {
     return { error: "Cet identifiant existe deja." };
   }
 
-  const safePermissions = Array.isArray(permissions)
-    ? permissions.filter((p) => VALID_PERMISSIONS.includes(p))
-    : [];
+  const safePermissions = normalizePermissions(permissions);
 
   const db = getDb();
   const info = db
     .prepare(
-      "INSERT INTO admin_users (username, password_hash, role, permissions, created_at) VALUES (?, ?, 'member', ?, ?)"
+      "INSERT INTO admin_users (username, password_hash, first_name, last_name, role, permissions, created_at) VALUES (?, ?, ?, ?, 'member', ?, ?)"
     )
-    .run(cleanUsername, hashPassword(password), JSON.stringify(safePermissions), new Date().toISOString());
+    .run(
+      cleanUsername,
+      hashPassword(password),
+      cleanFirstName,
+      cleanLastName,
+      JSON.stringify(safePermissions),
+      new Date().toISOString()
+    );
 
   activityLog.log(actor, "user_created", cleanUsername);
 
   return { user: rowToUser(findById(info.lastInsertRowid)) };
 }
 
-function updateUserPermissions(id, permissions, actor) {
+function updateUser(id, { firstName, lastName, permissions }, actor) {
   const target = findById(id);
   if (!target) return { error: "Utilisateur introuvable." };
   if (target.role === "owner") return { error: "Impossible de modifier le proprietaire." };
 
-  const safePermissions = Array.isArray(permissions)
-    ? permissions.filter((p) => VALID_PERMISSIONS.includes(p))
-    : [];
+  const safePermissions = normalizePermissions(permissions);
 
   const db = getDb();
-  db.prepare("UPDATE admin_users SET permissions = ? WHERE id = ?").run(
+  db.prepare("UPDATE admin_users SET first_name = ?, last_name = ?, permissions = ? WHERE id = ?").run(
+    cleanText(firstName ?? target.first_name),
+    cleanText(lastName ?? target.last_name),
     JSON.stringify(safePermissions),
     id
   );
@@ -128,6 +178,10 @@ function updateUserPermissions(id, permissions, actor) {
   activityLog.log(actor, "user_permissions_updated", target.username);
 
   return { user: rowToUser(findById(id)) };
+}
+
+function updateUserPermissions(id, permissions, actor) {
+  return updateUser(id, { permissions }, actor);
 }
 
 function deleteUser(id, actor) {
@@ -152,6 +206,7 @@ module.exports = {
   ensureSeedAdmin,
   updatePassword,
   createUser,
+  updateUser,
   updateUserPermissions,
   deleteUser,
 };
