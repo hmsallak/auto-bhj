@@ -1,6 +1,6 @@
 import Hero from "../../components/site/Hero";
 import HomeTrustCards from "../../components/site/HomeTrustCards";
-import CarBrowser from "../../components/CarBrowser";
+import HomeLatestCars from "../../components/site/HomeLatestCars";
 import AboutUs from "../../components/site/AboutUs";
 import RendezVous from "../../components/site/RendezVous";
 
@@ -48,7 +48,7 @@ export default function HomePage() {
       <Hero />
       <HomeTrustCards />
       <section className="section" id="stock">
-        <CarBrowser />
+        <HomeLatestCars />
       </section>
       <AboutUs />
       <RendezVous />

@@ -885,11 +885,17 @@ export default function CarBrowser() {
         </div>
       </div>
 
-      <div className="stock-catalog-more">
-        <a className="stock-catalog-more-button" href="/stock">
-          Voir plus
-        </a>
-      </div>
+      {!loading && currentPage < pageCount && (
+        <div className="stock-catalog-more">
+          <button
+            type="button"
+            className="stock-catalog-more-button"
+            onClick={() => goToPage(currentPage + 1)}
+          >
+            Suivant
+          </button>
+        </div>
+      )}
     </div>
   );
 }

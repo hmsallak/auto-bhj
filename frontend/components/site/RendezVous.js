@@ -28,6 +28,7 @@ const CONTACTS = [
     text: "Message rapide",
     href: WHATSAPP_HREF,
     external: true,
+    variant: "whatsapp",
   },
   {
     icon: PhoneIcon,
@@ -80,7 +81,10 @@ export default function RendezVous() {
                 variants={item}
                 {...(contact.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               >
-                <span className="contact-simple-icon" aria-hidden="true">
+                <span
+                  className={`contact-simple-icon${contact.variant ? ` contact-simple-icon-${contact.variant}` : ""}`}
+                  aria-hidden="true"
+                >
                   <Icon width="26" height="26" />
                 </span>
                 <span className="contact-simple-text">

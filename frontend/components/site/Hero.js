@@ -99,7 +99,7 @@ export default function Hero() {
         </motion.p>
 
         <motion.div className="hero-v2-actions" variants={item}>
-          <ActionButton className="hero-v2-cta-primary" href="#stock">
+          <ActionButton className="hero-v2-cta-primary" href="/stock">
             Voir nos vehicules
             <ChevronRightIcon width="16" height="16" />
           </ActionButton>

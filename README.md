@@ -10,6 +10,10 @@ Site de vente de vehicules d'occasion, en deux parties :
   aucun serveur lui-meme, il est utilise directement par les routes API du
   frontend.
 
+Regles de design/CSS du site (couleurs, typographie, icones, boutons,
+structure de section) : voir [`DESIGN.md`](./DESIGN.md). A consulter avant
+de coder une nouvelle section plutot que d'inventer un nouveau style.
+
 ## Base de donnees
 
 Chaque voiture est stockee dans une vraie base SQLite (`backend/data/autobhj.db`,
