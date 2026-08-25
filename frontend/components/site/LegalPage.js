@@ -1,30 +1,35 @@
 export default function LegalPage({ eyebrow, title, intro, updatedAt, sections }) {
   return (
-    <section className="legal-shell">
-      <div className="legal-hero">
-        <p className="eyebrow">{eyebrow}</p>
-        <h1>{title}</h1>
-        <p>{intro}</p>
-        <span>Derniere mise a jour : {updatedAt}</span>
-      </div>
+    <div className="mx-auto max-w-3xl px-6 py-12">
+      <p className="text-[13px] font-bold uppercase tracking-wide text-brand">{eyebrow}</p>
+      <h1 className="mt-2 text-3xl font-bold text-ink sm:text-4xl">{title}</h1>
+      <p className="mt-3 text-[15px] text-body">{intro}</p>
+      <p className="mt-2 text-[13px] text-subtle">Derniere mise a jour : {updatedAt}</p>
 
-      <div className="legal-content">
+      <div className="mt-10 flex flex-col gap-10">
         {sections.map((section) => (
-          <article className="legal-section" key={section.title}>
-            <h2>{section.title}</h2>
-            {section.body.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+          <div key={section.title}>
+            <h2 className="text-lg font-bold text-ink">{section.title}</h2>
+            <div className="mt-2 flex flex-col gap-3">
+              {section.body.map((paragraph) => (
+                <p key={paragraph} className="text-[15px] leading-relaxed text-body">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
             {section.items ? (
-              <ul>
+              <ul className="mt-3 flex flex-col gap-1.5">
                 {section.items.map((item) => (
-                  <li key={item}>{item}</li>
+                  <li key={item} className="flex gap-2 text-[15px] text-body">
+                    <span className="text-brand">•</span>
+                    {item}
+                  </li>
                 ))}
               </ul>
             ) : null}
-          </article>
+          </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

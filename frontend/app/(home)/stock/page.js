@@ -6,9 +6,5 @@ export const metadata = {
 };
 
 export default function StockPage() {
-  return (
-    <section className="section" id="stock">
-      <CarBrowser />
-    </section>
-  );
+  return <CarBrowser />;
 }

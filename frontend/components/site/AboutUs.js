@@ -1,113 +1,58 @@
-"use client";
-
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
-import OfficialIcon from "../OfficialIcon";
-
-const EASE = [0.16, 1, 0.3, 1];
-
-const introContainer = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
-};
-
-const introItem = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
-};
-
-const featuresContainer = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.14, delayChildren: 0.1 } },
-};
-
-const featureItem = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
-};
-
-const featureIconItem = {
-  hidden: { opacity: 0, scale: 0.82, y: 8 },
-  show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
-};
+import { FlagIcon, CompassIcon, HeartIcon } from "../home/icons";
+import SectionEyebrow from "../home/SectionEyebrow";
+import Reveal from "../home/Reveal";
 
 const FEATURES = [
   {
     title: "Notre histoire",
-    text:
-      "Nee d'une passion commune pour l'automobile, Auto BHJ a ete creee il y a 10 ans par une famille, avec une vision claire : proposer des vehicules de qualite en toute confiance.",
-    icon: "about",
+    text: "Nee d'une passion commune pour l'automobile, Auto BHJ a ete creee il y a 10 ans par une famille, avec une vision claire : proposer des vehicules de qualite en toute confiance.",
+    icon: FlagIcon,
   },
   {
     title: "Notre approche",
-    text:
-      "Transparence, ecoute et conseils personnalises. Nous prenons le temps de comprendre vos besoins pour vous proposer le vehicule qui vous correspond.",
-    icon: "approach",
+    text: "Transparence, ecoute et conseils personnalises. Nous prenons le temps de comprendre vos besoins pour vous proposer le vehicule qui vous correspond.",
+    icon: CompassIcon,
   },
   {
     title: "Notre engagement",
-    text:
-      "Un accompagnement honnete, du premier contact jusqu'a la remise des cles et meme apres. Votre satisfaction est notre meilleure recompense.",
-    icon: "commitment",
+    text: "Un accompagnement honnete, du premier contact jusqu'a la remise des cles et meme apres. Votre satisfaction est notre meilleure recompense.",
+    icon: HeartIcon,
   },
 ];
 
-function AboutIcon({ name }) {
-  return <OfficialIcon name={name} width={58} height={58} />;
-}
-
 export default function AboutUs() {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
-    <section className="about-bhj-section" aria-labelledby="about-bhj-title">
-      <div className="about-bhj-shell">
-        <div className="about-bhj-image" aria-hidden="true">
-          <Image
-            src="/header-hero.png"
-            alt=""
-            fill
-            sizes="(max-width: 980px) 100vw, 44vw"
-            className="about-bhj-photo"
-          />
-        </div>
+    <section className="bg-white py-16" aria-labelledby="about-bhj-title">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 lg:grid-cols-2 lg:items-center">
+        <Reveal
+          className="relative aspect-[4/3] lg:aspect-[4/5]"
+          style={{ clipPath: "polygon(0 0, 100% 0, 100% 88%, 88% 100%, 0 100%)" }}
+        >
+          <Image src="/header-hero.png" alt="" fill sizes="(max-width: 1024px) 100vw, 44vw" className="object-cover" />
+        </Reveal>
 
-        <div className="about-bhj-content">
-          <motion.div
-            variants={introContainer}
-            initial={prefersReducedMotion ? "show" : "hidden"}
-            whileInView="show"
-            viewport={{ once: false, amount: 0.3 }}
-          >
-            <motion.p className="about-bhj-eyebrow" variants={introItem}>
-              <span />
-              A propos de nous
-            </motion.p>
+        <div>
+          <Reveal>
+            <SectionEyebrow>A propos de nous</SectionEyebrow>
+            <h2 id="about-bhj-title" className="mt-2 text-2xl font-bold text-ink">
+              Une entreprise familiale, depuis 10 ans
+            </h2>
+          </Reveal>
 
-            <motion.h2 id="about-bhj-title" variants={introItem}>
-              Une entreprise familiale, depuis <span>10 ans.</span>
-            </motion.h2>
-
-            <motion.div className="about-bhj-divider" variants={introItem} aria-hidden="true" />
-          </motion.div>
-
-          <motion.div
-            className="about-bhj-features"
-            variants={featuresContainer}
-            initial={prefersReducedMotion ? "show" : "hidden"}
-            whileInView="show"
-            viewport={{ once: false, amount: 0.2 }}
-          >
-            {FEATURES.map((item) => (
-              <motion.article className="about-bhj-feature" key={item.title} variants={featureItem}>
-                <motion.span className="about-bhj-feature-icon" variants={featureIconItem}>
-                  <AboutIcon name={item.icon} />
-                </motion.span>
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
-              </motion.article>
+          <div className="mt-8 flex flex-col gap-6">
+            {FEATURES.map(({ title, text, icon: Icon }, index) => (
+              <Reveal key={title} delay={index * 100} className="flex gap-4">
+                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-pastel text-brand">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="text-[16px] font-bold text-ink">{title}</h3>
+                  <p className="mt-1 text-[15px] text-body">{text}</p>
+                </div>
+              </Reveal>
             ))}
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

@@ -4,11 +4,14 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { statusLabel } from "../lib/format";
-import OfficialIcon from "./OfficialIcon";
+import { CarIcon } from "./home/icons";
 
 const THUMB_LIMIT = 4;
 
 const SWIPE_THRESHOLD = 40;
+
+const NAV_BUTTON =
+  "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/90 text-ink shadow-sm hover:bg-white";
 
 export default function PhotoGallery({ images, alt, status }) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -84,7 +87,7 @@ export default function PhotoGallery({ images, alt, status }) {
   const lightbox =
     lightboxOpen && active && !sold ? (
       <div
-        className="gallery-lightbox"
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/95 p-4"
         role="dialog"
         aria-modal="true"
         aria-label={alt}
@@ -93,7 +96,7 @@ export default function PhotoGallery({ images, alt, status }) {
       >
         <button
           type="button"
-          className="gallery-lightbox-close"
+          className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-white/10 text-2xl text-white hover:bg-white/20"
           aria-label="Fermer"
           onClick={() => setLightboxOpen(false)}
         >
@@ -102,12 +105,12 @@ export default function PhotoGallery({ images, alt, status }) {
 
         <button
           type="button"
-          className="gallery-lightbox-backdrop"
+          className="absolute inset-0 cursor-default"
           aria-label="Fermer"
           onClick={() => setLightboxOpen(false)}
         />
 
-        <div className="gallery-lightbox-stage">
+        <div className="relative flex max-h-full max-w-5xl flex-col items-center gap-4">
           <Image
             src={active}
             alt={alt}
@@ -115,13 +118,13 @@ export default function PhotoGallery({ images, alt, status }) {
             height={1200}
             sizes="100vw"
             unoptimized
-            className="gallery-lightbox-image"
+            className="max-h-[75vh] w-auto rounded-xl object-contain"
           />
 
           {photos.length > 1 && (
             <button
               type="button"
-              className="gallery-lightbox-nav prev"
+              className={`${NAV_BUTTON} absolute left-2 top-1/2 -translate-y-1/2`}
               aria-label="Photo precedente"
               onClick={showPrev}
             >
@@ -130,24 +133,31 @@ export default function PhotoGallery({ images, alt, status }) {
           )}
 
           {photos.length > 1 && (
-            <button type="button" className="gallery-lightbox-nav next" aria-label="Photo suivante" onClick={showNext}>
+            <button
+              type="button"
+              className={`${NAV_BUTTON} absolute right-2 top-1/2 -translate-y-1/2`}
+              aria-label="Photo suivante"
+              onClick={showNext}
+            >
               <span aria-hidden="true">›</span>
             </button>
           )}
 
           {photos.length > 1 && (
-            <span className="gallery-lightbox-counter">
+            <span className="rounded-full bg-white/10 px-3 py-1 text-[13px] text-white">
               {activeIndex + 1} / {photos.length}
             </span>
           )}
 
           {photos.length > 1 && (
-            <div className="gallery-lightbox-thumbs" aria-label="Toutes les photos">
+            <div className="flex max-w-full gap-2 overflow-x-auto" aria-label="Toutes les photos">
               {photos.map((src, index) => (
                 <button
                   key={`${src}-${index}`}
                   type="button"
-                  className={`gallery-lightbox-thumb ${index === activeIndex ? "is-active" : ""}`}
+                  className={`h-14 w-20 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 ${
+                    index === activeIndex ? "border-sage" : "border-transparent opacity-70"
+                  }`}
                   aria-label={`Afficher la photo ${index + 1}`}
                   aria-current={index === activeIndex ? "true" : undefined}
                   onClick={() => setActiveIndex(index)}
@@ -159,6 +169,7 @@ export default function PhotoGallery({ images, alt, status }) {
                     height={90}
                     sizes="96px"
                     unoptimized
+                    className="h-full w-full object-cover"
                   />
                 </button>
               ))}
@@ -169,9 +180,9 @@ export default function PhotoGallery({ images, alt, status }) {
     ) : null;
 
   return (
-    <div className="gallery">
+    <div className="flex flex-col gap-3">
       <div
-        className={`gallery-main ${reserved ? "is-reserved" : ""} ${sold ? "is-sold" : ""}`}
+        className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-line bg-white sm:aspect-[16/10]"
         onTouchStart={active && !sold ? handleTouchStart : undefined}
         onTouchEnd={active && !sold ? handleTouchEnd : undefined}
       >
@@ -187,20 +198,25 @@ export default function PhotoGallery({ images, alt, status }) {
             onClick={!sold ? () => setLightboxOpen(true) : undefined}
             role={!sold ? "button" : undefined}
             aria-label={!sold ? "Voir toutes les photos en plein ecran" : undefined}
+            className={`h-full w-full object-cover ${!sold ? "cursor-pointer" : ""} ${reserved ? "opacity-90" : ""}`}
           />
         ) : (
-          <div className="detail-media-placeholder">Pas de photo</div>
+          <div className="flex h-full items-center justify-center text-[15px] text-subtle">Pas de photo</div>
         )}
         {sold && (
-          <div className="gallery-sold-overlay">Vehicule vendu
-            <br />Photos non disponibles</div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-ink/80 text-center text-[15px] font-semibold text-white">
+            <span>Vehicule vendu</span>
+            <span className="text-[13px] font-normal text-offwhite">Photos non disponibles</span>
+          </div>
         )}
-        <span className={`status ${status}`}>{statusLabel(status)}</span>
+        <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-3 py-1 text-[13px] font-semibold text-white">
+          {statusLabel(status)}
+        </span>
         {active && !sold && photos.length > 1 && (
           <>
             <button
               type="button"
-              className="gallery-main-nav prev"
+              className={`${NAV_BUTTON} absolute left-3 top-1/2 -translate-y-1/2`}
               aria-label="Photo precedente"
               onClick={showPrev}
             >
@@ -208,13 +224,13 @@ export default function PhotoGallery({ images, alt, status }) {
             </button>
             <button
               type="button"
-              className="gallery-main-nav next"
+              className={`${NAV_BUTTON} absolute right-3 top-1/2 -translate-y-1/2`}
               aria-label="Photo suivante"
               onClick={showNext}
             >
               <span aria-hidden="true">›</span>
             </button>
-            <span className="gallery-main-counter">
+            <span className="absolute bottom-3 right-3 rounded-full bg-ink/85 px-3 py-1 text-[13px] font-medium text-white">
               {activeIndex + 1}/{photos.length}
             </span>
           </>
@@ -222,14 +238,16 @@ export default function PhotoGallery({ images, alt, status }) {
       </div>
 
       {visibleThumbs.length > 1 && (
-        <div className="gallery-thumbs">
+        <div className="grid grid-cols-4 gap-2">
           {visibleThumbs.map((src, index) => {
             const isLastVisible = index === THUMB_LIMIT - 1 && hasMore;
             return (
               <button
                 key={src}
                 type="button"
-                className={`gallery-thumb ${isLastVisible ? "has-more" : ""} ${sold ? "is-sold" : ""}`}
+                className={`relative aspect-[4/3] cursor-pointer overflow-hidden rounded-lg border-2 ${
+                  index === activeIndex ? "border-sage" : "border-transparent"
+                } ${sold ? "opacity-60" : ""}`}
                 onClick={() => {
                   setActiveIndex(index);
                   if (isLastVisible && !sold) setLightboxOpen(true);
@@ -242,10 +260,11 @@ export default function PhotoGallery({ images, alt, status }) {
                   height={165}
                   sizes="180px"
                   unoptimized
+                  className="h-full w-full object-cover"
                 />
                 {isLastVisible && (
-                  <span className="gallery-thumb-more">
-                    {photos.length} <OfficialIcon name="car" width={14} height={14} />
+                  <span className="absolute inset-0 flex items-center justify-center gap-1.5 bg-ink/70 text-[14px] font-semibold text-white">
+                    {photos.length} <CarIcon className="h-4 w-4" />
                   </span>
                 )}
               </button>

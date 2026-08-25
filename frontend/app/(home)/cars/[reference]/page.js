@@ -73,76 +73,74 @@ export default async function CarDetailPage({ params }) {
   };
 
   return (
-    <section className="detail-shell">
+    <section className="mx-auto max-w-6xl px-6 py-10">
       <VehicleViewTracker reference={car.reference} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <nav className="breadcrumb" aria-label="Fil d'Ariane">
-        <a href="/">Accueil</a>
+
+      <nav className="flex items-center gap-2 text-[14px] text-subtle" aria-label="Fil d'Ariane">
+        <a href="/" className="hover:text-brand">
+          Accueil
+        </a>
         <span>/</span>
-        <a href="/stock">Stock</a>
+        <a href="/stock" className="hover:text-brand">
+          Stock
+        </a>
         <span>/</span>
-        <span className="breadcrumb-current">
+        <span className="font-medium text-ink">
           {car.brand} {car.model}
         </span>
       </nav>
 
-      <div className="detail-market-layout">
-        <div className="detail-market-main">
-          <div className="detail-header">
-            <div className="detail-header-title">
-              <h1>
-                {car.brand} <span className="detail-model">{car.model}</span>
-              </h1>
-              <p className="detail-reference">Reference {car.reference}</p>
-            </div>
-          </div>
-
-          <div className="detail-mobile-summary" aria-label="Resume du vehicule">
-            <div className="detail-mobile-price">
-              <span>Prix</span>
-              <strong>{formatPrice(car.price)}</strong>
-            </div>
-            <div className="detail-mobile-status">
-              <span>Etat</span>
-              <strong className={`status ${car.status}`}>{statusLabel(car.status)}</strong>
-            </div>
-          </div>
+      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="flex flex-col gap-6 lg:col-span-2">
+          <h1 className="sr-only">
+            {car.brand} {car.model}
+          </h1>
 
           <PhotoGallery images={car.images} alt={`${car.brand} ${car.model}`} status={car.status} />
 
-          <SpecHighlights car={car} />
-        </div>
-
-        <aside className="detail-market-sidebar" aria-label="Prix et contact">
-          <div className="detail-price-card">
-            <span className="detail-price-label">Prix affiche</span>
-            <p className="car-price">{formatPrice(car.price)}</p>
-            <span className={`status ${car.status}`}>{statusLabel(car.status)}</span>
-          </div>
-
-          <div className="detail-seller-card">
-            <span className="detail-seller-kicker">Vendeur</span>
-            <h2>Auto BHJ</h2>
-            <p>Mekingenweg 99, 1600 Sint-Pieters-Leeuw</p>
-            <div className="detail-seller-badges">
-              <span>Visite sur rendez-vous</span>
-              <span>FR / NL</span>
+          <div className="flex flex-col gap-1 lg:hidden">
+            <h2 className="text-lg font-bold text-ink">
+              {car.brand} <span className="text-sage">{car.model}</span>
+            </h2>
+            <div className="flex items-center justify-between">
+              <strong className="text-2xl font-extrabold text-brand-dark">{formatPrice(car.price)}</strong>
+              <span className="text-[14px] font-medium text-sage">{statusLabel(car.status)}</span>
             </div>
           </div>
 
-          <div className="panel detail-contact-panel">
+          <SpecHighlights car={car} />
+
+          <CarSpecSheet car={car} />
+        </div>
+
+        <aside
+          className="flex flex-col divide-y divide-sage border-y border-sage lg:sticky lg:top-24 lg:self-start"
+          aria-label="Prix et contact"
+        >
+          <div className="hidden flex-col gap-1 py-6 lg:flex">
+            <h2 className="text-lg font-bold text-ink">
+              {car.brand} <span className="text-sage">{car.model}</span>
+            </h2>
+            <span className="mt-2 text-[13px] text-subtle">Prix affiche</span>
+            <p className="text-2xl font-extrabold text-brand-dark">{formatPrice(car.price)}</p>
+            <span className="mt-1 text-[13px] font-medium text-sage">{statusLabel(car.status)}</span>
+          </div>
+
+          <div className="flex flex-col gap-1 py-6">
+            <span className="text-[13px] font-medium uppercase tracking-wide text-subtle">Vendeur</span>
+            <h2 className="text-lg font-bold text-ink">Auto BHJ</h2>
+            <p className="text-[14px] text-body">Mekingenweg 99, 1600 Sint-Pieters-Leeuw</p>
+            <p className="mt-1 text-[13px] text-subtle">Visite sur rendez-vous &middot; FR / NL</p>
+          </div>
+
+          <div className="py-6">
             <VehicleActions reference={car.reference} />
           </div>
         </aside>
-      </div>
-
-      <div className="detail-lower">
-        <div className="panel detail-spec-panel">
-          <CarSpecSheet car={car} />
-        </div>
       </div>
     </section>
   );

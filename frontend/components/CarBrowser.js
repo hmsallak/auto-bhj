@@ -1,21 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import CarGrid from "./CarGrid";
-import OfficialIcon from "./OfficialIcon";
-
-const PROOF_EASE = [0.16, 1, 0.3, 1];
-
-const proofContainer = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
-};
-
-const proofItem = {
-  hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: PROOF_EASE } },
-};
+import HomeCarGrid from "./home/HomeCarGrid";
+import { SearchIcon, ChevronDownIcon } from "./home/icons";
+import SectionEyebrow from "./home/SectionEyebrow";
 
 const DEFAULT_FILTERS = {
   brand: "",
@@ -72,171 +60,118 @@ function numberValue(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
-function formatEuro(value) {
-  return new Intl.NumberFormat("fr-BE", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function closeSiblingChoiceGroups(currentDetails) {
-  const scope = currentDetails.closest(".stock-filter-scroll, .stock-sort-shell, .stock-mobile-sort-panel");
-  scope?.querySelectorAll("details.stock-choice-group[open]").forEach((details) => {
-    if (details !== currentDetails) details.open = false;
-  });
-}
-
-function ChoiceGroup({
-  label,
-  value,
-  onChange,
-  options,
-  className = "",
-  defaultOpen = false,
-  resetVersion = 0,
-}) {
-  const selected = options.find((option) => option.value === value) || options[0];
-  const detailsRef = useRef(null);
-
-  useEffect(() => {
-    if (!detailsRef.current) return;
-    detailsRef.current.open = defaultOpen;
-  }, [defaultOpen, resetVersion]);
-
-  function handleToggle(event) {
-    if (event.currentTarget.open) closeSiblingChoiceGroups(event.currentTarget);
-  }
-
-  function chooseOption(nextValue) {
-    onChange(nextValue);
-    if (!defaultOpen && detailsRef.current) detailsRef.current.open = false;
-  }
-
+function FilterSelect({ id, label, value, onChange, options, defaultOptionLabel }) {
   return (
-    <details
-      ref={detailsRef}
-      className={`stock-choice-group ${className}`}
-      onToggle={handleToggle}
-      {...(defaultOpen ? { open: true } : {})}
-    >
-      <summary>
-        <span>{label}</span>
-        <strong>{selected?.label || "Tous"}</strong>
-      </summary>
-      <div className="stock-choice-options">
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-xs font-medium uppercase tracking-wide text-subtle">
+        {label}
+      </label>
+      <select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="min-h-[44px] cursor-pointer rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      >
+        <option value="">{defaultOptionLabel}</option>
         {options.map((option) => (
-          <button
-            key={`${label}-${option.value || "all"}`}
-            type="button"
-            className={`stock-choice-option ${option.value === value ? "is-selected" : ""}`}
-            aria-pressed={option.value === value}
-            onClick={() => chooseOption(option.value)}
-          >
-            <span className="stock-choice-box" aria-hidden="true" />
-            <span>{option.label}</span>
-            {option.count !== undefined && <em>{option.count}</em>}
-          </button>
+          <option key={option.value} value={option.value}>
+            {option.count !== undefined ? `${option.label} (${option.count})` : option.label}
+          </option>
         ))}
-      </div>
-    </details>
+      </select>
+    </div>
   );
 }
 
-function MileageFilter({ value, onChange, resetVersion = 0 }) {
-  const detailsRef = useRef(null);
-  const selectedLabel = value ? `${Number(value).toLocaleString("fr-BE")} km` : "Tous";
+function PillSelect({ id, value, onChange, options, defaultOptionLabel }) {
+  return (
+    <select
+      id={id}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      className="h-11 w-auto cursor-pointer rounded-full border border-line bg-white px-4 text-[14px] font-medium text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand"
+    >
+      <option value="">{defaultOptionLabel}</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.count !== undefined ? `${option.label} (${option.count})` : option.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function PricePopover({ minValue, maxValue, onMinChange, onMaxChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
 
   useEffect(() => {
-    if (!detailsRef.current) return;
-    detailsRef.current.open = false;
-  }, [resetVersion]);
+    if (!open) return;
+    function handleClickOutside(event) {
+      if (ref.current && !ref.current.contains(event.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
 
-  function chooseMileage(nextValue) {
-    onChange(nextValue);
-    if (detailsRef.current) detailsRef.current.open = false;
-  }
+  const label =
+    minValue || maxValue
+      ? `${minValue ? `${Number(minValue).toLocaleString("fr-BE")} EUR` : "0 EUR"} - ${
+          maxValue ? `${Number(maxValue).toLocaleString("fr-BE")} EUR` : "..."
+        }`
+      : "Prix";
 
   return (
-    <details
-      ref={detailsRef}
-      className="stock-choice-group stock-mileage-menu"
-      onToggle={(event) => {
-        if (event.currentTarget.open) closeSiblingChoiceGroups(event.currentTarget);
-      }}
-    >
-      <summary>
-        <span>Km max</span>
-        <strong>{selectedLabel}</strong>
-      </summary>
-      <div className="stock-choice-options stock-mileage-options">
-        <button
-          type="button"
-          className={`stock-choice-option ${!value ? "is-selected" : ""}`}
-          aria-pressed={!value}
-          onClick={() => chooseMileage("")}
-        >
-          <span className="stock-choice-box" aria-hidden="true" />
-          <span>Tous les km</span>
-        </button>
-        {MILEAGE_LIMITS.map((limit) => (
-          <button
-            key={limit}
-            type="button"
-            className={`stock-choice-option ${value === limit ? "is-selected" : ""}`}
-            aria-pressed={value === limit}
-            onClick={() => chooseMileage(limit)}
-          >
-            <span className="stock-choice-box" aria-hidden="true" />
-            <span>{Number(limit).toLocaleString("fr-BE")} km</span>
-          </button>
-        ))}
-        <label className="stock-mileage-custom">
-          <span>Valeur personnalisee</span>
-          <input
-            type="number"
-            min="0"
-            inputMode="numeric"
-            placeholder="Ex. 100000"
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-          />
-        </label>
-      </div>
-    </details>
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="inline-flex h-11 w-auto cursor-pointer items-center gap-1.5 rounded-full border border-line bg-white px-4 text-[14px] font-medium text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      >
+        {label}
+        <ChevronDownIcon className={`h-4 w-4 text-subtle transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-[calc(100%+8px)] z-20 flex max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-2xl border border-line bg-white p-4 shadow-lg sm:flex-row">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium uppercase tracking-wide text-subtle">Min</span>
+            <input
+              type="number"
+              min="0"
+              inputMode="numeric"
+              value={minValue}
+              onChange={(event) => onMinChange(event.target.value)}
+              className="h-11 w-full rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none sm:w-[130px]"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium uppercase tracking-wide text-subtle">Max</span>
+            <input
+              type="number"
+              min="0"
+              inputMode="numeric"
+              value={maxValue}
+              onChange={(event) => onMaxChange(event.target.value)}
+              className="h-11 w-full rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none sm:w-[130px]"
+            />
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
 export default function CarBrowser() {
-  const prefersReducedMotion = useReducedMotion();
   const [cars, setCars] = useState([]);
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [desktopSortOpen, setDesktopSortOpen] = useState(false);
-  const [mobileSortOpen, setMobileSortOpen] = useState(false);
-  const [desktopFiltersExpanded, setDesktopFiltersExpanded] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
-  const [resetVersion, setResetVersion] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [urlReady, setUrlReady] = useState(false);
   const resultsRef = useRef(null);
-  const selectedSortLabel = SORT_LABELS[filters.sort] || SORT_LABELS.recommended;
-
-  useEffect(() => {
-    const mobileQuery = window.matchMedia("(max-width: 980px)");
-
-    function syncMobilePanels(eventOrQuery = mobileQuery) {
-      const desktop = !eventOrQuery.matches;
-      setFiltersOpen(desktop);
-      setDesktopSortOpen(false);
-      setMobileSortOpen(false);
-    }
-
-    syncMobilePanels(mobileQuery);
-    mobileQuery.addEventListener("change", syncMobilePanels);
-    return () => mobileQuery.removeEventListener("change", syncMobilePanels);
-  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -290,33 +225,14 @@ export default function CarBrowser() {
     function choicesFromCounts(counts) {
       return [...counts.keys()]
         .sort((a, b) => String(a).localeCompare(String(b), "fr"))
-        .map((value) => ({
-          value,
-          label: String(value),
-          count: counts.get(value) || 0,
-        }));
+        .map((value) => ({ value, label: String(value), count: counts.get(value) || 0 }));
     }
 
     function choices(key, source = cars) {
       return choicesFromCounts(stockCounts(key, source));
     }
 
-    function yearChoices() {
-      const counts = cars.reduce((map, car) => {
-        const year = numberValue(car.year);
-        if (!year) return map;
-        MARKET_YEARS.forEach((value) => {
-          if (year >= Number(value)) map.set(value, (map.get(value) || 0) + 1);
-        });
-        return map;
-      }, new Map());
-
-      return MARKET_YEARS.map((value) => ({ value, label: value, count: counts.get(value) || 0 }));
-    }
-
-    const carsForModel = filters.brand
-      ? cars.filter((car) => car.brand === filters.brand)
-      : cars;
+    const carsForModel = filters.brand ? cars.filter((car) => car.brand === filters.brand) : cars;
 
     return {
       brands: choices("brand"),
@@ -324,7 +240,6 @@ export default function CarBrowser() {
       fuels: choices("fuel"),
       gearboxes: choices("gearbox"),
       bodyTypes: choices("bodyType"),
-      years: yearChoices(),
     };
   }, [cars, filters.brand]);
 
@@ -375,7 +290,6 @@ export default function CarBrowser() {
       if (filters.sort === "newest") {
         return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
       }
-
       const statusRank = { available: 0, reserved: 1, sold: 2 };
       return (statusRank[a.status] ?? 3) - (statusRank[b.status] ?? 3);
     });
@@ -389,14 +303,12 @@ export default function CarBrowser() {
     filters.status ? `Disponibilite: ${STATUS_LABELS[filters.status] || filters.status}` : null,
     filters.priceMin ? `Min: ${filters.priceMin} EUR` : null,
     filters.priceMax ? `Max: ${filters.priceMax} EUR` : null,
-    filters.mileageMax ? `Max: ${filters.mileageMax} km` : null,
+    filters.mileageMax ? `Max: ${Number(filters.mileageMax).toLocaleString("fr-BE")} km` : null,
     filters.yearMin ? `Depuis: ${filters.yearMin}` : null,
     filters.fuel ? `Carburant: ${filters.fuel}` : null,
     filters.gearbox ? `Boite: ${filters.gearbox}` : null,
   ].filter(Boolean);
 
-  const activeFilters =
-    activeFilterLabels.length + (filters.sort !== DEFAULT_FILTERS.sort ? 1 : 0);
   const pageCount = Math.max(1, Math.ceil(visibleCars.length / PAGE_SIZE));
   const paginatedCars = useMemo(() => {
     const start = (currentPage - 1) * PAGE_SIZE;
@@ -429,29 +341,12 @@ export default function CarBrowser() {
       if (key === "brand") next.model = "";
       return next;
     });
-    window.dataLayer?.push?.({ event: "autobhj_filter", filter: key, value });
-  }
-
-  function updateSort(value) {
-    updateFilter("sort", value);
-    setDesktopSortOpen(false);
-    setMobileSortOpen(false);
   }
 
   function resetFilters() {
     setQuery("");
     setFilters(DEFAULT_FILTERS);
     setCurrentPage(1);
-    setResetVersion((version) => version + 1);
-  }
-
-  function scrollToResults() {
-    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  function applyMobileFilters() {
-    setFiltersOpen(false);
-    scrollToResults();
   }
 
   function goToPage(page) {
@@ -459,384 +354,313 @@ export default function CarBrowser() {
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  const resultsCountLabel = `${visibleCars.length} ${visibleCars.length > 1 ? "resultats" : "resultat"}`;
+
   return (
-    <div className="stock-browser">
-      <section className="stock-catalog-hero" aria-labelledby="stock-catalog-title">
-        <div className="stock-catalog-hero-copy">
-          <p className="stock-catalog-pill">
-            <OfficialIcon name="car" width={18} height={18} />
-            <span>Catalogue</span>
-          </p>
-          <h2 id="stock-catalog-title">
-            Trouvez la voiture <span className="stock-catalog-accent">ideale</span>
-          </h2>
-          <span className="stock-catalog-mark" aria-hidden="true" />
-          <p>
-            Des occasions soigneusement selectionnees, pretes a prendre la route,
-            avec des prix clairs et un accompagnement simple du premier contact a la remise des cles.
-          </p>
-        </div>
+    <div className="mx-auto max-w-6xl px-6 py-10">
+      <div className="mb-8">
+        <SectionEyebrow>Catalogue</SectionEyebrow>
+        <h1 className="mt-2 text-3xl font-bold text-brand-dark sm:text-4xl">Trouvez la voiture ideale</h1>
+        <p className="mt-3 max-w-2xl text-[15px] text-body">
+          Des occasions soigneusement selectionnees, pretes a prendre la route, avec des prix clairs et un
+          accompagnement simple du premier contact a la remise des cles.
+        </p>
+      </div>
 
-        <motion.div
-          className="stock-catalog-proof"
-          aria-label="Garanties Auto BHJ"
-          variants={proofContainer}
-          initial={prefersReducedMotion ? "show" : "hidden"}
-          whileInView="show"
-          viewport={{ once: false, amount: 0.3 }}
-        >
-          <motion.div className="stock-catalog-proof-item" variants={proofItem}>
-            <OfficialIcon name="warranty" width={42} height={42} />
-            <strong>Vehicules</strong>
-            <span>controles</span>
-          </motion.div>
-          <motion.div className="stock-catalog-proof-item" variants={proofItem}>
-            <OfficialIcon name="quality" width={42} height={42} />
-            <strong>Garantie</strong>
-            <span>incluse</span>
-          </motion.div>
-          <motion.div className="stock-catalog-proof-item" variants={proofItem}>
-            <OfficialIcon name="commitment" width={42} height={42} />
-            <strong>Suivi</strong>
-            <span>personnalise</span>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      <label className="search stock-search stock-search-wide">
-        <span className="stock-search-label-text">Recherche</span>
-        <span className="stock-search-kind">
-          Recherche
-        </span>
+      <div className="relative mb-6">
+        <SearchIcon className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-subtle" />
         <input
           type="search"
           placeholder="Reference, marque, modele, carburant..."
           value={query}
           onChange={(event) => setQuery(event.target.value)}
+          className="min-h-[48px] w-full rounded-lg border border-line bg-white pl-4 pr-11 text-[15px] text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand"
         />
-      </label>
+      </div>
 
-      <div className="stock-layout">
-        <aside className="stock-sidebar">
-          <div className="stock-sort-shell">
-            <button
-              className={`button neutral stock-desktop-sort-toggle${filters.sort !== DEFAULT_FILTERS.sort ? " is-active" : ""}`}
-              type="button"
-              aria-expanded={desktopSortOpen}
-              onClick={() => setDesktopSortOpen((value) => !value)}
-            >
-              <span className="stock-sort-prefix">Trier:</span>
-              <strong>{selectedSortLabel}</strong>
-              <OfficialIcon name="filters" width={16} height={16} />
-              {filters.sort !== DEFAULT_FILTERS.sort && (
-                <span className="stock-filter-count" aria-label="1 tri applique">
-                  1
-                </span>
-              )}
-            </button>
-            <div className={`stock-results-head ${desktopSortOpen ? "sort-open" : ""}`}>
-              <ChoiceGroup
-                className="stock-sort"
-                label="Trier"
-                value={filters.sort}
-                onChange={updateSort}
-                defaultOpen
-                options={[
-                  { value: "recommended", label: "Recommande" },
-                  { value: "newest", label: "Plus recents" },
-                  { value: "price_asc", label: "Prix croissant" },
-                  { value: "price_desc", label: "Prix decroissant" },
-                  { value: "km_asc", label: "Kilometrage bas" },
-                  { value: "year_desc", label: "Annee recente" },
-                ]}
-              />
-            </div>
-          </div>
-
-          <div className="stock-mobile-controls" aria-label="Controle du catalogue">
-            <button
-              className={`button neutral filter-toggle stock-mobile-action${activeFilterLabels.length > 0 ? " is-active" : ""}`}
-              type="button"
-              aria-expanded={filtersOpen}
-              onClick={() => setFiltersOpen((value) => !value)}
-            >
-              <span>Filtres</span>
-              <OfficialIcon name="filters" width={18} height={18} />
-              {activeFilterLabels.length > 0 && (
-                <span className="stock-filter-count" aria-label={`${activeFilterLabels.length} filtres appliques`}>
-                  {activeFilterLabels.length}
-                </span>
-              )}
-            </button>
-
-            <button
-              className={`button neutral stock-sort-toggle stock-mobile-action${filters.sort !== DEFAULT_FILTERS.sort ? " is-active" : ""}`}
-              type="button"
-              aria-expanded={mobileSortOpen}
-              onClick={() => setMobileSortOpen((value) => !value)}
-            >
-              <span>Trier par</span>
-              <OfficialIcon name="filters" width={16} height={16} />
-              {filters.sort !== DEFAULT_FILTERS.sort && (
-                <span className="stock-filter-count" aria-label="1 tri applique">
-                  1
-                </span>
-              )}
-            </button>
-          </div>
-
-          <div className={`stock-mobile-sort-panel ${mobileSortOpen ? "sort-open" : ""}`}>
-            <ChoiceGroup
-              className="stock-sort"
-              label="Trier"
-              value={filters.sort}
-              onChange={updateSort}
-              defaultOpen
-              options={[
-                { value: "recommended", label: "Recommande" },
-                { value: "newest", label: "Plus recents" },
-                { value: "price_asc", label: "Prix croissant" },
-                { value: "price_desc", label: "Prix decroissant" },
-                { value: "km_asc", label: "Kilometrage bas" },
-                { value: "year_desc", label: "Annee recente" },
-              ]}
-            />
-          </div>
-
-          <div
-            className={`stock-filters-panel ${filtersOpen ? "open" : ""}${desktopFiltersExpanded ? " desktop-expanded" : ""}`}
+      <div className="mb-8">
+        <div className="flex gap-3 lg:hidden">
+          <button
+            type="button"
+            onClick={() => {
+              setFiltersOpen((value) => !value);
+              setSortOpen(false);
+            }}
+            className="flex h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-[14px] font-medium text-ink"
           >
-            <div className="stock-filter-drawer-head">
-              <button
-                className="stock-filter-clear"
-                type="button"
-                onClick={resetFilters}
-              >
-                Réinitialiser les filtres
-              </button>
-              <strong>Tous les filtres</strong>
-              <button
-                className="stock-filter-close"
-                type="button"
-                aria-label="Fermer les filtres"
-                onClick={() => setFiltersOpen(false)}
-              >
-                <span aria-hidden="true">×</span>
-              </button>
-            </div>
+            Filtre{activeFilterLabels.length > 0 ? ` (${activeFilterLabels.length})` : ""}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSortOpen((value) => !value);
+              setFiltersOpen(false);
+            }}
+            className="flex h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-[14px] font-medium text-ink"
+          >
+            Trier: {SORT_LABELS[filters.sort]}
+          </button>
+        </div>
 
+        {sortOpen && (
+          <div className="mt-3 flex flex-col gap-1 rounded-2xl border border-line bg-white p-2 lg:hidden">
+            {Object.entries(SORT_LABELS).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  updateFilter("sort", value);
+                  setSortOpen(false);
+                }}
+                className={`cursor-pointer rounded-lg px-3 py-2.5 text-left text-[14px] font-medium ${
+                  filters.sort === value ? "bg-brand-pastel text-brand" : "text-ink hover:bg-surface"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="hidden flex-wrap items-center gap-3 lg:flex">
+          <PillSelect
+            id="filter-brand"
+            value={filters.brand}
+            onChange={(value) => updateFilter("brand", value)}
+            options={options.brands}
+            defaultOptionLabel="Marque"
+          />
+          <PillSelect
+            id="filter-gearbox"
+            value={filters.gearbox}
+            onChange={(value) => updateFilter("gearbox", value)}
+            options={options.gearboxes}
+            defaultOptionLabel="Boite de vitesse"
+          />
+          <PillSelect
+            id="filter-fuel"
+            value={filters.fuel}
+            onChange={(value) => updateFilter("fuel", value)}
+            options={options.fuels}
+            defaultOptionLabel="Carburant"
+          />
+          <PillSelect
+            id="filter-km"
+            value={filters.mileageMax}
+            onChange={(value) => updateFilter("mileageMax", value)}
+            options={MILEAGE_LIMITS.map((limit) => ({ value: limit, label: `${Number(limit).toLocaleString("fr-BE")} km` }))}
+            defaultOptionLabel="Kilometres"
+          />
+          <PricePopover
+            minValue={filters.priceMin}
+            maxValue={filters.priceMax}
+            onMinChange={(value) => updateFilter("priceMin", value)}
+            onMaxChange={(value) => updateFilter("priceMax", value)}
+          />
+
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((value) => !value)}
+            className="cursor-pointer text-[14px] font-semibold text-brand underline"
+          >
+            Tous les filtres{activeFilterLabels.length > 0 ? ` (${activeFilterLabels.length})` : ""}
+          </button>
+
+          {activeFilterLabels.length > 0 && (
             <button
-              className="stock-desktop-clear"
               type="button"
               onClick={resetFilters}
+              className="cursor-pointer text-[13px] font-medium text-sage underline"
             >
-              Réinitialiser les filtres
+              Effacer filtre
             </button>
+          )}
 
-            <button
-              className={`stock-desktop-more-filters${desktopFiltersExpanded ? " is-active" : ""}`}
-              type="button"
-              aria-expanded={desktopFiltersExpanded}
-              onClick={() => setDesktopFiltersExpanded((value) => !value)}
-            >
-              <span>Tous les filtres</span>
-              <OfficialIcon name="filters" width={16} height={16} />
-            </button>
+          <div className="ml-auto">
+            <PillSelect
+              id="filter-sort"
+              value={filters.sort}
+              onChange={(value) => updateFilter("sort", value)}
+              options={Object.entries(SORT_LABELS)
+                .filter(([value]) => value !== "recommended")
+                .map(([value, label]) => ({ value, label }))}
+              defaultOptionLabel={`Trier: ${SORT_LABELS.recommended}`}
+            />
+          </div>
+        </div>
 
-            <div className="stock-filter-applied">
-              <div className="stock-filter-applied-head">
-                <span>
-                  Filtres appliques
-                  {activeFilterLabels.length > 0 && <strong>{activeFilterLabels.length}</strong>}
-                </span>
-              </div>
-              {activeFilterLabels.length > 0 && (
-                <div className="stock-filter-applied-chips" aria-label="Filtres appliques">
-                  {activeFilterLabels.map((label) => (
-                    <span key={label}>{label}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="stock-filter-scroll">
-              <div className="stock-filter-head">
-                <span>Affiner</span>
-                <strong>{visibleCars.length}</strong>
-              </div>
-
-              <ChoiceGroup
+        {filtersOpen && (
+          <div className="mt-3 flex flex-col gap-3 rounded-2xl border border-line bg-white p-4 lg:mt-4 lg:flex lg:flex-row lg:flex-wrap lg:p-5">
+            <div className="flex flex-col gap-3 lg:hidden">
+              <FilterSelect
+                id="m-filter-brand"
                 label="Marque"
                 value={filters.brand}
                 onChange={(value) => updateFilter("brand", value)}
-                resetVersion={resetVersion}
-                options={[
-                  { value: "", label: "Toutes les marques" },
-                  ...options.brands,
-                ]}
+                options={options.brands}
+                defaultOptionLabel="Toutes les marques"
               />
-              <ChoiceGroup
-                label="Modele"
-                value={filters.model}
-                onChange={(value) => updateFilter("model", value)}
-                resetVersion={resetVersion}
-                options={[
-                  { value: "", label: "Tous les modeles" },
-                  ...options.models,
-                ]}
-              />
-              <ChoiceGroup
-                className="stock-filter-secondary"
-                label="Carrosserie"
-                value={filters.bodyType}
-                onChange={(value) => updateFilter("bodyType", value)}
-                resetVersion={resetVersion}
-                options={[
-                  { value: "", label: "Toutes" },
-                  ...options.bodyTypes,
-                ]}
-              />
-              <ChoiceGroup
-                className="stock-filter-secondary"
-                label="Disponibilite"
-                value={filters.status}
-                onChange={(value) => updateFilter("status", value)}
-                resetVersion={resetVersion}
-                options={[
-                  { value: "", label: "Tous les statuts" },
-                  {
-                    value: "available",
-                    label: "Disponible",
-                    count: cars.filter((car) => car.status === "available").length,
-                  },
-                  {
-                    value: "reserved",
-                    label: "Reserve",
-                    count: cars.filter((car) => car.status === "reserved").length,
-                  },
-                  {
-                    value: "sold",
-                    label: "Vendu",
-                    count: cars.filter((car) => car.status === "sold").length,
-                  },
-                ]}
-              />
-              <div className="stock-filter-pair">
-                <label>
-                  <span>Prix min.</span>
-                  <input
-                    type="number"
-                    min="0"
-                    inputMode="numeric"
-                    placeholder="0"
-                    value={filters.priceMin}
-                    onChange={(event) => updateFilter("priceMin", event.target.value)}
-                  />
-                </label>
-                <label>
-                  <span>Prix max.</span>
-                  <input
-                    type="number"
-                    min="0"
-                    inputMode="numeric"
-                    placeholder="15000"
-                    value={filters.priceMax}
-                    onChange={(event) => updateFilter("priceMax", event.target.value)}
-                  />
-                </label>
-              </div>
-              <ChoiceGroup
-                className="stock-filter-secondary"
-                label="Annee minimum"
-                value={filters.yearMin}
-                onChange={(value) => updateFilter("yearMin", value)}
-                resetVersion={resetVersion}
-                options={[
-                  { value: "", label: "Toutes" },
-                  ...options.years.map((option) => ({
-                    value: String(option.value),
-                    label: `${option.value} et plus`,
-                    count: option.count,
-                  })),
-                ]}
-              />
-              <MileageFilter
-                value={filters.mileageMax}
-                onChange={(value) => updateFilter("mileageMax", value)}
-                resetVersion={resetVersion}
-              />
-              <ChoiceGroup
-                label="Carburant"
-                value={filters.fuel}
-                onChange={(value) => updateFilter("fuel", value)}
-                resetVersion={resetVersion}
-                options={[
-                  { value: "", label: "Tous" },
-                  ...options.fuels,
-                ]}
-              />
-              <ChoiceGroup
+              <FilterSelect
+                id="m-filter-gearbox"
                 label="Boite"
                 value={filters.gearbox}
                 onChange={(value) => updateFilter("gearbox", value)}
-                resetVersion={resetVersion}
+                options={options.gearboxes}
+                defaultOptionLabel="Toutes"
+              />
+              <FilterSelect
+                id="m-filter-fuel"
+                label="Carburant"
+                value={filters.fuel}
+                onChange={(value) => updateFilter("fuel", value)}
+                options={options.fuels}
+                defaultOptionLabel="Tous"
+              />
+              <FilterSelect
+                id="m-filter-km"
+                label="Kilometrage max"
+                value={filters.mileageMax}
+                onChange={(value) => updateFilter("mileageMax", value)}
+                options={MILEAGE_LIMITS.map((limit) => ({ value: limit, label: `${Number(limit).toLocaleString("fr-BE")} km` }))}
+                defaultOptionLabel="Tous les km"
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-medium uppercase tracking-wide text-subtle">Budget min</span>
+                  <input
+                    type="number"
+                    min="0"
+                    inputMode="numeric"
+                    placeholder="Min"
+                    value={filters.priceMin}
+                    onChange={(event) => updateFilter("priceMin", event.target.value)}
+                    className="min-h-[44px] rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-medium uppercase tracking-wide text-subtle">Budget max</span>
+                  <input
+                    type="number"
+                    min="0"
+                    inputMode="numeric"
+                    placeholder="Max"
+                    value={filters.priceMax}
+                    onChange={(event) => updateFilter("priceMax", event.target.value)}
+                    className="min-h-[44px] rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="min-w-[150px] flex-1">
+              <FilterSelect
+                id="filter-model"
+                label="Modele"
+                value={filters.model}
+                onChange={(value) => updateFilter("model", value)}
+                options={options.models}
+                defaultOptionLabel="Tous les modeles"
+              />
+            </div>
+            <div className="min-w-[150px] flex-1">
+              <FilterSelect
+                id="filter-body"
+                label="Carrosserie"
+                value={filters.bodyType}
+                onChange={(value) => updateFilter("bodyType", value)}
+                options={options.bodyTypes}
+                defaultOptionLabel="Toutes"
+              />
+            </div>
+            <div className="min-w-[150px] flex-1">
+              <FilterSelect
+                id="filter-status"
+                label="Disponibilite"
+                value={filters.status}
+                onChange={(value) => updateFilter("status", value)}
                 options={[
-                  { value: "", label: "Toutes" },
-                  ...options.gearboxes,
+                  { value: "available", label: "Disponible", count: cars.filter((c) => c.status === "available").length },
+                  { value: "reserved", label: "Reserve", count: cars.filter((c) => c.status === "reserved").length },
+                  { value: "sold", label: "Vendu", count: cars.filter((c) => c.status === "sold").length },
                 ]}
+                defaultOptionLabel="Tous les statuts"
+              />
+            </div>
+            <div className="min-w-[150px] flex-1">
+              <FilterSelect
+                id="filter-year"
+                label="Annee minimum"
+                value={filters.yearMin}
+                onChange={(value) => updateFilter("yearMin", value)}
+                options={MARKET_YEARS.map((year) => ({ value: year, label: `${year} et plus` }))}
+                defaultOptionLabel="Toutes"
               />
             </div>
 
-            <div className="stock-filter-drawer-actions">
-              <button className="button primary stock-filter-search" type="button" onClick={applyMobileFilters}>
-                Voir {visibleCars.length} {visibleCars.length > 1 ? "resultats" : "resultat"}
+            {activeFilterLabels.length > 0 && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="cursor-pointer self-start text-[13px] font-medium text-sage underline lg:hidden"
+              >
+                Effacer filtre
               </button>
-            </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div ref={resultsRef}>
+          <div className="mb-4">
+            <span className="text-[14px] text-body">{resultsCountLabel}</span>
           </div>
 
-          {filtersOpen && (
-            <div className="stock-filter-actions">
-              <button className="button primary stock-show-results" type="button" onClick={scrollToResults}>
-                Voir {visibleCars.length} {visibleCars.length > 1 ? "resultats" : "resultat"}
-              </button>
-            </div>
-          )}
-        </aside>
-
-        <div className="stock-results" ref={resultsRef}>
           {activeFilterLabels.length > 0 && (
-            <div className="stock-active-filters" aria-label="Filtres actifs">
+            <div className="mb-4 flex flex-wrap gap-2" aria-label="Filtres actifs">
               {activeFilterLabels.map((label) => (
-                <span key={label}>{label}</span>
+                <span key={label} className="rounded-full bg-brand-pastel px-3 py-1 text-[13px] font-medium text-brand">
+                  {label}
+                </span>
               ))}
             </div>
           )}
 
-          {loading ? <p className="empty">Chargement du stock...</p> : <CarGrid cars={paginatedCars} />}
+          {loading ? (
+            <p className="py-10 text-center text-[15px] text-body">Chargement du stock...</p>
+          ) : (
+            <HomeCarGrid cars={paginatedCars} />
+          )}
 
           {!loading && pageCount > 1 && (
-            <nav className="stock-pagination" aria-label="Pagination du stock">
+            <nav className="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination du stock">
               {Array.from({ length: pageCount }, (_, index) => index + 1).map((page) => (
                 <button
                   key={page}
                   type="button"
-                  className={page === currentPage ? "is-active" : ""}
                   aria-current={page === currentPage ? "page" : undefined}
                   onClick={() => goToPage(page)}
+                  className={`inline-flex h-10 min-w-[40px] cursor-pointer items-center justify-center rounded-lg px-3 text-[14px] font-semibold transition-colors ${
+                    page === currentPage
+                      ? "bg-brand text-white"
+                      : "border border-line bg-white text-ink hover:bg-surface"
+                  }`}
                 >
                   {page}
                 </button>
               ))}
               {currentPage < pageCount && (
-                <button type="button" className="stock-pagination-next" onClick={() => goToPage(currentPage + 1)}>
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage + 1)}
+                  className="inline-flex h-10 cursor-pointer items-center justify-center rounded-lg border border-line bg-white px-4 text-[14px] font-semibold text-ink hover:bg-surface"
+                >
                   Page suivante
                 </button>
               )}
             </nav>
           )}
-        </div>
       </div>
-
     </div>
   );
 }
+

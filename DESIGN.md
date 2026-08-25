@@ -11,18 +11,26 @@ Tous les tokens cites vivent dans `frontend/app/globals.css`, bloc `:root`.
 
 ## 1. Couleurs / fond d'ecran
 
-Le site alterne deux "systemes" de fond, jamais un fond arbitraire choisi
-au cas par cas :
+Le site utilise maintenant une dominante claire selon la regle **60-30-10**,
+suite au retour client du 2026-08-25 :
+
+- **60% fond dominant** : blanc casse `#F8F9FA`, pour les grands espaces.
+- **30% surfaces secondaires** : gris clair `#E9ECEF`, pour cartes, filtres
+  et blocs qui doivent detourer les photos.
+- **10% accent** : bleu intense `#0056B3`, pour CTA, prix, liens actifs et
+  icones importantes. Le bleu marine `#0A2540` sert au texte fort et aux
+  hovers.
 
 | Systeme | Fond section | Texte principal | Texte attenue | Bordure/ligne |
 | --- | --- | --- | --- | --- |
-| **Carbon** (sombre) | `var(--carbon)` `#1b2329` | `var(--carbon-text)` `#f2f0ec` | `var(--carbon-text-dim)` `#9a9a9f` | `var(--carbon-line)` |
-| **Paper** (clair) | `#f4f3f4` (variante actuelle du fond clair -- voir note) | `var(--paper-ink)` `#17160f` | `var(--paper-muted)` `#6b6a64` | `var(--paper-line)` |
+| **60 Fond** | `var(--carbon)` `#F8F9FA` | `var(--carbon-text)` `#0A2540` | `var(--carbon-text-dim)` `#516170` | `var(--carbon-line)` |
+| **30 Surfaces** | `var(--carbon-raised)` `#E9ECEF` | `var(--carbon-text)` `#0A2540` | `var(--carbon-text-dim)` `#516170` | `var(--carbon-line)` |
+| **10 Accent** | `var(--signal)` `#0056B3` | `#ffffff` | hover `var(--signal-dim)` `#0A2540` | accents/focus |
 
-- **Rouge de marque** : `var(--signal)` `#e11d2e`, hover/actif `var(--signal-dim)` `#7a1019`. Seule couleur d'accent du site -- pas de bleu/vert/orange decoratif en general. Deux exceptions deliberees, a garder isolees et ne pas laisser s'etendre : l'orange `#f25d0c` du lien "Effacer les filtres", et le vert `#25d366` (couleur de marque WhatsApp) sur la seule icone `.contact-simple-icon-whatsapp` -- les autres icones de contact restent rouge.
-- **Alternance** : les sections se succedent sombre/claire pour rythmer la page (Hero sombre -> Pourquoi nous choisir clair -> Catalogue sombre -> A propos clair -> Contact sombre). Ne pas mettre deux sections claires ou deux sections sombres cote a cote sans raison.
-- **Cards sur fond sombre** : jamais une couleur pleine differente -- une surface legerement plus claire que le fond, en overlay blanc transparent : `background: rgba(255, 255, 255, 0.045); border: 1px solid rgba(255, 255, 255, 0.1);` (ex. `.stock-catalog-proof-item`, `.contact-simple-card`).
-- **Cards sur fond clair** : blanc pur `#ffffff` (ex. `.reasons-card`, `.about-bhj-feature`) plutot que `var(--paper)`/`#f7f6f3` -- trop proche du fond de section `#f4f3f4` pour rester lisible (piege deja rencontre sur `.about-bhj-feature`, corrige le 2026-08-24).
+- **Bleu d'accent** : `var(--signal)` `#0056B3`, hover/actif `var(--signal-dim)` `#0A2540`. C'est la couleur reservee aux boutons, prix, liens actifs, focus et icones importantes.
+- **Exceptions** : le vert `#25d366` reste uniquement pour WhatsApp. Le back-office admin garde son theme operationnel separe.
+- **Cards et filtres** : utiliser `var(--carbon-raised)` `#E9ECEF` avec `border: 1px solid var(--carbon-line)`. Eviter les anciens overlays sombres ou les cards blanches dominantes.
+- **Rouge** : ne plus l'utiliser sur le site public comme accent d'action.
 
 > Note : `--paper` (`#f7f6f3`) et le nouveau fond de section `#f4f3f4` sont
 > deux valeurs tres proches mais pas identiques. A terme il faudrait n'en

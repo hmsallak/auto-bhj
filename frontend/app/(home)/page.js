@@ -1,5 +1,6 @@
 import Hero from "../../components/site/Hero";
-import HomeTrustCards from "../../components/site/HomeTrustCards";
+import HowItWorks from "../../components/site/HowItWorks";
+import YoungDrivers from "../../components/site/YoungDrivers";
 import HomeLatestCars from "../../components/site/HomeLatestCars";
 import AboutUs from "../../components/site/AboutUs";
 import RendezVous from "../../components/site/RendezVous";
@@ -46,10 +47,11 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }}
       />
       <Hero />
-      <HomeTrustCards />
-      <section className="section" id="stock">
+      <section className="py-16" id="stock">
         <HomeLatestCars />
       </section>
+      <HowItWorks />
+      <YoungDrivers />
       <AboutUs />
       <RendezVous />
     </>

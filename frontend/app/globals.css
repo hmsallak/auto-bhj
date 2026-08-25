@@ -20,6 +20,23 @@
   --color-color-4: hsl(var(--color-4));
   --color-color-5: hsl(var(--color-5));
   --animate-rainbow: rainbow var(--speed, 2s) infinite linear;
+
+  /* Palette de marque Auto BHJ (vert profond / noir doux / gris-vert pastel).
+     Distincte des tokens carbon/signal legacy ci-dessus, qui restent en place
+     pour le code encore dependant de bg-background/text-muted-foreground/etc. */
+  --color-brand: #1a4d3e;
+  --color-brand-dark: #123a2e;
+  --color-brand-accent: #6fbf9b;
+  --color-brand-pastel: #e3efe9;
+  --color-sage: #73a58d;
+  --color-sage-dark: #5c8471;
+  --color-ink: #1c1c1a;
+  --color-ink-soft: #3d3d37;
+  --color-body: #5c5c55;
+  --color-subtle: #96968c;
+  --color-line: #e2e2db;
+  --color-surface: #f1f1ea;
+  --color-offwhite: #f7f7f2;
 }
 
 @keyframes rainbow {
@@ -119,8 +136,8 @@
   --soft: #f8fafc;
   --brand: #1e293b;
   --brand-dark: #0f172a;
-  --accent: #dc2626;
-  --accent-dark: #b91c1c;
+  --accent: #0056B3;
+  --accent-dark: #0A2540;
   --success: #0f766e;
   /* Dashboard tokens: dark back-office shell, red plate-badge accent lifted
      from the real AUTO BHJ building signage, kept separate from the public
@@ -132,24 +149,18 @@
   --dash-text-dim: #7c8791;
   --dash-accent: #dc2626;
   --dash-accent-dim: #451414;
-  /* Public site global background ("Carbon & Clarity"): a very light
-     neutral grey, just a shade off pure white, so the solid white cards
-     clearly stand out against it. A faint black carbon-fibre weave and a
-     whisper of red glow add texture without weighing the page down. */
-  --page-bg: #f1f2f5;
-  --page-bg-alt: #e7e9ed;
+  /* Public site 60-30-10 palette:
+     60% dominant background, 30% cards/filters, 10% action/price accent. */
+  --page-bg: #F8F9FA;
+  --page-bg-alt: #E9ECEF;
 
-  /* "Signal & Carbone": the premium dark system used by the floating header
-     and the homepage hero. Scoped to its own tokens (not --ink/--page-bg,
-     which the rest of the light public site, admin and stock pages depend
-     on) so this stays additive and never bleeds into pages not yet redone. */
-  --carbon: #1b2329;
-  --carbon-raised: #242b33;
-  --carbon-line: rgba(255, 255, 255, 0.1);
-  --carbon-text: #f2f0ec;
-  --carbon-text-dim: #9a9a9f;
-  --signal: #e11d2e;
-  --signal-dim: #7a1019;
+  --carbon: #F8F9FA;
+  --carbon-raised: #E9ECEF;
+  --carbon-line: rgba(10, 37, 64, 0.14);
+  --carbon-text: #0A2540;
+  --carbon-text-dim: #516170;
+  --signal: #0056B3;
+  --signal-dim: #0A2540;
   --font-editorial: var(--font-display), var(--font-template), Arial, Helvetica, sans-serif;
 
   /* "Paper" -- the light-section counterpart to --carbon, used to break the
@@ -157,10 +168,10 @@
      off-white, not the cooler --ink/--page-bg tokens used elsewhere on the
      site, so it reads as the same family as --carbon rather than a
      different palette bolted on. */
-  --paper: #f7f6f3;
-  --paper-ink: #17160f;
-  --paper-muted: #6b6a64;
-  --paper-line: rgba(23, 22, 15, 0.1);
+  --paper: #F8F9FA;
+  --paper-ink: #0A2540;
+  --paper-muted: #516170;
+  --paper-line: rgba(10, 37, 64, 0.12);
 
   /* Precision scale, lifted from the shared reference (styles.refero.design)
      -- its spacing steps, radius tiers and "felt not seen" shadow philosophy,
@@ -224,9 +235,11 @@ h4,
   font-family: var(--font-display), Arial, Helvetica, sans-serif;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
 /* ==========================================================================
@@ -471,7 +484,7 @@ a {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(100deg, var(--carbon) 0%, rgba(10, 10, 12, 0.72) 26%, rgba(10, 10, 12, 0.15) 46%, transparent 62%),
+    linear-gradient(100deg, var(--carbon) 0%, rgba(244, 243, 244, 0.88) 26%, rgba(244, 243, 244, 0.24) 46%, transparent 62%),
     linear-gradient(0deg, var(--carbon) 0%, transparent 24%);
 }
 
@@ -1393,18 +1406,20 @@ label {
   font-weight: 800;
 }
 
-input,
-select,
-textarea {
-  width: 100%;
-  min-height: 44px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px 12px;
-  color: var(--ink);
-  background: white;
-  font: inherit;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+@layer base {
+  input,
+  select,
+  textarea {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--ink);
+    background: white;
+    font: inherit;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
 }
 
 textarea {
@@ -1425,20 +1440,22 @@ input[type="radio"] {
    form controls, dashboard nav) — the browser default is invisible on the
    dark sidebar and inconsistent everywhere else. Only shows for keyboard
    navigation (:focus-visible), not on mouse click. */
-a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-[tabindex]:focus-visible {
-  outline: 2px solid var(--dash-accent);
-  outline-offset: 2px;
-}
+@layer base {
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--dash-accent);
+    outline-offset: 2px;
+  }
 
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  border-color: var(--dash-accent);
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    border-color: var(--dash-accent);
+  }
 }
 
 .dash-nav-item:focus-visible {
@@ -1749,29 +1766,6 @@ main,
 .site-footer {
   position: relative;
   z-index: 1;
-}
-
-/* .site-header-v2 is position: fixed (so it can float, translucent, over the
-   hero's photo), which takes it out of flow. Every page except the hero
-   needs this padding to avoid its content starting underneath the header;
-   the hero cancels it back out below to bleed its media under the header
-   on purpose. */
-main {
-  padding-top: 88px;
-}
-
-.hero-v2 {
-  margin-top: -88px;
-}
-
-@media (max-width: 860px) {
-  main {
-    padding-top: 68px;
-  }
-
-  .hero-v2 {
-    margin-top: -68px;
-  }
 }
 
 @keyframes glowDriftRed {
@@ -4133,7 +4127,7 @@ main {
 
 body {
   background:
-    radial-gradient(ellipse 45% 60% at 88% 20%, rgba(255, 255, 255, 0.08), transparent 62%),
+    radial-gradient(ellipse 45% 60% at 88% 20%, rgba(27, 35, 41, 0.06), transparent 62%),
     var(--carbon);
 }
 
@@ -4151,8 +4145,8 @@ main > .legal-shell {
   overflow: hidden;
   color: var(--carbon-text);
   background:
-    linear-gradient(130deg, rgba(255, 255, 255, 0.045) 0%, transparent 65%),
-    radial-gradient(560px circle at 88% 18%, rgba(255, 255, 255, 0.07), transparent 70%),
+    linear-gradient(130deg, rgba(255, 255, 255, 0.72) 0%, transparent 65%),
+    radial-gradient(560px circle at 88% 18%, rgba(0, 86, 179, 0.06), transparent 70%),
     var(--carbon);
 }
 
@@ -4177,8 +4171,8 @@ main > .legal-shell {
 .rv-section,
 .site-footer {
   background:
-    linear-gradient(130deg, rgba(255, 255, 255, 0.045) 0%, transparent 65%),
-    radial-gradient(580px circle at 88% 20%, rgba(255, 255, 255, 0.07), transparent 72%),
+    linear-gradient(130deg, rgba(255, 255, 255, 0.72) 0%, transparent 65%),
+    radial-gradient(580px circle at 88% 20%, rgba(0, 86, 179, 0.06), transparent 72%),
     var(--carbon);
   color: var(--carbon-text);
 }
@@ -4189,10 +4183,10 @@ main > .legal-shell {
    the handoff instead of cutting hard between the two tones. */
 .site-footer {
   background:
-    linear-gradient(180deg, rgba(4, 7, 10, 0.85) 0%, transparent 180px),
-    linear-gradient(130deg, rgba(255, 255, 255, 0.045) 0%, transparent 65%),
-    radial-gradient(580px circle at 88% 20%, rgba(255, 255, 255, 0.07), transparent 72%),
-    rgba(8, 9, 11, 1);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, transparent 180px),
+    linear-gradient(130deg, rgba(255, 255, 255, 0.72) 0%, transparent 65%),
+    radial-gradient(580px circle at 88% 20%, rgba(0, 86, 179, 0.06), transparent 72%),
+    var(--carbon);
 }
 
 .nv-section,
@@ -4203,7 +4197,7 @@ main > .legal-shell {
 
 .dot-pattern-light,
 .dot-pattern-dark {
-  fill: rgba(255, 255, 255, 0.13);
+  fill: rgba(27, 35, 41, 0.08);
 }
 
 .nv-eyebrow,
@@ -4296,9 +4290,9 @@ label,
 .empty,
 .spec-highlight,
 .decision-proof span {
-  background: rgba(255, 255, 255, 0.045);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 36px 120px -70px rgba(0, 0, 0, 0.9);
+  background: var(--carbon-raised);
+  border: 1px solid var(--carbon-line);
+  box-shadow: 0 32px 90px -72px rgba(27, 35, 41, 0.55);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
@@ -4320,10 +4314,10 @@ label,
 .stock-card:hover,
 .stock-card:focus-within,
 .legal-section:hover {
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(0, 86, 179, 0.24);
   box-shadow:
-    0 0 0 1px rgba(225, 29, 46, 0.1),
-    0 42px 130px -72px rgba(0, 0, 0, 0.95);
+    0 0 0 1px rgba(0, 86, 179, 0.1),
+    0 36px 90px -72px rgba(27, 35, 41, 0.6);
 }
 
 .nv-card-media,
@@ -4336,8 +4330,8 @@ label,
 }
 
 .gallery-main {
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 36px 120px -70px rgba(0, 0, 0, 0.9);
+  border-color: var(--carbon-line);
+  box-shadow: 0 32px 90px -72px rgba(27, 35, 41, 0.55);
 }
 
 .gallery-main img,
@@ -4387,15 +4381,15 @@ label,
 .nv-all-link,
 .rv-cta-secondary {
   color: var(--carbon-text);
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: var(--carbon-line);
 }
 
 .rv-info-icon,
 .spec-highlight-icon,
 .car-specs span {
   color: var(--signal);
-  background: rgba(225, 29, 46, 0.12);
-  border: 1px solid rgba(225, 29, 46, 0.18);
+  background: rgba(0, 86, 179, 0.12);
+  border: 1px solid rgba(0, 86, 179, 0.18);
 }
 
 .button,
@@ -4420,13 +4414,13 @@ label,
 .gallery-lightbox-nav {
   min-height: 46px;
   border-radius: 999px;
-  color: white;
+  color: var(--carbon-text);
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(27, 35, 41, 0.06);
+  border: 1px solid var(--carbon-line);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 18px 38px rgba(0, 0, 0, 0.28);
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 18px 38px rgba(27, 35, 41, 0.12);
   transition: background 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 
@@ -4435,13 +4429,13 @@ label,
 .stock-card-cta:hover,
 .gallery-zoom-button:hover,
 .gallery-lightbox-close:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.24);
+  color: var(--carbon-text);
+  background: rgba(27, 35, 41, 0.09);
+  border-color: rgba(0, 86, 179, 0.24);
   transform: translateY(-1px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 22px 48px rgba(0, 0, 0, 0.34);
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 22px 48px rgba(27, 35, 41, 0.16);
 }
 
 
@@ -4455,25 +4449,27 @@ label,
   color: white;
 }
 
-input,
-select,
-textarea {
-  color: var(--carbon-text);
-  background: rgba(255, 255, 255, 0.065);
-  border-color: rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-}
+@layer base {
+  input,
+  select,
+  textarea {
+    color: var(--carbon-text);
+    background: var(--carbon-raised);
+    border-color: var(--carbon-line);
+    border-radius: 12px;
+  }
 
-input::placeholder,
-textarea::placeholder {
-  color: rgba(242, 240, 236, 0.42);
-}
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(242, 240, 236, 0.42);
+  }
 
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  border-color: rgba(225, 29, 46, 0.72);
-  box-shadow: 0 0 0 4px rgba(225, 29, 46, 0.16);
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    border-color: rgba(0, 86, 179, 0.72);
+    box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.16);
+  }
 }
 
 select option {
@@ -4499,7 +4495,7 @@ select option {
 
 .status.sold {
   color: #fca5a5;
-  background: rgba(225, 29, 46, 0.16);
+  background: rgba(0, 86, 179, 0.16);
 }
 
 .site-footer {
@@ -4912,7 +4908,7 @@ textarea,
 
 .detail-contact-panel .button.navy {
   background:
-    linear-gradient(135deg, rgba(225, 29, 46, 0.96), rgba(151, 15, 27, 0.98)),
+    linear-gradient(135deg, rgba(0, 86, 179, 0.96), rgba(10, 37, 64, 0.98)),
     var(--signal);
   border-color: rgba(255, 255, 255, 0.18);
 }
@@ -5008,10 +5004,10 @@ textarea,
 .detail-market-layout .detail-header {
   margin: 0;
   padding: 18px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--carbon-line);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.045);
-  box-shadow: 0 32px 110px -72px rgba(0, 0, 0, 0.86);
+  background: var(--carbon-raised);
+  box-shadow: 0 28px 80px -68px rgba(27, 35, 41, 0.48);
 }
 
 .detail-market-layout .detail-header-title {
@@ -5032,7 +5028,7 @@ textarea,
 
 .detail-market-layout .detail-reference {
   margin: 0;
-  color: rgba(242, 240, 236, 0.56);
+  color: var(--carbon-text-dim);
   font-size: 13px;
   font-weight: 400;
   text-transform: uppercase;
@@ -5047,11 +5043,11 @@ textarea,
 .detail-market-layout .gallery-main,
 .detail-market-layout .gallery-thumb {
   border-radius: 14px;
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--carbon-line);
 }
 
 .detail-market-layout .gallery-main {
-  box-shadow: 0 32px 110px -74px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 28px 80px -68px rgba(27, 35, 41, 0.48);
 }
 
 .detail-market-layout .gallery-main .status {
@@ -5068,14 +5064,14 @@ textarea,
 .detail-market-sidebar .detail-price-card,
 .detail-seller-card,
 .detail-market-sidebar .detail-contact-panel {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--carbon-line);
   border-radius: 18px;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.035)),
-    rgba(15, 20, 25, 0.86);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.68)),
+    var(--carbon-raised);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 28px 80px rgba(0, 0, 0, 0.28);
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 24px 70px rgba(27, 35, 41, 0.12);
 }
 
 .detail-market-sidebar .detail-price-card {
@@ -5086,7 +5082,7 @@ textarea,
 
 .detail-market-sidebar .detail-price-label,
 .detail-seller-kicker {
-  color: rgba(242, 240, 236, 0.58);
+  color: var(--carbon-text-dim);
   font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
@@ -5468,7 +5464,7 @@ textarea,
 }
 
 .stock-sidebar::-webkit-scrollbar-thumb {
-  background: rgba(225, 29, 46, 0.72);
+  background: rgba(0, 86, 179, 0.72);
   border-radius: 999px;
 }
 
@@ -5545,8 +5541,8 @@ textarea,
 .stock-search input:focus-visible,
 .stock-filters-panel input:focus-visible,
 .stock-filters-panel select:focus-visible {
-  border-color: rgba(225, 29, 46, 0.72);
-  box-shadow: 0 0 0 4px rgba(225, 29, 46, 0.16);
+  border-color: rgba(0, 86, 179, 0.72);
+  box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.16);
 }
 
 
@@ -5563,7 +5559,7 @@ textarea,
 
 .stock-select-option.is-selected {
   color: white;
-  background: rgba(225, 29, 46, 0.28);
+  background: rgba(0, 86, 179, 0.28);
 }
 
 .stock-choice-group {
@@ -5628,7 +5624,7 @@ textarea,
   overflow-y: auto;
   padding: 0 8px 8px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(225, 29, 46, 0.72) rgba(255, 255, 255, 0.08);
+  scrollbar-color: rgba(0, 86, 179, 0.72) rgba(255, 255, 255, 0.08);
 }
 
 .stock-choice-options::-webkit-scrollbar {
@@ -5641,7 +5637,7 @@ textarea,
 }
 
 .stock-choice-options::-webkit-scrollbar-thumb {
-  background: rgba(225, 29, 46, 0.72);
+  background: rgba(0, 86, 179, 0.72);
   border-radius: 999px;
 }
 
@@ -5678,10 +5674,10 @@ textarea,
 }
 
 .stock-choice-option.is-selected .stock-choice-box {
-  border-color: rgba(225, 29, 46, 0.98);
+  border-color: rgba(0, 86, 179, 0.98);
   background:
     linear-gradient(135deg, transparent 48%, white 49% 58%, transparent 59%) 35% 54% / 8px 8px no-repeat,
-    rgba(225, 29, 46, 0.95);
+    rgba(0, 86, 179, 0.95);
 }
 
 .stock-choice-option em {
@@ -5767,7 +5763,7 @@ textarea,
   padding: 0 9px;
   border-radius: 999px;
   color: white;
-  background: rgba(225, 29, 46, 0.82);
+  background: rgba(0, 86, 179, 0.82);
   font-size: 13px;
 }
 
@@ -5794,8 +5790,8 @@ textarea,
 .stock-filter-actions .button.ghost:hover,
 .stock-reset-inline.button.ghost:hover {
   color: white;
-  background: rgba(225, 29, 46, 0.22);
-  border-color: rgba(225, 29, 46, 0.42);
+  background: rgba(0, 86, 179, 0.22);
+  border-color: rgba(0, 86, 179, 0.42);
 }
 
 .stock-filter-actions {
@@ -5819,7 +5815,7 @@ textarea,
 
 .stock-show-results {
   color: white;
-  background: rgba(225, 29, 46, 0.94);
+  background: rgba(0, 86, 179, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
@@ -5939,9 +5935,9 @@ textarea,
 .button.neutral.stock-desktop-sort-toggle.is-active[aria-expanded="true"] {
   color: #ffffff;
   background:
-    linear-gradient(180deg, rgba(225, 29, 46, 0.34), rgba(225, 29, 46, 0.14)),
-    rgba(10, 10, 12, 0.98);
-  border-color: rgba(225, 29, 46, 0.62);
+    linear-gradient(180deg, rgba(0, 86, 179, 0.34), rgba(0, 86, 179, 0.14)),
+    #0A2540;
+  border-color: rgba(0, 86, 179, 0.62);
 }
 
 .button.neutral.stock-desktop-sort-toggle.is-active img {
@@ -6025,9 +6021,9 @@ textarea,
 }
 
 .stock-sort .stock-choice-option.is-selected {
-  background: rgba(225, 29, 46, 0.9);
+  background: rgba(0, 86, 179, 0.9);
   border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 14px 28px rgba(225, 29, 46, 0.18);
+  box-shadow: 0 14px 28px rgba(0, 86, 179, 0.18);
 }
 
 
@@ -6042,8 +6038,8 @@ textarea,
 .stock-reset-inline.button.ghost:hover,
 .stock-reset-inline.button.ghost:focus-visible {
   color: white;
-  background: rgba(225, 29, 46, 0.2);
-  border-color: rgba(225, 29, 46, 0.36);
+  background: rgba(0, 86, 179, 0.2);
+  border-color: rgba(0, 86, 179, 0.36);
 }
 
 .stock-active-filters {
@@ -6099,9 +6095,9 @@ textarea,
 
 .stock-pagination button.is-active {
   color: white;
-  background: rgba(225, 29, 46, 0.9);
-  border-color: rgba(225, 29, 46, 0.72);
-  box-shadow: 0 14px 28px rgba(225, 29, 46, 0.18);
+  background: rgba(0, 86, 179, 0.9);
+  border-color: rgba(0, 86, 179, 0.72);
+  box-shadow: 0 14px 28px rgba(0, 86, 179, 0.18);
 }
 
 .stock-pagination-next {
@@ -6629,9 +6625,9 @@ canvas {
   .stock-mobile-action.is-active {
     color: #ffffff;
     background:
-      linear-gradient(180deg, rgba(225, 29, 46, 0.34), rgba(225, 29, 46, 0.14)),
-      rgba(10, 10, 12, 0.98);
-    border-color: rgba(225, 29, 46, 0.62);
+      linear-gradient(180deg, rgba(0, 86, 179, 0.34), rgba(0, 86, 179, 0.14)),
+      #0A2540;
+    border-color: rgba(0, 86, 179, 0.62);
   }
 
   .stock-mobile-action.is-active img {
@@ -6660,9 +6656,9 @@ canvas {
   .button.neutral.stock-mobile-action.is-active[aria-expanded="true"] {
     color: #ffffff;
     background:
-      linear-gradient(180deg, rgba(225, 29, 46, 0.34), rgba(225, 29, 46, 0.14)),
-      rgba(10, 10, 12, 0.98);
-    border-color: rgba(225, 29, 46, 0.62);
+      linear-gradient(180deg, rgba(0, 86, 179, 0.34), rgba(0, 86, 179, 0.14)),
+      #0A2540;
+    border-color: rgba(0, 86, 179, 0.62);
   }
 
   .button.neutral.stock-mobile-action:hover:not(:disabled) img,
@@ -7285,7 +7281,7 @@ canvas {
 }
 
 .stock-catalog-hero-copy > p:not(.stock-catalog-pill) {
-  color: rgba(242, 240, 236, 0.72);
+  color: var(--carbon-text-dim);
   font-size: clamp(16px, 1.35vw, 21px);
 }
 
@@ -7296,7 +7292,7 @@ canvas {
   align-self: center;
   gap: 8px;
   padding-left: 18px;
-  border-left: 2px solid rgba(225, 29, 46, 0.78);
+  border-left: 2px solid rgba(0, 86, 179, 0.78);
 }
 
 .stock-catalog-proof-item {
@@ -7309,9 +7305,9 @@ canvas {
   column-gap: 12px;
   row-gap: 2px;
   padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid var(--carbon-line);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--carbon-raised);
   color: var(--signal);
   text-align: left;
   transition:
@@ -7324,9 +7320,9 @@ canvas {
 .stock-catalog-proof-item:hover,
 .stock-catalog-proof-item:focus-within {
   transform: translateY(-3px);
-  border-color: rgba(225, 29, 46, 0.62);
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  border-color: rgba(0, 86, 179, 0.62);
+  background: #F1F4F8;
+  box-shadow: 0 12px 28px rgba(27, 35, 41, 0.12);
 }
 
 .stock-catalog-proof-item strong {
@@ -7340,7 +7336,7 @@ canvas {
 
 .stock-catalog-proof-item span {
   align-self: start;
-  color: rgba(242, 240, 236, 0.68);
+  color: var(--carbon-text-dim);
   font-size: 13px;
   font-weight: 500;
   line-height: 1.15;
@@ -9332,7 +9328,7 @@ body {
   font-weight: 850;
   line-height: 1.15;
   letter-spacing: -0.01em;
-  color: #ffffff;
+  color: var(--carbon-text);
 }
 
 .contact-simple-grid {
@@ -9349,9 +9345,9 @@ body {
   gap: 10px;
   min-width: 0;
   padding: clamp(18px, 2.2vw, 26px) clamp(10px, 1.6vw, 18px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--carbon-line);
   border-radius: var(--radius-card);
-  background: rgba(255, 255, 255, 0.045);
+  background: var(--carbon-raised);
   color: inherit;
   text-decoration: none;
   text-align: center;
@@ -9359,8 +9355,8 @@ body {
 }
 
 .contact-simple-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: #F1F4F8;
+  border-color: rgba(0, 86, 179, 0.22);
 }
 
 .contact-simple-icon {
@@ -9388,7 +9384,7 @@ body {
 
 .contact-simple-text strong {
   min-width: 0;
-  color: #ffffff;
+  color: var(--carbon-text);
   font-size: 13.5px;
   font-weight: 800;
   line-height: 1.25;
@@ -9397,7 +9393,7 @@ body {
 
 .contact-simple-text small {
   min-width: 0;
-  color: rgba(242, 240, 236, 0.6);
+  color: var(--carbon-text-dim);
   font-size: 11.5px;
   line-height: 1.3;
 }
@@ -10008,10 +10004,10 @@ body {
   color: #ffffff;
   background:
     radial-gradient(circle at 22% 0%, rgba(255, 255, 255, 0.34), transparent 34%),
-    linear-gradient(135deg, #f0182b 0%, #E31E2B 48%, #b90f1e 100%);
+    linear-gradient(135deg, #0056B3 0%, #0056B3 48%, #0A2540 100%);
   box-shadow:
-    0 16px 34px rgba(227, 30, 43, 0.28),
-    0 0 0 0 rgba(227, 30, 43, 0.34);
+    0 16px 34px rgba(0, 86, 179, 0.28),
+    0 0 0 0 rgba(0, 86, 179, 0.34);
   font-family: var(--font-display), Arial, Helvetica, sans-serif;
   font-size: 17px;
   font-weight: 800;
@@ -10039,8 +10035,8 @@ body {
 .home-latest-cars .stock-catalog-more-button:focus-visible {
   color: #ffffff;
   box-shadow:
-    0 22px 42px rgba(227, 30, 43, 0.36),
-    0 0 0 8px rgba(227, 30, 43, 0.1);
+    0 22px 42px rgba(0, 86, 179, 0.36),
+    0 0 0 8px rgba(0, 86, 179, 0.1);
   transform: translateY(-3px) scale(1.035);
 }
 
@@ -10070,14 +10066,14 @@ body {
   0%,
   100% {
     box-shadow:
-      0 16px 34px rgba(227, 30, 43, 0.28),
-      0 0 0 0 rgba(227, 30, 43, 0.34);
+      0 16px 34px rgba(0, 86, 179, 0.28),
+      0 0 0 0 rgba(0, 86, 179, 0.34);
   }
 
   50% {
     box-shadow:
-      0 18px 40px rgba(227, 30, 43, 0.34),
-      0 0 0 10px rgba(227, 30, 43, 0);
+      0 18px 40px rgba(0, 86, 179, 0.34),
+      0 0 0 10px rgba(0, 86, 179, 0);
   }
 }
 
@@ -10093,7 +10089,7 @@ body {
   }
 }
 
-/* Stock cards: compact dark premium catalogue card. */
+/* Stock cards: 60-30-10 light catalogue card. */
 #stock .listing-list {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: clamp(16px, 2vw, 22px);
@@ -10103,19 +10099,19 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid #333A41 !important;
+  border: 1px solid rgba(10, 37, 64, 0.14) !important;
   border-radius: 20px !important;
-  color: #F5F5F5 !important;
-  background: #20262C !important;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16) !important;
+  color: var(--carbon-text) !important;
+  background: #E9ECEF !important;
+  box-shadow: 0 12px 24px rgba(10, 37, 64, 0.08) !important;
   text-decoration: none;
 }
 
 #stock .stock-card:hover,
 #stock .stock-card:focus-within {
   transform: translateY(-2px);
-  border-color: #404850 !important;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(0, 86, 179, 0.3) !important;
+  box-shadow: 0 14px 28px rgba(10, 37, 64, 0.12) !important;
 }
 
 #stock .stock-card-media {
@@ -10123,7 +10119,7 @@ body {
   overflow: hidden;
   margin: 0;
   border-radius: 20px 20px 0 0 !important;
-  background: #252B31 !important;
+  background: #DEE2E6 !important;
   box-shadow: none !important;
 }
 
@@ -10152,9 +10148,9 @@ body {
   padding: 0;
   color: transparent;
   background:
-    radial-gradient(circle at 5px 50%, #E31E2B 0 4px, transparent 4.5px),
-    radial-gradient(circle at 23px 50%, #666A70 0 4px, transparent 4.5px),
-    radial-gradient(circle at 41px 50%, #666A70 0 4px, transparent 4.5px);
+    radial-gradient(circle at 5px 50%, #0056B3 0 4px, transparent 4.5px),
+    radial-gradient(circle at 23px 50%, #ADB5BD 0 4px, transparent 4.5px),
+    radial-gradient(circle at 41px 50%, #ADB5BD 0 4px, transparent 4.5px);
   border: 0;
   border-radius: 0;
   transform: translateX(50%);
@@ -10166,12 +10162,12 @@ body {
   display: grid;
   gap: 12px;
   padding: 20px;
-  color: #F5F5F5;
+  color: var(--carbon-text);
 }
 
 #stock .stock-card-title {
   margin: 0;
-  color: #F5F5F5 !important;
+  color: var(--carbon-text) !important;
   font-family: var(--font-display), Arial, Helvetica, sans-serif;
   font-size: clamp(22px, 1.45vw, 26px);
   font-weight: 600 !important;
@@ -10189,7 +10185,7 @@ body {
   display: -webkit-box;
   overflow: hidden;
   margin: -2px 0 2px;
-  color: #8F949A !important;
+  color: var(--carbon-text-dim) !important;
   font-family: var(--font-display), Arial, Helvetica, sans-serif;
   font-size: 15px !important;
   font-weight: 400;
@@ -10204,7 +10200,7 @@ body {
   column-gap: 18px;
   row-gap: 10px;
   margin: 0;
-  color: #ffffff;
+  color: var(--carbon-text);
   letter-spacing: 0;
   text-transform: none;
 }
@@ -10217,7 +10213,7 @@ body {
   padding: 0 !important;
   border: 0 !important;
   border-radius: 0 !important;
-  color: #E5E5E5 !important;
+  color: #334155 !important;
   background: transparent !important;
   box-shadow: none !important;
   font-family: var(--font-display), Arial, Helvetica, sans-serif;
@@ -10240,11 +10236,11 @@ body {
   gap: 12px;
   margin-top: 2px;
   padding-top: 16px;
-  border-top: 1px solid #333A41 !important;
+  border-top: 1px solid rgba(10, 37, 64, 0.14) !important;
 }
 
 #stock .stock-card-price {
-  color: #FFFFFF !important;
+  color: #0056B3 !important;
   font-family: var(--font-display), Arial, Helvetica, sans-serif;
   min-width: 0;
   font-size: clamp(24px, 1.75vw, 28px);
@@ -10264,7 +10260,7 @@ body {
   border: 0 !important;
   border-radius: 999px !important;
   color: #FFFFFF !important;
-  background: #E31E2B !important;
+  background: #0056B3 !important;
   box-shadow: none !important;
   font-family: var(--font-display), Arial, Helvetica, sans-serif;
   font-size: 14px;
@@ -10328,6 +10324,170 @@ body {
     min-height: 40px;
     padding: 0 16px;
   }
+}
+
+/* Public pages final 60-30-10 pass.
+   This layer intentionally sits just before the admin dashboard theme so it
+   reaches every public route while leaving the back-office dark system alone. */
+body,
+main {
+  background: #F8F9FA;
+  color: #0A2540;
+}
+
+main > .section,
+main > .detail-shell,
+main > .legal-shell,
+.nv-section,
+.cf-section,
+.rv-section,
+.reasons-section,
+.about-bhj-section,
+.contact-simple-section,
+.site-footer {
+  background:
+    linear-gradient(130deg, rgba(255, 255, 255, 0.64) 0%, transparent 62%),
+    radial-gradient(580px circle at 88% 20%, rgba(0, 86, 179, 0.055), transparent 72%),
+    #F8F9FA !important;
+  color: #0A2540;
+}
+
+.nv-card,
+.stock-card,
+.panel,
+.spec-block,
+.legal-section,
+.stock-search,
+.stock-filters-panel,
+.stock-summary,
+.detail-market-layout .detail-header,
+.detail-market-sidebar .detail-price-card,
+.detail-seller-card,
+.detail-market-sidebar .detail-contact-panel,
+.contact-simple-card,
+.reasons-card,
+.about-bhj-feature,
+.decision-proof span,
+.spec-highlight {
+  background: #E9ECEF !important;
+  border-color: rgba(10, 37, 64, 0.14) !important;
+  color: #0A2540 !important;
+  box-shadow: 0 18px 42px rgba(10, 37, 64, 0.08) !important;
+}
+
+.nv-card-title,
+.stock-card-title,
+.section-head h2,
+.legal-section h2,
+.spec-block summary h3,
+.detail-market-layout .detail-header-title h1,
+.detail-seller-card h2,
+.contact-simple-title,
+.reasons-card h3,
+.about-bhj-feature h3,
+.data-row-value {
+  color: #0A2540 !important;
+}
+
+.section-head p,
+.stock-card-subtitle,
+.detail-reference,
+.detail-seller-card p,
+.contact-simple-text small,
+.reasons-card p,
+.about-bhj-feature p,
+.cf-row-text,
+.cf-row-label {
+  color: #516170 !important;
+}
+
+.button.primary,
+.button.navy,
+.rv-cta,
+.stock-card-cta,
+.home-latest-cars .stock-catalog-more-button,
+#stock .stock-card-cta {
+  background: #0056B3 !important;
+  color: #ffffff !important;
+  border-color: #0056B3 !important;
+}
+
+.button.primary:hover,
+.button.navy:hover,
+.rv-cta:hover,
+.stock-card-cta:hover,
+.home-latest-cars .stock-catalog-more-button:hover,
+#stock .stock-card-cta:hover {
+  background: #0A2540 !important;
+  border-color: #0A2540 !important;
+}
+
+.stock-card-price,
+.car-price,
+#stock .stock-card-price,
+.detail-market-sidebar .car-price,
+.nv-card-price {
+  color: #0056B3 !important;
+}
+
+#stock .stock-card,
+#stock .stock-card-media {
+  background: #E9ECEF !important;
+  border-color: rgba(10, 37, 64, 0.14) !important;
+}
+
+#stock .stock-card {
+  color: #0A2540 !important;
+  box-shadow: 0 18px 42px rgba(10, 37, 64, 0.1) !important;
+}
+
+#stock .stock-card:hover,
+#stock .stock-card:focus-within {
+  border-color: rgba(0, 86, 179, 0.32) !important;
+  box-shadow: 0 22px 48px rgba(10, 37, 64, 0.14) !important;
+}
+
+#stock .stock-card-media {
+  background: #DDE3E8 !important;
+}
+
+#stock .stock-card-body {
+  background: #E9ECEF !important;
+}
+
+#stock .photo-count {
+  background:
+    radial-gradient(circle at 5px 50%, #0056B3 0 4px, transparent 4.5px),
+    radial-gradient(circle at 23px 50%, #ADB5BD 0 4px, transparent 4.5px),
+    radial-gradient(circle at 41px 50%, #ADB5BD 0 4px, transparent 4.5px) !important;
+}
+
+#stock .stock-card-title,
+#stock .stock-card-body,
+#stock .stock-card-specs,
+#stock .stock-card-specs span {
+  color: #0A2540 !important;
+}
+
+#stock .stock-card-subtitle {
+  color: #516170 !important;
+}
+
+#stock .stock-card-footer {
+  border-top-color: rgba(10, 37, 64, 0.14) !important;
+}
+
+#stock .stock-card-price {
+  color: #0056B3 !important;
+}
+
+#stock .stock-card-cta {
+  background: #0056B3 !important;
+  color: #ffffff !important;
+}
+
+#stock .stock-card-cta:hover {
+  background: #0A2540 !important;
 }
 
 /* Admin dashboard dark rebuild */

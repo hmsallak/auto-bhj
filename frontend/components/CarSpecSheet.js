@@ -2,60 +2,42 @@
 
 import { useEffect, useState } from "react";
 import { formatKm } from "../lib/format";
-import OfficialIcon from "./OfficialIcon";
-
-function RowIcon({ type }) {
-  const icons = {
-    brand: "car",
-    body: "car",
-    seats: "car",
-    doors: "car",
-    gearbox: "gearbox",
-    engine: "inspection",
-    power: "quality",
-    color: "quality",
-    material: "quality",
-    owner: "about",
-    consumption: "fuel",
-  };
-
-  return <OfficialIcon name={icons[type] || "car"} width={18} height={18} />;
-}
-
-function iconTypeForLabel(label) {
-  const text = label.toLowerCase();
-  if (text.includes("carrosserie")) return "body";
-  if (text.includes("siege")) return "seats";
-  if (text.includes("porte")) return "doors";
-  if (text.includes("vitesse")) return "gearbox";
-  if (text.includes("cylindre") || text.includes("cylindree")) return "engine";
-  if (text.includes("puissance")) return "power";
-  if (text.includes("couleur") || text.includes("peinture")) return "color";
-  if (text.includes("materiau")) return "material";
-  if (text.includes("proprietaire")) return "owner";
-  if (text.includes("consommation")) return "consumption";
-  return "brand";
-}
+import {
+  MileageIcon,
+  FuelIcon,
+  GearboxIcon,
+  CalendarIcon,
+  CarIcon,
+  SeatIcon,
+  DoorIcon,
+  EngineIcon,
+  PowerIcon,
+  PaintIcon,
+  MaterialIcon,
+  OwnerIcon,
+  InfoIcon,
+  SlidersIcon,
+  ChevronDownIcon,
+  CheckCircleIcon,
+} from "./home/icons";
 
 export function SpecHighlights({ car }) {
   const cells = [
-    { icon: "mileage", label: "Kilometrage", value: formatKm(car.mileage) },
-    { icon: "year", label: "1ere immat.", value: car.year },
-    { icon: "fuel", label: "Carburant", value: car.fuel },
-    { icon: "gearbox", label: "Transmission", value: car.gearbox },
-    { icon: "inspection", label: "Classe d'emission", value: car.emissionClass || "Non communique" },
+    { icon: MileageIcon, label: "Kilometrage", value: formatKm(car.mileage) },
+    { icon: CalendarIcon, label: "Annee d'immatriculation", value: car.year },
+    { icon: FuelIcon, label: "Carburant", value: car.fuel },
+    { icon: GearboxIcon, label: "Transmission", value: car.gearbox },
+    { icon: PowerIcon, label: "Puissance", value: car.powerCh ? `${car.powerCh} ch` : "-" },
   ];
 
   return (
-    <div className="spec-highlights">
-      {cells.map(({ icon, label, value }) => (
-        <div className="spec-highlight" key={label}>
-          <span className="spec-highlight-icon">
-            <OfficialIcon name={icon} width={38} height={38} />
-          </span>
-          <div>
-            <span className="spec-highlight-label">{label}</span>
-            <strong className="spec-highlight-value">{value}</strong>
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      {cells.map(({ icon: Icon, label, value }) => (
+        <div key={label} className="flex min-w-0 flex-col gap-2 rounded-xl bg-sage/10 p-4">
+          <Icon className="h-6 w-6 shrink-0 text-brand" />
+          <div className="flex min-w-0 flex-col">
+            <span className="text-[13px] text-subtle">{label}</span>
+            <strong className="break-words text-[15px] font-bold text-ink">{value}</strong>
           </div>
         </div>
       ))}
@@ -63,16 +45,48 @@ export function SpecHighlights({ car }) {
   );
 }
 
-function DataRow({ label, value }) {
+function DataRow({ icon: Icon, label, value, valueClassName = "text-ink" }) {
   if (value === null || value === undefined || value === "") return null;
   return (
-    <div className="data-row">
-      <span className="data-row-icon">
-        <RowIcon type={iconTypeForLabel(label)} />
-      </span>
-      <span className="data-row-label">{label}</span>
-      <span className="data-row-value">{value}</span>
+    <div className="flex items-center gap-2.5 py-2.5">
+      <Icon className="h-4 w-4 shrink-0 text-subtle" />
+      <span className="flex-1 text-[14px] text-body">{label}</span>
+      <span className={`text-[14px] font-semibold ${valueClassName}`}>{value}</span>
     </div>
+  );
+}
+
+function SpecSection({ icon: Icon, title, rows }) {
+  const visible = rows.filter((row) => row.value !== null && row.value !== undefined && row.value !== "");
+  if (!visible.length) return null;
+
+  return (
+    <div>
+      <h4 className="mb-1 flex items-center gap-2 text-[13px] font-bold uppercase tracking-wide text-subtle">
+        <Icon className="h-4 w-4 text-brand" />
+        {title}
+      </h4>
+      <div className="divide-y divide-line">
+        {visible.map((row) => (
+          <DataRow key={row.label} icon={row.icon} label={row.label} value={row.value} valueClassName={row.valueClassName} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Block({ icon: Icon, title, open, onToggle, children }) {
+  return (
+    <details className="group" open={open} onToggle={(event) => onToggle(event.target.open)}>
+      <summary className="flex cursor-pointer list-none items-center justify-between py-5 [&::-webkit-details-marker]:hidden">
+        <span className="flex items-center gap-2.5">
+          <Icon className="h-5 w-5 text-brand" />
+          <h3 className="text-[18px] font-bold text-ink">{title}</h3>
+        </span>
+        <ChevronDownIcon className="h-4 w-4 text-subtle transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="pb-6">{children}</div>
+    </details>
   );
 }
 
@@ -97,87 +111,89 @@ export default function CarSpecSheet({ car }) {
   }, []);
 
   const power = car.powerKw && car.powerCh ? `${car.powerKw} kW (${car.powerCh} ch)` : null;
-  const rows = [
-    <DataRow key="brand" label="Marque" value={car.brand} />,
-    <DataRow key="model" label="Modele" value={car.model} />,
-    <DataRow key="body" label="Type de carrosserie" value={car.bodyType} />,
-    <DataRow key="seats" label="Sieges" value={car.seats} />,
-    <DataRow key="doors" label="Portes" value={car.doors} />,
-    <DataRow key="gears" label="Vitesses" value={car.gears} />,
-    <DataRow key="cylinders" label="Cylindres" value={car.cylinders} />,
-    <DataRow key="engine" label="Cylindree" value={car.engineCc ? `${car.engineCc} cm3` : null} />,
-    <DataRow key="power" label="Puissance" value={power} />,
-    <DataRow key="ext" label="Couleur exterieure" value={car.exteriorColor} />,
-    <DataRow key="paint" label="Type de peinture" value={car.paintType} />,
-    <DataRow key="int" label="Couleur interieure" value={car.interiorColor} />,
-    <DataRow key="material" label="Materiau interieur" value={car.interiorMaterial} />,
-    <DataRow key="owners" label="Proprietaires precedents" value={car.previousOwners} />,
-    <DataRow key="consumption" label="Consommation" value={car.consumption} />,
-  ].filter((row) => row.props.value !== null && row.props.value !== undefined && row.props.value !== "");
+
+  const sections = [
+    {
+      icon: CarIcon,
+      title: "Identite & carrosserie",
+      rows: [
+        { icon: CarIcon, label: "Marque", value: car.brand },
+        { icon: CarIcon, label: "Modele", value: car.model, valueClassName: "text-sage" },
+        { icon: CarIcon, label: "Type de carrosserie", value: car.bodyType },
+        { icon: DoorIcon, label: "Portes", value: car.doors },
+        { icon: SeatIcon, label: "Sieges", value: car.seats },
+      ],
+    },
+    {
+      icon: EngineIcon,
+      title: "Motorisation & performance",
+      rows: [
+        { icon: FuelIcon, label: "Carburant", value: car.fuel },
+        { icon: GearboxIcon, label: "Boite de vitesses", value: car.gearbox },
+        { icon: GearboxIcon, label: "Nombre de vitesses", value: car.gears },
+        { icon: EngineIcon, label: "Cylindres", value: car.cylinders },
+        { icon: EngineIcon, label: "Cylindree", value: car.engineCc ? `${car.engineCc} cm3` : null },
+        { icon: PowerIcon, label: "Puissance", value: power },
+        { icon: FuelIcon, label: "Consommation", value: car.consumption },
+      ],
+    },
+    {
+      icon: PaintIcon,
+      title: "Exterieur & interieur",
+      rows: [
+        { icon: PaintIcon, label: "Couleur exterieure", value: car.exteriorColor },
+        { icon: PaintIcon, label: "Type de peinture", value: car.paintType },
+        { icon: MaterialIcon, label: "Couleur interieure", value: car.interiorColor },
+        { icon: MaterialIcon, label: "Materiau interieur", value: car.interiorMaterial },
+      ],
+    },
+    {
+      icon: OwnerIcon,
+      title: "Historique",
+      rows: [{ icon: OwnerIcon, label: "Proprietaires precedents", value: car.previousOwners }],
+    },
+  ];
+
+  const hasAnyData = sections.some((section) =>
+    section.rows.some((row) => row.value !== null && row.value !== undefined && row.value !== "")
+  );
 
   return (
-    <div className="spec-sheet">
-      {rows.length > 0 && (
-        <details
-          className="spec-block"
-          open={generalOpen}
-          onToggle={(event) => setGeneralOpen(event.target.open)}
-        >
-          <summary>
-            <span className="spec-block-title">
-              <OfficialIcon name="inspection" className="spec-block-icon" width={22} height={22} />
-              <h3>Donnees generales</h3>
-            </span>
-            <span className="spec-block-chevron" aria-hidden="true">⌄</span>
-          </summary>
-          <div className="data-grid">{rows}</div>
-        </details>
+    <div className="flex flex-col divide-y divide-sage border-b border-sage">
+      {hasAnyData && (
+        <Block icon={SlidersIcon} title="Caracteristiques techniques" open={generalOpen} onToggle={setGeneralOpen}>
+          <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+            {sections.map((section) => (
+              <SpecSection key={section.title} icon={section.icon} title={section.title} rows={section.rows} />
+            ))}
+          </div>
+        </Block>
       )}
 
       {car.equipment && (
-        <details
-          className="spec-block"
-          open={equipmentOpen}
-          onToggle={(event) => setEquipmentOpen(event.target.open)}
-        >
-          <summary>
-            <span className="spec-block-title">
-              <OfficialIcon name="quality" className="spec-block-icon" width={22} height={22} />
-              <h3>Equipement</h3>
-            </span>
-            <span className="spec-block-chevron" aria-hidden="true">⌄</span>
-          </summary>
-          <div className="equipment-columns">
+        <Block icon={CheckCircleIcon} title="Equipements" open={equipmentOpen} onToggle={setEquipmentOpen}>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Object.entries(car.equipment).map(([category, items]) => (
-              <div key={category} className="equipment-category">
-                <h4>{category}</h4>
-                <ul>
+              <div key={category}>
+                <h4 className="mb-2 text-[14px] font-bold text-ink">{category}</h4>
+                <ul className="flex flex-col gap-1.5">
                   {items.map((item) => (
-                    <li key={item}>{item}</li>
+                    <li key={item} className="text-[14px] text-body">
+                      {item}
+                    </li>
                   ))}
                 </ul>
               </div>
             ))}
           </div>
-        </details>
+        </Block>
       )}
 
-      <details
-        className="spec-block"
-        open={infoOpen}
-        onToggle={(event) => setInfoOpen(event.target.open)}
-      >
-        <summary>
-          <span className="spec-block-title">
-            <OfficialIcon name="contact" className="spec-block-icon" width={22} height={22} />
-            <h3>Info supplementaire</h3>
-          </span>
-          <span className="spec-block-chevron" aria-hidden="true">⌄</span>
-        </summary>
-        <p className="car-description">
+      <Block icon={InfoIcon} title="Description" open={infoOpen} onToggle={setInfoOpen}>
+        <p className="text-[15px] leading-relaxed text-body">
           {car.description || "Contactez-nous pour plus d'informations."}
         </p>
-      </details>
+      </Block>
     </div>
   );
 }

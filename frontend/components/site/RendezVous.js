@@ -1,25 +1,12 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
-import { MailIcon, PhoneIcon, PinIcon, WhatsAppIcon } from "./icons";
+import { MailIcon, PhoneIcon, PinIcon, WhatsAppIcon } from "../home/icons";
+import SectionEyebrow from "../home/SectionEyebrow";
+import Reveal from "../home/Reveal";
 
 const ADDRESS = "Mekingenweg 99, 1600 Sint-Pieters-Leeuw";
 const MAPS_HREF = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ADDRESS)}`;
 const WHATSAPP_HREF = `https://wa.me/32483208801?text=${encodeURIComponent(
   "Bonjour Auto BHJ, je souhaite prendre rendez-vous pour une voiture."
 )}`;
-
-const EASE = [0.16, 1, 0.3, 1];
-
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
-};
 
 const CONTACTS = [
   {
@@ -28,19 +15,21 @@ const CONTACTS = [
     text: "Message rapide",
     href: WHATSAPP_HREF,
     external: true,
-    variant: "whatsapp",
+    accent: "bg-[#25d366]/10 text-[#1fb958]",
   },
   {
     icon: PhoneIcon,
     label: "0483 20 88 01",
     text: "Appel direct",
     href: "tel:+32483208801",
+    accent: "bg-brand-pastel text-brand",
   },
   {
     icon: MailIcon,
     label: "contact@autobhj.be",
     text: "Par e-mail",
     href: "mailto:contact@autobhj.be",
+    accent: "bg-brand-pastel text-brand",
   },
   {
     icon: PinIcon,
@@ -48,54 +37,44 @@ const CONTACTS = [
     text: "Sur rendez-vous",
     href: MAPS_HREF,
     external: true,
+    accent: "bg-brand-pastel text-brand",
   },
 ];
 
 export default function RendezVous() {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
-    <section className="contact-simple-section" aria-label="Nous contacter" id="contact">
-      <motion.div
-        className="contact-simple-shell"
-        variants={container}
-        initial={prefersReducedMotion ? "show" : "hidden"}
-        whileInView="show"
-        viewport={{ once: false, amount: 0.3 }}
-      >
-        <motion.p className="contact-simple-kicker" variants={item}>
-          Une question, une voiture qui vous plait ?
-        </motion.p>
-        <motion.h2 className="contact-simple-title" variants={item}>
-          Contactez-nous, on repond vite.
-        </motion.h2>
+    <section className="py-16" aria-label="Nous contacter" id="contact">
+      <div className="mx-auto max-w-6xl px-6">
+        <Reveal>
+          <SectionEyebrow>Une question, une voiture qui vous plait ?</SectionEyebrow>
+          <h2 className="mt-2 text-2xl font-bold text-ink">Contactez-nous, on repond vite</h2>
+        </Reveal>
 
-        <div className="contact-simple-grid">
-          {CONTACTS.map((contact) => {
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {CONTACTS.map((contact, index) => {
             const Icon = contact.icon;
             return (
-              <motion.a
-                className="contact-simple-card"
-                key={contact.label}
-                href={contact.href}
-                variants={item}
-                {...(contact.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              >
-                <span
-                  className={`contact-simple-icon${contact.variant ? ` contact-simple-icon-${contact.variant}` : ""}`}
-                  aria-hidden="true"
+              <Reveal key={contact.label} delay={index * 100}>
+                <a
+                  href={contact.href}
+                  {...(contact.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  className="group flex items-center gap-3"
                 >
-                  <Icon width="26" height="26" />
-                </span>
-                <span className="contact-simple-text">
-                  <strong>{contact.label}</strong>
-                  <small>{contact.text}</small>
-                </span>
-              </motion.a>
+                  <span className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${contact.accent}`}>
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className="flex flex-col">
+                    <strong className="text-[15px] font-bold text-ink transition-colors group-hover:text-brand">
+                      {contact.label}
+                    </strong>
+                    <span className="text-[13px] text-subtle">{contact.text}</span>
+                  </span>
+                </a>
+              </Reveal>
             );
           })}
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

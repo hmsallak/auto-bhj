@@ -1,79 +1,47 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
-import { ShieldIcon, TagIcon, RefreshIcon } from "./icons";
+import { ShieldIcon, TagIcon, SparkleIcon } from "../home/icons";
 
 const ITEMS = [
   {
     title: "Voitures toujours controlees",
     text: "Chaque vehicule est verifie avant la mise en vente pour partir sereinement.",
-    Icon: ShieldIcon,
+    icon: ShieldIcon,
   },
   {
     title: "Prix bas et transparents",
     text: "Des occasions selectionnees avec des prix clairs, sans mauvaise surprise.",
-    Icon: TagIcon,
+    icon: TagIcon,
   },
   {
     title: "Vehicules propres",
     text: "Presentation soignee, habitacle propre et informations utiles avant la visite.",
-    Icon: RefreshIcon,
+    icon: SparkleIcon,
   },
 ];
 
-const EASE = [0.16, 1, 0.3, 1];
-
-const gridContainer = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
-};
-
-const cardItem = {
-  hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
-};
-
 export default function HomeTrustCards() {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
-    <section className="reasons-section" aria-labelledby="reasons-title">
-      <div className="reasons-intro-canvas">
-        <div className="reasons-copy">
-          <p className="reasons-kicker">Pourquoi nous choisir</p>
-          <h2 id="reasons-title" className="reasons-heading">
-            Des voitures pretes a rouler, choisies avec{" "}
-            <span className="reasons-accent">serieux.</span>
-          </h2>
-          <p className="reasons-lede">
-            Chez Auto BHJ, on va droit au plus important: des vehicules propres,
-            controles et proposes au bon prix pour acheter avec confiance.
-          </p>
+    <section className="bg-white py-16" aria-labelledby="reasons-title">
+      <div className="mx-auto max-w-6xl px-6">
+        <p className="text-[13px] font-bold uppercase tracking-wide text-blue-700">Pourquoi nous choisir</p>
+        <h2 id="reasons-title" className="mt-2 text-2xl font-bold text-slate-900">
+          Des voitures pretes a rouler, choisies avec serieux
+        </h2>
+        <p className="mt-3 max-w-2xl text-[15px] text-gray-600">
+          Chez Auto BHJ, on va droit au plus important : des vehicules propres, controles et proposes au bon
+          prix pour acheter avec confiance.
+        </p>
+
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          {ITEMS.map(({ title, text, icon: Icon }) => (
+            <div key={title} className="rounded-2xl border border-gray-200 bg-[#F9FAFB] p-6">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+                <Icon className="h-6 w-6" />
+              </span>
+              <h3 className="mt-4 text-lg font-bold text-slate-900">{title}</h3>
+              <p className="mt-1.5 text-[15px] text-gray-600">{text}</p>
+            </div>
+          ))}
         </div>
-      </div>
-
-      <motion.div
-        className="reasons-grid"
-        variants={gridContainer}
-        initial={prefersReducedMotion ? "show" : "hidden"}
-        whileInView="show"
-        viewport={{ once: false, amount: 0.25 }}
-      >
-        {ITEMS.map(({ title, text, Icon }) => (
-          <motion.div className="reasons-card" key={title} variants={cardItem}>
-            <span className="reasons-icon" aria-hidden="true">
-              <Icon width="24" height="24" />
-            </span>
-            <h3 className="reasons-card-title">{title}</h3>
-            <p className="reasons-card-text">{text}</p>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      <div className="reasons-contact">
-        <a className="reasons-contact-button" href="tel:+32483208801">
-          Nous contacter
-        </a>
       </div>
     </section>
   );
