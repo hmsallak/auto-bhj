@@ -1,4 +1,4 @@
-import { ShieldIcon, TagIcon, SparkleIcon } from "../home/icons";
+import { ShieldIcon, TagIcon, WarrantyIcon } from "../home/icons";
 
 const ITEMS = [
   {
@@ -14,7 +14,7 @@ const ITEMS = [
   {
     title: "Vehicules propres",
     text: "Presentation soignee, habitacle propre et informations utiles avant la visite.",
-    icon: SparkleIcon,
+    icon: WarrantyIcon,
   },
 ];
 

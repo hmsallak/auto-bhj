@@ -1,4 +1,4 @@
-import { SearchIcon, SteeringWheelIcon, DocumentCheckIcon, KeyIcon } from "../home/icons";
+import { SearchIcon, SteeringWheelIcon, ShieldIcon, KeyIcon } from "../home/icons";
 import SectionEyebrow from "../home/SectionEyebrow";
 import Reveal from "../home/Reveal";
 
@@ -18,7 +18,7 @@ const STEPS = [
   },
   {
     number: "03",
-    icon: DocumentCheckIcon,
+    icon: ShieldIcon,
     title: "Contrôle technique",
     text: "Le véhicule suit les formalités nécessaires et passe au controle technique avant la vente.",
   },

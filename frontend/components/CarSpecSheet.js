@@ -6,16 +6,13 @@ import {
   MileageIcon,
   FuelIcon,
   GearboxIcon,
-  CalendarIcon,
+  RegistrationIcon,
   CarIcon,
   SeatIcon,
   DoorIcon,
-  EngineIcon,
   PowerIcon,
-  PaintIcon,
-  MaterialIcon,
   OwnerIcon,
-  InfoIcon,
+  DocumentIcon,
   SlidersIcon,
   ChevronDownIcon,
   CheckCircleIcon,
@@ -24,7 +21,7 @@ import {
 export function SpecHighlights({ car }) {
   const cells = [
     { icon: MileageIcon, label: "Kilometrage", value: formatKm(car.mileage) },
-    { icon: CalendarIcon, label: "Annee d'immatriculation", value: car.year },
+    { icon: RegistrationIcon, label: "Annee d'immatriculation", value: car.year },
     { icon: FuelIcon, label: "Carburant", value: car.fuel },
     { icon: GearboxIcon, label: "Transmission", value: car.gearbox },
     { icon: PowerIcon, label: "Puissance", value: car.powerCh ? `${car.powerCh} ch` : "-" },
@@ -78,7 +75,7 @@ function SpecSection({ icon: Icon, title, rows }) {
 function Block({ icon: Icon, title, open, onToggle, children }) {
   return (
     <details className="group" open={open} onToggle={(event) => onToggle(event.target.open)}>
-      <summary className="flex cursor-pointer list-none items-center justify-between py-5 [&::-webkit-details-marker]:hidden">
+      <summary className="flex w-full cursor-pointer list-none items-center justify-between py-5 [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] [&::-webkit-details-marker]:hidden [&::marker]:hidden">
         <span className="flex items-center gap-2.5">
           <Icon className="h-5 w-5 text-brand" />
           <h3 className="text-[18px] font-bold text-ink">{title}</h3>
@@ -125,26 +122,26 @@ export default function CarSpecSheet({ car }) {
       ],
     },
     {
-      icon: EngineIcon,
+      icon: PowerIcon,
       title: "Motorisation & performance",
       rows: [
         { icon: FuelIcon, label: "Carburant", value: car.fuel },
         { icon: GearboxIcon, label: "Boite de vitesses", value: car.gearbox },
         { icon: GearboxIcon, label: "Nombre de vitesses", value: car.gears },
-        { icon: EngineIcon, label: "Cylindres", value: car.cylinders },
-        { icon: EngineIcon, label: "Cylindree", value: car.engineCc ? `${car.engineCc} cm3` : null },
+        { icon: PowerIcon, label: "Cylindres", value: car.cylinders },
+        { icon: PowerIcon, label: "Cylindree", value: car.engineCc ? `${car.engineCc} cm3` : null },
         { icon: PowerIcon, label: "Puissance", value: power },
         { icon: FuelIcon, label: "Consommation", value: car.consumption },
       ],
     },
     {
-      icon: PaintIcon,
+      icon: CarIcon,
       title: "Exterieur & interieur",
       rows: [
-        { icon: PaintIcon, label: "Couleur exterieure", value: car.exteriorColor },
-        { icon: PaintIcon, label: "Type de peinture", value: car.paintType },
-        { icon: MaterialIcon, label: "Couleur interieure", value: car.interiorColor },
-        { icon: MaterialIcon, label: "Materiau interieur", value: car.interiorMaterial },
+        { icon: CarIcon, label: "Couleur exterieure", value: car.exteriorColor },
+        { icon: CarIcon, label: "Type de peinture", value: car.paintType },
+        { icon: CarIcon, label: "Couleur interieure", value: car.interiorColor },
+        { icon: CarIcon, label: "Materiau interieur", value: car.interiorMaterial },
       ],
     },
     {
@@ -189,7 +186,7 @@ export default function CarSpecSheet({ car }) {
         </Block>
       )}
 
-      <Block icon={InfoIcon} title="Description" open={infoOpen} onToggle={setInfoOpen}>
+      <Block icon={DocumentIcon} title="Description" open={infoOpen} onToggle={setInfoOpen}>
         <p className="text-[15px] leading-relaxed text-body">
           {car.description || "Contactez-nous pour plus d'informations."}
         </p>

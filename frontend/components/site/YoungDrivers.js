@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { TagIcon, CarIcon, CheckCircleIcon } from "../home/icons";
+import { BudgetIcon, SchoolIcon, CheckCircleIcon } from "../home/icons";
 import SectionEyebrow from "../home/SectionEyebrow";
 import Reveal from "../home/Reveal";
 
@@ -7,12 +7,12 @@ const BENEFITS = [
   {
     title: "Budget accessible",
     text: "Des vehicules adaptes a un premier achat.",
-    icon: TagIcon,
+    icon: BudgetIcon,
   },
   {
     title: "Pratique au quotidien",
     text: "Ecole, travail, formation ou petits deplacements.",
-    icon: CarIcon,
+    icon: SchoolIcon,
   },
   {
     title: "Vehicules revises",

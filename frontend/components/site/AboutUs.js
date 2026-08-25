@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { FlagIcon, CompassIcon, HeartIcon } from "../home/icons";
+import { RoadIcon, CompassIcon, WarrantyIcon } from "../home/icons";
 import SectionEyebrow from "../home/SectionEyebrow";
 import Reveal from "../home/Reveal";
 
@@ -7,7 +7,7 @@ const FEATURES = [
   {
     title: "Notre histoire",
     text: "Nee d'une passion commune pour l'automobile, Auto BHJ a ete creee il y a 10 ans par une famille, avec une vision claire : proposer des vehicules de qualite en toute confiance.",
-    icon: FlagIcon,
+    icon: RoadIcon,
   },
   {
     title: "Notre approche",
@@ -17,7 +17,7 @@ const FEATURES = [
   {
     title: "Notre engagement",
     text: "Un accompagnement honnete, du premier contact jusqu'a la remise des cles et meme apres. Votre satisfaction est notre meilleure recompense.",
-    icon: HeartIcon,
+    icon: WarrantyIcon,
   },
 ];
 

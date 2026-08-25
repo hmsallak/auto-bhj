@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { MenuIcon, CloseIcon } from "../site/icons";
-import { PhoneIcon } from "./icons";
+import { MenuIcon, CloseIcon, PhoneIcon } from "./icons";
 
 const LINKS = [
   { href: "/", label: "Accueil" },

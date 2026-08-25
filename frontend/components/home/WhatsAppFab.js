@@ -11,7 +11,7 @@ export default function WhatsAppFab() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Ecrire sur WhatsApp a Auto BHJ"
-      className="fixed bottom-5 right-5 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25d366] text-white shadow-lg transition-colors hover:bg-[#1fb958] lg:hidden"
+      className="fixed bottom-5 right-5 z-40 inline-flex h-14 w-14 [transform:translateZ(0)] will-change-transform items-center justify-center rounded-full bg-[#25d366] text-white shadow-lg transition-colors hover:bg-[#1fb958] lg:hidden"
     >
       <span
         className="absolute inset-0 rounded-full bg-[#25d366] motion-safe:animate-ping motion-reduce:hidden"
