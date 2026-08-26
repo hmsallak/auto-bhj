@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useReducedMotion, useDragControls } from "fram
 import { ChevronLeftIcon, ChevronRightIcon, TrashIcon, UploadCloudIcon } from "./site/icons";
 
 const EASE = [0.16, 1, 0.3, 1];
-const PHOTO_LONG_PRESS_MS = 3000;
+const PHOTO_LONG_PRESS_MS = 500;
 const PHOTO_PRESS_MOVE_TOLERANCE = 10;
 
 const emptyCar = {
