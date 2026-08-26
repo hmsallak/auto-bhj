@@ -29,7 +29,16 @@ export default function AdminLogin({ onSubmit, message }) {
           Gerez le stock, les messages et les parametres d&apos;Auto BHJ.
         </p>
 
-        <form className="form" onSubmit={handleSubmit}>
+        <form
+          className="form"
+          onSubmit={handleSubmit}
+          onKeyDown={(event) => {
+            // Require an explicit click on "Se connecter" - Enter in a
+            // field (e.g. right after a password manager autofill) must
+            // not submit the login on its own.
+            if (event.key === "Enter") event.preventDefault();
+          }}
+        >
           <label>
             Utilisateur
             <input name="username" autoComplete="username" required autoFocus />
