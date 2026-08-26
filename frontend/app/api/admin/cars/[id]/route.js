@@ -4,6 +4,7 @@ import { findByUsername } from "../../../../../../backend/models/adminUsers";
 import { verifyPassword } from "../../../../../../backend/auth/passwords";
 import { requirePermission, authError } from "../../../../../lib/adminAuth";
 import { readCarPayload } from "../../../../../lib/carPayload";
+import { apiRoute } from "../../../../../lib/apiRoute";
 
 async function handleUpdate(request, { params }) {
   const user = await requirePermission("stock_write");
@@ -30,10 +31,10 @@ async function handleUpdate(request, { params }) {
   return NextResponse.json(result.car);
 }
 
-export const POST = handleUpdate;
-export const PUT = handleUpdate;
+export const POST = apiRoute(handleUpdate);
+export const PUT = apiRoute(handleUpdate);
 
-export async function DELETE(request, { params }) {
+export const DELETE = apiRoute(async function handleDelete(request, { params }) {
   const user = await requirePermission("stock_delete");
   if (!user) {
     const { status, error } = await authError();
@@ -55,4 +56,4 @@ export async function DELETE(request, { params }) {
   }
 
   return NextResponse.json({ ok: true });
-}
+});

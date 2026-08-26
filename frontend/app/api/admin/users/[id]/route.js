@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { updateUser, deleteUser } from "../../../../../../backend/models/adminUsers";
 import { requireOwner, authError } from "../../../../../lib/adminAuth";
+import { apiRoute } from "../../../../../lib/apiRoute";
 
-export async function PATCH(request, { params }) {
+export const PATCH = apiRoute(async function handleUpdate(request, { params }) {
   const user = await requireOwner();
   if (!user) {
     const { status, error } = await authError();
@@ -18,9 +19,9 @@ export async function PATCH(request, { params }) {
   }
 
   return NextResponse.json(result.user);
-}
+});
 
-export async function DELETE(request, { params }) {
+export const DELETE = apiRoute(async function handleDelete(request, { params }) {
   const user = await requireOwner();
   if (!user) {
     const { status, error } = await authError();
@@ -35,4 +36,4 @@ export async function DELETE(request, { params }) {
   }
 
   return NextResponse.json({ ok: true });
-}
+});

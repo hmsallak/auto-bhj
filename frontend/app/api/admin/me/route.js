@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "../../../../lib/adminAuth";
+import { apiRoute } from "../../../../lib/apiRoute";
 
-export async function GET() {
+export const GET = apiRoute(async function handleMe() {
   const user = await getCurrentUser();
 
   return NextResponse.json({
@@ -12,4 +13,4 @@ export async function GET() {
     role: user?.role || null,
     permissions: user?.permissions || [],
   });
-}
+});

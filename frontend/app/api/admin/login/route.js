@@ -4,8 +4,9 @@ import { verifyPassword } from "../../../../../backend/auth/passwords";
 import { createSessionToken, SESSION_TTL_MS } from "../../../../../backend/auth/sessions";
 import { isRateLimited, recordFailedLogin, clearFailedLogins } from "../../../../../backend/auth/rateLimit";
 import { getClientIp, SESSION_COOKIE_NAME } from "../../../../lib/adminAuth";
+import { apiRoute } from "../../../../lib/apiRoute";
 
-export async function POST(request) {
+export const POST = apiRoute(async function handleLogin(request) {
   ensureSeedAdmin(process.env.ADMIN_USER || "admin", process.env.ADMIN_PASSWORD || "change-moi");
 
   const ip = await getClientIp();
@@ -37,4 +38,4 @@ export async function POST(request) {
   });
 
   return response;
-}
+});

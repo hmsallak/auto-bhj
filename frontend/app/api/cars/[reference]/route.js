@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCarByReference } from "../../../../../backend/models/cars";
+import { apiRoute } from "../../../../lib/apiRoute";
 
-export async function GET(request, { params }) {
+export const GET = apiRoute(async function handleGet(request, { params }) {
   const { reference } = await params;
   const car = getCarByReference(reference);
 
@@ -10,4 +11,4 @@ export async function GET(request, { params }) {
   }
 
   return NextResponse.json(car);
-}
+});

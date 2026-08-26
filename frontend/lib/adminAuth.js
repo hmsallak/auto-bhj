@@ -50,10 +50,22 @@ export async function authError() {
     : { status: 401, error: "Session expiree. Reconnectez-vous." };
 }
 
+// x-forwarded-for is a comma-separated hop chain: each proxy appends the
+// address it saw the request come from. The *first* entry is whatever the
+// original client sent - trivially spoofable, since anyone can set that
+// header themselves before it ever reaches your infrastructure. The *last*
+// entry is the one your own reverse proxy appended, which it set from the
+// real TCP connection, so it's the one to trust. This still assumes the app
+// only receives traffic through that trusted proxy; if it's ever exposed
+// directly to the internet with no proxy in front, this header is entirely
+// attacker-controlled and should not be trusted at all.
 export async function getClientIp() {
   const store = await headers();
   const forwarded = store.get("x-forwarded-for");
-  return forwarded ? forwarded.split(",")[0].trim() : "unknown";
+  if (!forwarded) return "unknown";
+
+  const hops = forwarded.split(",").map((hop) => hop.trim()).filter(Boolean);
+  return hops.length ? hops[hops.length - 1] : "unknown";
 }
 
 export const SESSION_COOKIE_NAME = SESSION_COOKIE;

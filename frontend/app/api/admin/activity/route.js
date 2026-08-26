@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { listRecent } from "../../../../../backend/models/activityLog";
 import { requireOwner, authError } from "../../../../lib/adminAuth";
+import { apiRoute } from "../../../../lib/apiRoute";
 
-export async function GET() {
+export const GET = apiRoute(async function handleActivity() {
   const user = await requireOwner();
   if (!user) {
     const { status, error } = await authError();
@@ -10,4 +11,4 @@ export async function GET() {
   }
 
   return NextResponse.json(listRecent(20));
-}
+});

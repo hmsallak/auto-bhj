@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { listUsers, createUser } from "../../../../../backend/models/adminUsers";
 import { requireOwner, authError } from "../../../../lib/adminAuth";
+import { apiRoute } from "../../../../lib/apiRoute";
 
-export async function GET() {
+export const GET = apiRoute(async function handleList() {
   const user = await requireOwner();
   if (!user) {
     const { status, error } = await authError();
@@ -10,9 +11,9 @@ export async function GET() {
   }
 
   return NextResponse.json(listUsers());
-}
+});
 
-export async function POST(request) {
+export const POST = apiRoute(async function handleCreate(request) {
   const user = await requireOwner();
   if (!user) {
     const { status, error } = await authError();
@@ -26,4 +27,4 @@ export async function POST(request) {
   }
 
   return NextResponse.json(result.user, { status: 201 });
-}
+});

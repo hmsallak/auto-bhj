@@ -1,4 +1,4 @@
-const { getDb } = require("../db/connection");
+const { getDb, withTransaction } = require("../db/connection");
 const activityLog = require("./activityLog");
 
 function cleanText(value) {
@@ -192,43 +192,46 @@ function createCar(payload, actor) {
   const { error, car } = validateCarInput(payload);
   if (error) return { error };
 
-  const db = getDb();
-  const now = new Date().toISOString();
-  const detailColumns = DETAIL_FIELDS.map(([, column]) => column);
+  const insertedId = withTransaction((db) => {
+    const now = new Date().toISOString();
+    const detailColumns = DETAIL_FIELDS.map(([, column]) => column);
 
-  const insert = db.prepare(
-    `INSERT INTO cars
-      (reference, brand, model, year, mileage, price, fuel, gearbox, image_url, description, status,
-       ${detailColumns.join(", ")}, equipment, created_at, updated_at)
-     VALUES ('', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-       ${detailColumns.map(() => "?").join(", ")}, ?, ?, ?)`
-  );
+    const insert = db.prepare(
+      `INSERT INTO cars
+        (reference, brand, model, year, mileage, price, fuel, gearbox, image_url, description, status,
+         ${detailColumns.join(", ")}, equipment, created_at, updated_at)
+       VALUES ('', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+         ${detailColumns.map(() => "?").join(", ")}, ?, ?, ?)`
+    );
 
-  const info = insert.run(
-    car.brand,
-    car.model,
-    car.year,
-    car.mileage,
-    car.price,
-    car.fuel,
-    car.gearbox,
-    car.imageUrl,
-    car.description,
-    car.status,
-    ...DETAIL_FIELDS.map(([jsKey]) => car[jsKey]),
-    car.equipment,
-    now,
-    now
-  );
+    const info = insert.run(
+      car.brand,
+      car.model,
+      car.year,
+      car.mileage,
+      car.price,
+      car.fuel,
+      car.gearbox,
+      car.imageUrl,
+      car.description,
+      car.status,
+      ...DETAIL_FIELDS.map(([jsKey]) => car[jsKey]),
+      car.equipment,
+      now,
+      now
+    );
 
-  const reference = `AB-${String(info.lastInsertRowid).padStart(6, "0")}`;
-  db.prepare("UPDATE cars SET reference = ? WHERE id = ?").run(reference, info.lastInsertRowid);
+    const reference = `AB-${String(info.lastInsertRowid).padStart(6, "0")}`;
+    db.prepare("UPDATE cars SET reference = ? WHERE id = ?").run(reference, info.lastInsertRowid);
 
-  if (Array.isArray(payload.images)) {
-    replaceCarImages(db, info.lastInsertRowid, payload.images);
-  }
+    if (Array.isArray(payload.images)) {
+      replaceCarImages(db, info.lastInsertRowid, payload.images);
+    }
 
-  const created = getCarById(info.lastInsertRowid);
+    return info.lastInsertRowid;
+  });
+
+  const created = getCarById(insertedId);
   activityLog.log(actor, "car_created", `${created.reference} (${created.brand} ${created.model})`);
 
   return { car: created };
@@ -241,37 +244,38 @@ function updateCar(id, payload, actor) {
   const { error, car } = validateCarInput(payload, existing);
   if (error) return { error };
 
-  const db = getDb();
-  const now = new Date().toISOString();
-  const detailColumns = DETAIL_FIELDS.map(([, column]) => column);
+  withTransaction((db) => {
+    const now = new Date().toISOString();
+    const detailColumns = DETAIL_FIELDS.map(([, column]) => column);
 
-  db.prepare(
-    `UPDATE cars SET
-       brand = ?, model = ?, year = ?, mileage = ?, price = ?, fuel = ?, gearbox = ?,
-       image_url = ?, description = ?, status = ?,
-       ${detailColumns.map((column) => `${column} = ?`).join(", ")},
-       equipment = ?, updated_at = ?
-     WHERE id = ?`
-  ).run(
-    car.brand,
-    car.model,
-    car.year,
-    car.mileage,
-    car.price,
-    car.fuel,
-    car.gearbox,
-    car.imageUrl,
-    car.description,
-    car.status,
-    ...DETAIL_FIELDS.map(([jsKey]) => car[jsKey]),
-    car.equipment,
-    now,
-    id
-  );
+    db.prepare(
+      `UPDATE cars SET
+         brand = ?, model = ?, year = ?, mileage = ?, price = ?, fuel = ?, gearbox = ?,
+         image_url = ?, description = ?, status = ?,
+         ${detailColumns.map((column) => `${column} = ?`).join(", ")},
+         equipment = ?, updated_at = ?
+       WHERE id = ?`
+    ).run(
+      car.brand,
+      car.model,
+      car.year,
+      car.mileage,
+      car.price,
+      car.fuel,
+      car.gearbox,
+      car.imageUrl,
+      car.description,
+      car.status,
+      ...DETAIL_FIELDS.map(([jsKey]) => car[jsKey]),
+      car.equipment,
+      now,
+      id
+    );
 
-  if (Array.isArray(payload.images)) {
-    replaceCarImages(db, id, payload.images);
-  }
+    if (Array.isArray(payload.images)) {
+      replaceCarImages(db, id, payload.images);
+    }
+  });
 
   const updated = getCarById(id);
   activityLog.log(actor, "car_updated", `${updated.reference} (${updated.brand} ${updated.model})`);

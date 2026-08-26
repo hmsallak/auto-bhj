@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { markMessageRead, deleteMessage } from "../../../../../../backend/models/messages";
 import { requirePermission, authError } from "../../../../../lib/adminAuth";
+import { apiRoute } from "../../../../../lib/apiRoute";
 
-export async function PATCH(request, { params }) {
+export const PATCH = apiRoute(async function handleUpdate(request, { params }) {
   const user = await requirePermission("messages_read");
   if (!user) {
     const { status, error } = await authError();
@@ -14,9 +15,9 @@ export async function PATCH(request, { params }) {
   markMessageRead(Number(id), Boolean(payload.isRead));
 
   return NextResponse.json({ ok: true });
-}
+});
 
-export async function DELETE(request, { params }) {
+export const DELETE = apiRoute(async function handleDelete(request, { params }) {
   const user = await requirePermission("messages_delete");
   if (!user) {
     const { status, error } = await authError();
@@ -31,4 +32,4 @@ export async function DELETE(request, { params }) {
   }
 
   return NextResponse.json({ ok: true });
-}
+});

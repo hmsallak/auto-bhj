@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createMessage } from "../../../../backend/models/messages";
+import { apiRoute } from "../../../lib/apiRoute";
 
-export async function POST(request) {
+export const POST = apiRoute(async function handleContact(request) {
   const payload = await request.json().catch(() => ({}));
   const result = createMessage(payload);
 
@@ -10,4 +11,4 @@ export async function POST(request) {
   }
 
   return NextResponse.json({ ok: true }, { status: 201 });
-}
+});

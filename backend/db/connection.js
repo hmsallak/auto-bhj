@@ -156,6 +156,10 @@ function getDb() {
   db = new DatabaseSync(dbFile);
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA foreign_keys = ON;");
+  // SQLite allows only one writer at a time; without a busy timeout, a
+  // second concurrent write fails immediately with "database is locked"
+  // instead of waiting its turn.
+  db.exec("PRAGMA busy_timeout = 5000;");
   db.exec(schema);
   migrateColumns(db, "cars", CARS_COLUMNS);
   migrateCarsStatusCheck(db);
@@ -166,4 +170,24 @@ function getDb() {
   return db;
 }
 
-module.exports = { getDb };
+// Runs fn inside a SQLite transaction so a multi-statement write (e.g.
+// updating a row and replacing its child rows) either lands completely or
+// not at all - a crash or thrown error partway through can't leave the
+// database in a half-written state. BEGIN IMMEDIATE grabs the write lock
+// up front instead of on the first write, which is what SQLite's own docs
+// recommend to avoid a transaction that started as a read later failing to
+// upgrade to a write under concurrent access.
+function withTransaction(fn) {
+  const database = getDb();
+  database.exec("BEGIN IMMEDIATE;");
+  try {
+    const result = fn(database);
+    database.exec("COMMIT;");
+    return result;
+  } catch (error) {
+    database.exec("ROLLBACK;");
+    throw error;
+  }
+}
+
+module.exports = { getDb, withTransaction };

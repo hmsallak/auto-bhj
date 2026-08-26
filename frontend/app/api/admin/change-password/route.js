@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { findByUsername, updatePassword } from "../../../../../backend/models/adminUsers";
 import { verifyPassword } from "../../../../../backend/auth/passwords";
 import { requireSession } from "../../../../lib/adminAuth";
+import { apiRoute } from "../../../../lib/apiRoute";
 
-export async function POST(request) {
+export const POST = apiRoute(async function handleChangePassword(request) {
   const session = await requireSession();
   if (!session) {
     return NextResponse.json({ error: "Connexion requise." }, { status: 401 });
@@ -27,4 +28,4 @@ export async function POST(request) {
 
   updatePassword(session.username, newPassword);
   return NextResponse.json({ ok: true });
-}
+});
