@@ -156,7 +156,7 @@ function PhotoThumb({
   onDragStateChange,
   onReorder,
   onRemove,
-  onMoveUp,
+  onMoveOneSlot,
   findPhotoKeyAtPoint,
 }) {
   const dragControls = useDragControls();
@@ -197,19 +197,17 @@ function PhotoThumb({
   }
 
   // Simple, reliable alternative to the long-press drag on touch devices
-  // where drag gestures are flaky: two quick taps move the photo one slot
-  // earlier, same as the old "previous" arrow did.
+  // where drag gestures are flaky: two quick taps swap the photo with its
+  // neighbour.
   function handlePointerUp() {
     clearPressTimer();
-    if (isDragging) return;
+    if (isDragging || photosLength <= 1) return;
 
     const now = Date.now();
     if (now - lastTapAtRef.current < PHOTO_DOUBLE_TAP_MS) {
       lastTapAtRef.current = 0;
-      if (index > 0) {
-        if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(12);
-        onMoveUp(photo.key);
-      }
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(12);
+      onMoveOneSlot(photo.key);
     } else {
       lastTapAtRef.current = now;
     }
@@ -330,13 +328,17 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
     setPhotos((current) => current.filter((photo) => photo.key !== key));
   }
 
-  function movePhotoUp(key) {
+  // The first photo (cover) has nothing before it to swap with, so double-
+  // tapping it swaps it with the next one instead - every photo's double
+  // tap always does something, instead of the cover being a dead end.
+  function movePhotoOneSlot(key) {
     setPhotos((current) => {
       const index = current.findIndex((photo) => photo.key === key);
-      if (index <= 0) return current;
+      if (index === -1 || current.length < 2) return current;
 
+      const swapWith = index === 0 ? 1 : index - 1;
       const next = [...current];
-      [next[index - 1], next[index]] = [next[index], next[index - 1]];
+      [next[index], next[swapWith]] = [next[swapWith], next[index]];
       return next;
     });
   }
@@ -631,7 +633,7 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
                       }}
                       onReorder={reorderPhoto}
                       onRemove={removePhoto}
-                      onMoveUp={movePhotoUp}
+                      onMoveOneSlot={movePhotoOneSlot}
                       findPhotoKeyAtPoint={photoKeyAtPoint}
                     />
                   ))}
