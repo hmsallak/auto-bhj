@@ -274,6 +274,7 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [draggedPhotoKey, setDraggedPhotoKey] = useState(null);
   const [dropTargetKey, setDropTargetKey] = useState(null);
+  const [statusValue, setStatusValue] = useState(editingCar?.status || "available");
   const dragCounter = useRef(0);
   const prefersReducedMotion = useReducedMotion();
 
@@ -283,11 +284,16 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
 
     const values = editingCar || emptyCar;
     for (const [key, value] of Object.entries({ ...emptyCar, ...values })) {
-      if (form.elements[key]) form.elements[key].value = value ?? "";
+      if (!form.elements[key]) continue;
+      // Sold cars store 0 as the "price erased" sentinel - show the field
+      // empty (with its placeholder) instead of a literal 0.
+      const displayValue = key === "price" && values.status === "sold" ? "" : value ?? "";
+      form.elements[key].value = displayValue;
     }
 
     setPhotos(photosFromUrls(editingCar?.images));
     setSelectedEquipment(equipmentToSelection(editingCar?.equipment));
+    setStatusValue(values.status || "available");
     setStepIndex(0);
     setReview(null);
   }, [editingCar]);
@@ -539,7 +545,15 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
           <div className="two-cols">
             <label>
               Prix EUR
-              <input name="price" type="number" min="1" inputMode="numeric" required />
+              <input
+                name="price"
+                type="number"
+                min="1"
+                inputMode="numeric"
+                required={statusValue !== "sold"}
+                disabled={statusValue === "sold"}
+                placeholder={statusValue === "sold" ? "Masque - vehicule vendu" : undefined}
+              />
             </label>
             <label>
               Carburant
@@ -561,12 +575,23 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
             </label>
             <label>
               Statut
-              <select name="status" required>
+              <select
+                name="status"
+                required
+                value={statusValue}
+                onChange={(event) => setStatusValue(event.target.value)}
+              >
                 <option value="available">Disponible</option>
                 <option value="reserved">Reserve</option>
                 <option value="sold">Vendu</option>
               </select>
             </label>
+            {statusValue === "sold" && (
+              <p className="hint-text">
+                Le prix sera efface de la fiche et de la base des l&apos;enregistrement, sans
+                trace recuperable.
+              </p>
+            )}
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { formatPrice, formatKm, carImage } from "../lib/format";
+import { carPriceLabel, formatKm, carImage, statusLabel } from "../lib/format";
 import OfficialIcon from "./OfficialIcon";
 
 export default function CarCard({ car }) {
@@ -49,7 +49,7 @@ export default function CarCard({ car }) {
         </div>
 
         <div className="stock-card-footer">
-          <span className="stock-card-price">{formatPrice(car.price)}</span>
+          <span className="stock-card-price">{carPriceLabel(car) ?? statusLabel(car.status)}</span>
           <span className="stock-card-cta">
             Voir plus
             <span aria-hidden="true">→</span>

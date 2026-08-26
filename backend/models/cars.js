@@ -97,7 +97,12 @@ function validateCarInput(payload, existing = null) {
     return { error: "Kilometrage invalide." };
   }
 
-  if (!Number.isFinite(car.price) || car.price <= 0 || car.price > 100_000_000) {
+  // Sold vehicles never keep a price: it's wiped (not just hidden) the
+  // moment the status is saved as "sold", with nothing left to recover it
+  // from - so it's exempt from the normal price requirement/validation.
+  if (car.status === "sold") {
+    car.price = 0;
+  } else if (!Number.isFinite(car.price) || car.price <= 0 || car.price > 100_000_000) {
     return { error: "Prix invalide." };
   }
 

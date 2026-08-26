@@ -1,4 +1,4 @@
-import { formatPrice, statusLabel, carImage } from "../../lib/format";
+import { carPriceLabel, statusLabel, carImage } from "../../lib/format";
 
 function relativeTime(iso) {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -86,7 +86,7 @@ export default function AdminOverview({
                       {car.year} - {car.fuel} - {car.mileage.toLocaleString("fr-BE")} km
                     </span>
                   </div>
-                  <b>{formatPrice(car.price)}</b>
+                  {carPriceLabel(car) && <b>{carPriceLabel(car)}</b>}
                   <span className={`status ${car.status}`}>{statusLabel(car.status)}</span>
                 </article>
               ))}

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getCarByReference } from "../../../../../backend/models/cars";
-import { formatKm, formatPrice, statusLabel } from "../../../../lib/format";
+import { formatKm, carPriceLabel, statusLabel } from "../../../../lib/format";
 import PhotoGallery from "../../../../components/PhotoGallery";
 import CarSpecSheet, { SpecHighlights } from "../../../../components/CarSpecSheet";
 import VehicleActions from "../../../../components/VehicleActions";
@@ -11,7 +11,9 @@ import VehicleViewTracker from "../../../../components/VehicleViewTracker";
 export const dynamic = "force-dynamic";
 
 function titleFor(car) {
-  return `${car.brand} ${car.model} ${car.year} ${car.fuel} a vendre - ${formatPrice(car.price)} - Auto BHJ`;
+  const price = carPriceLabel(car);
+  const suffix = price ? ` - ${price}` : "";
+  return `${car.brand} ${car.model} ${car.year} ${car.fuel} a vendre${suffix} - Auto BHJ`;
 }
 
 export async function generateMetadata({ params }) {
@@ -59,9 +61,11 @@ export default async function CarDetailPage({ params }) {
     fuelType: car.fuel,
     vehicleTransmission: car.gearbox,
     image: car.images?.length ? car.images : car.imageUrl ? [car.imageUrl] : undefined,
+    // Sold vehicles have no price left to advertise - omit the offer's
+    // price entirely rather than publish 0 as if it were real data.
     offers: {
       "@type": "Offer",
-      price: car.price,
+      ...(sold ? {} : { price: car.price }),
       priceCurrency: "EUR",
       availability,
       seller: {
@@ -107,7 +111,9 @@ export default async function CarDetailPage({ params }) {
               {car.brand} <span className="text-sage">{car.model}</span>
             </h2>
             <div className="flex items-center justify-between">
-              <strong className="text-2xl font-extrabold text-brand-dark">{formatPrice(car.price)}</strong>
+              {carPriceLabel(car) && (
+                <strong className="text-2xl font-extrabold text-brand-dark">{carPriceLabel(car)}</strong>
+              )}
               <span className="text-[14px] font-medium text-sage">{statusLabel(car.status)}</span>
             </div>
           </div>
@@ -125,8 +131,12 @@ export default async function CarDetailPage({ params }) {
             <h2 className="text-lg font-bold text-ink">
               {car.brand} <span className="text-sage">{car.model}</span>
             </h2>
-            <span className="mt-2 text-[13px] text-subtle">Prix affiche</span>
-            <p className="text-2xl font-extrabold text-brand-dark">{formatPrice(car.price)}</p>
+            {carPriceLabel(car) && (
+              <>
+                <span className="mt-2 text-[13px] text-subtle">Prix affiche</span>
+                <p className="text-2xl font-extrabold text-brand-dark">{carPriceLabel(car)}</p>
+              </>
+            )}
             <span className="mt-1 text-[13px] font-medium text-sage">{statusLabel(car.status)}</span>
           </div>
 

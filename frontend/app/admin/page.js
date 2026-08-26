@@ -68,6 +68,7 @@ export default function AdminPage() {
   const [editingCar, setEditingCar] = useState(null);
   const [carMessage, setCarMessage] = useState("");
   const [carMessageError, setCarMessageError] = useState(false);
+  const [carCreatedPopup, setCarCreatedPopup] = useState(false);
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [activity, setActivity] = useState([]);
@@ -194,6 +195,7 @@ export default function AdminPage() {
   async function handleCarSubmit(formData) {
     setCarMessage("");
     setCarMessageError(false);
+    const wasCreating = !editingCar;
 
     try {
       const url = editingCar ? `/api/admin/cars/${editingCar.id}` : "/api/admin/cars";
@@ -204,6 +206,7 @@ export default function AdminPage() {
       setEditingCar(null);
       await loadCars();
       setActiveTab("stock");
+      if (wasCreating) setCarCreatedPopup(true);
     } catch (error) {
       setCarMessage(error.message);
       setCarMessageError(true);
@@ -429,6 +432,28 @@ export default function AdminPage() {
           )}
         </div>
       </div>
+
+      {carCreatedPopup && (
+        <div className="admin-confirm-overlay" role="presentation">
+          <div className="admin-confirm-dialog" role="alertdialog" aria-modal="true">
+            <div>
+              <p className="eyebrow">Succes</p>
+              <h3>Voiture creee</h3>
+              <p>La nouvelle annonce est publiee et visible dans le stock.</p>
+            </div>
+            <div className="admin-confirm-actions">
+              <button
+                className="button primary"
+                type="button"
+                autoFocus
+                onClick={() => setCarCreatedPopup(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

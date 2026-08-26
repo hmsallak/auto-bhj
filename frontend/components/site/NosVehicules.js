@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { formatPrice, formatKm, carImage } from "../../lib/format";
+import { carPriceLabel, formatKm, carImage, statusLabel } from "../../lib/format";
 import { ChevronRightIcon } from "./icons";
 
 const EASE = [0.16, 1, 0.3, 1];
@@ -51,7 +51,7 @@ export default function NosVehicules({ cars = [] }) {
                 <h3 className="nv-card-title">
                   {car.brand} {car.model}
                 </h3>
-                <span className="nv-card-price">{formatPrice(car.price)}</span>
+                <span className="nv-card-price">{carPriceLabel(car) ?? statusLabel(car.status)}</span>
               </div>
               <span className="nv-card-meta">
                 {car.year} &middot; {formatKm(car.mileage)}

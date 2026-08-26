@@ -1,4 +1,4 @@
-import { formatPrice, formatKm, carImage, statusLabel } from "../../lib/format";
+import { carPriceLabel, formatKm, carImage, statusLabel } from "../../lib/format";
 import { MileageIcon, FuelIcon, GearboxIcon } from "./icons";
 
 function Badge({ icon: Icon, children }) {
@@ -49,7 +49,7 @@ export default function HomeCarCard({ car, priority }) {
           {car.gearbox ? <Badge icon={GearboxIcon}>{car.gearbox}</Badge> : null}
         </div>
 
-        <p className="text-2xl font-extrabold text-brand-dark">{formatPrice(car.price)}</p>
+        {!sold && <p className="text-2xl font-extrabold text-brand-dark">{carPriceLabel(car)}</p>}
 
         <span className="mt-auto inline-flex min-h-[48px] w-full items-center justify-center rounded-lg bg-sage px-4 text-[14px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-sage-dark">
           Voir le véhicule

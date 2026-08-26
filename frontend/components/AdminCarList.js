@@ -1,6 +1,6 @@
 "use client";
 
-import { formatPrice, statusLabel, carImage } from "../lib/format";
+import { carPriceLabel, statusLabel, carImage } from "../lib/format";
 import { useState } from "react";
 import OfficialIcon from "./OfficialIcon";
 
@@ -69,7 +69,7 @@ export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, c
             <span className="admin-item-cell" data-label="Annee">{car.year}</span>
             <span className="admin-item-cell" data-label="Kilometrage">{car.mileage.toLocaleString("fr-BE")} km</span>
             <span className="admin-item-cell" data-label="Carburant">{car.fuel}</span>
-            <strong className="admin-item-price" data-label="Prix">{formatPrice(car.price)}</strong>
+            <strong className="admin-item-price" data-label="Prix">{carPriceLabel(car) ?? "—"}</strong>
             <span className={`status ${car.status}`} data-label="Statut">{statusLabel(car.status)}</span>
             <div className="admin-actions" data-label="Actions">
               {canEdit || canDelete ? (

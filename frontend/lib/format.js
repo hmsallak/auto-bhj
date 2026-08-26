@@ -6,6 +6,14 @@ export function formatPrice(value) {
   }).format(value);
 }
 
+// Sold vehicles have their price wiped server-side (not just hidden), so
+// there is nothing meaningful left to format - every price display should
+// go through this instead of formatPrice(car.price) directly.
+export function carPriceLabel(car) {
+  if (!car || car.status === "sold") return null;
+  return formatPrice(car.price);
+}
+
 export function formatKm(value) {
   return `${new Intl.NumberFormat("fr-BE").format(value)} km`;
 }
