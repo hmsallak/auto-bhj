@@ -20,7 +20,7 @@ const SETTING_GROUPS = [
     title: "Configuration visible",
     description: "Elements relies a l'identite du site et aux parcours visiteurs.",
     items: [
-      ["Logo", "/logo.png"],
+      ["Logo", "/logo-auto-bhj.png"],
       ["Nom du site", "Auto BHJ - Vehicules d'occasion"],
       ["Page stock", "/stock"],
       ["Formulaire contact", "Messages admin"],

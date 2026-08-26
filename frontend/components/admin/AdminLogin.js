@@ -21,7 +21,7 @@ export default function AdminLogin({ onSubmit, message }) {
     <div className="admin-login-shell">
       <div className="admin-login-card">
         <div className="admin-login-brand">
-          <Image src="/logo.png" alt="Auto BHJ" width={2048} height={768} priority />
+          <Image src="/logo-auto-bhj.png" alt="Auto BHJ" width={1050} height={600} priority />
         </div>
         <p className="eyebrow">Connexion securisee</p>
         <h1>Espace administrateur</h1>

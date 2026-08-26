@@ -2847,12 +2847,12 @@ main,
   --admin-text: #1c1c1a;
   width: min(460px, 100%);
   padding: clamp(28px, 5vw, 46px);
-  border: 1px solid rgba(28, 28, 26, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 24px;
-  background: #ffffff;
+  background: var(--color-sage, #73a58d);
   box-shadow:
-    0 28px 70px rgba(28, 28, 26, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+    0 28px 70px rgba(28, 28, 26, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .admin-login-brand {
@@ -2868,7 +2868,7 @@ main,
 
 .admin-login-card h1 {
   margin: 8px 0 0;
-  color: var(--dash-text);
+  color: #ffffff;
   font-size: clamp(28px, 4vw, 34px);
   line-height: 1.05;
   text-align: center;
@@ -2877,7 +2877,7 @@ main,
 .admin-login-lead {
   margin: 12px auto 28px;
   max-width: 32ch;
-  color: var(--dash-text-dim);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 14.5px;
   line-height: 1.55;
   text-align: center;
@@ -2886,7 +2886,7 @@ main,
 .admin-login-card .eyebrow {
   justify-content: center;
   margin: 0;
-  color: var(--dash-accent);
+  color: rgba(255, 255, 255, 0.92);
   text-align: center;
 }
 
@@ -2896,7 +2896,7 @@ main,
 
 .admin-login-card label {
   gap: 8px;
-  color: var(--dash-text-dim);
+  color: rgba(255, 255, 255, 0.88);
   font-size: 13px;
   font-weight: 800;
 }
@@ -2904,10 +2904,10 @@ main,
 .admin-login-card input {
   min-height: 50px;
   padding: 0 15px;
-  border: 1px solid var(--dash-sidebar-line);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 12px;
-  color: var(--dash-text);
-  background: #ffffff;
+  color: var(--admin-accent, #1a4d3e);
+  background: var(--color-brand-pastel, #e3efe9);
   box-shadow: 0 1px 0 rgba(17, 24, 39, 0.03);
   font-size: 15px;
 }
@@ -2960,14 +2960,14 @@ main,
   gap: 8px;
   margin-top: 26px;
   padding-top: 20px;
-  border-top: 1px solid var(--dash-sidebar-line);
-  color: var(--dash-text-dim);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 12px;
   text-align: center;
 }
 
 .admin-login-footer a {
-  color: var(--dash-accent);
+  color: #ffffff;
   font-weight: 700;
 }
 

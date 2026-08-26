@@ -7,11 +7,7 @@ import {
   FuelIcon,
   GearboxIcon,
   RegistrationIcon,
-  CarIcon,
-  SeatIcon,
-  DoorIcon,
   PowerIcon,
-  OwnerIcon,
   DocumentIcon,
   SlidersIcon,
   ChevronDownIcon,
@@ -42,30 +38,26 @@ export function SpecHighlights({ car }) {
   );
 }
 
-function DataRow({ icon: Icon, label, value, valueClassName = "text-ink" }) {
+function DataRow({ label, value, valueClassName = "text-ink" }) {
   if (value === null || value === undefined || value === "") return null;
   return (
     <div className="flex items-center gap-2.5 py-2.5">
-      <Icon className="h-4 w-4 shrink-0 text-subtle" />
       <span className="flex-1 text-[14px] text-body">{label}</span>
       <span className={`text-[14px] font-semibold ${valueClassName}`}>{value}</span>
     </div>
   );
 }
 
-function SpecSection({ icon: Icon, title, rows }) {
+function SpecSection({ title, rows }) {
   const visible = rows.filter((row) => row.value !== null && row.value !== undefined && row.value !== "");
   if (!visible.length) return null;
 
   return (
     <div>
-      <h4 className="mb-1 flex items-center gap-2 text-[13px] font-bold uppercase tracking-wide text-subtle">
-        <Icon className="h-4 w-4 text-brand" />
-        {title}
-      </h4>
+      <h4 className="mb-1 text-[13px] font-bold uppercase tracking-wide text-subtle">{title}</h4>
       <div className="divide-y divide-line">
         {visible.map((row) => (
-          <DataRow key={row.label} icon={row.icon} label={row.label} value={row.value} valueClassName={row.valueClassName} />
+          <DataRow key={row.label} label={row.label} value={row.value} valueClassName={row.valueClassName} />
         ))}
       </div>
     </div>
@@ -111,43 +103,39 @@ export default function CarSpecSheet({ car }) {
 
   const sections = [
     {
-      icon: CarIcon,
       title: "Identite & carrosserie",
       rows: [
-        { icon: CarIcon, label: "Marque", value: car.brand },
-        { icon: CarIcon, label: "Modele", value: car.model, valueClassName: "text-sage" },
-        { icon: CarIcon, label: "Type de carrosserie", value: car.bodyType },
-        { icon: DoorIcon, label: "Portes", value: car.doors },
-        { icon: SeatIcon, label: "Sieges", value: car.seats },
+        { label: "Marque", value: car.brand },
+        { label: "Modele", value: car.model, valueClassName: "text-sage" },
+        { label: "Type de carrosserie", value: car.bodyType },
+        { label: "Portes", value: car.doors },
+        { label: "Sieges", value: car.seats },
       ],
     },
     {
-      icon: PowerIcon,
       title: "Motorisation & performance",
       rows: [
-        { icon: FuelIcon, label: "Carburant", value: car.fuel },
-        { icon: GearboxIcon, label: "Boite de vitesses", value: car.gearbox },
-        { icon: GearboxIcon, label: "Nombre de vitesses", value: car.gears },
-        { icon: PowerIcon, label: "Cylindres", value: car.cylinders },
-        { icon: PowerIcon, label: "Cylindree", value: car.engineCc ? `${car.engineCc} cm3` : null },
-        { icon: PowerIcon, label: "Puissance", value: power },
-        { icon: FuelIcon, label: "Consommation", value: car.consumption },
+        { label: "Carburant", value: car.fuel },
+        { label: "Boite de vitesses", value: car.gearbox },
+        { label: "Nombre de vitesses", value: car.gears },
+        { label: "Cylindres", value: car.cylinders },
+        { label: "Cylindree", value: car.engineCc ? `${car.engineCc} cm3` : null },
+        { label: "Puissance", value: power },
+        { label: "Consommation", value: car.consumption },
       ],
     },
     {
-      icon: CarIcon,
       title: "Exterieur & interieur",
       rows: [
-        { icon: CarIcon, label: "Couleur exterieure", value: car.exteriorColor },
-        { icon: CarIcon, label: "Type de peinture", value: car.paintType },
-        { icon: CarIcon, label: "Couleur interieure", value: car.interiorColor },
-        { icon: CarIcon, label: "Materiau interieur", value: car.interiorMaterial },
+        { label: "Couleur exterieure", value: car.exteriorColor },
+        { label: "Type de peinture", value: car.paintType },
+        { label: "Couleur interieure", value: car.interiorColor },
+        { label: "Materiau interieur", value: car.interiorMaterial },
       ],
     },
     {
-      icon: OwnerIcon,
       title: "Historique",
-      rows: [{ icon: OwnerIcon, label: "Proprietaires precedents", value: car.previousOwners }],
+      rows: [{ label: "Proprietaires precedents", value: car.previousOwners }],
     },
   ];
 
@@ -161,7 +149,7 @@ export default function CarSpecSheet({ car }) {
         <Block icon={SlidersIcon} title="Caracteristiques techniques" open={generalOpen} onToggle={setGeneralOpen}>
           <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
             {sections.map((section) => (
-              <SpecSection key={section.title} icon={section.icon} title={section.title} rows={section.rows} />
+              <SpecSection key={section.title} title={section.title} rows={section.rows} />
             ))}
           </div>
         </Block>
