@@ -5,7 +5,7 @@ import { useState } from "react";
 import OfficialIcon from "./OfficialIcon";
 
 export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, canDelete = true }) {
-  const [mobileMenuId, setMobileMenuId] = useState(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [password, setPassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
@@ -33,7 +33,7 @@ export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, c
   }
 
   function requestDelete(car) {
-    setMobileMenuId(null);
+    setOpenMenuId(null);
     setDeleteError("");
     setPassword("");
     setDeleteTarget(car);
@@ -73,16 +73,35 @@ export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, c
             <span className={`status ${car.status}`} data-label="Statut">{statusLabel(car.status)}</span>
             <div className="admin-actions" data-label="Actions">
               {canEdit || canDelete ? (
-                <div className="admin-inline-actions">
-                  {canEdit && (
-                    <button className="button neutral small" type="button" onClick={() => onEdit(car)}>
-                      Modifier
-                    </button>
-                  )}
-                  {canDelete && (
-                    <button className="danger" type="button" onClick={() => requestDelete(car)}>
-                      Supprimer
-                    </button>
+                <div className="admin-action-menu">
+                  <button
+                    className="admin-action-toggle"
+                    type="button"
+                    aria-label={`Actions pour ${car.reference}`}
+                    aria-expanded={openMenuId === car.id}
+                    onClick={() => setOpenMenuId(openMenuId === car.id ? null : car.id)}
+                  >
+                    <OfficialIcon name="more" width={18} height={18} />
+                  </button>
+                  {openMenuId === car.id && (
+                    <div className="admin-action-dropdown">
+                      {canEdit && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            onEdit(car);
+                          }}
+                        >
+                          Modifier
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button className="danger-text" type="button" onClick={() => requestDelete(car)}>
+                          Supprimer
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               ) : (
@@ -96,18 +115,18 @@ export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, c
                     className="admin-mobile-action-toggle"
                     type="button"
                     aria-label={`Actions pour ${car.reference}`}
-                    aria-expanded={mobileMenuId === car.id}
-                    onClick={() => setMobileMenuId(mobileMenuId === car.id ? null : car.id)}
+                    aria-expanded={openMenuId === car.id}
+                    onClick={() => setOpenMenuId(openMenuId === car.id ? null : car.id)}
                   >
-                    <OfficialIcon name="edit" width={16} height={16} />
+                    <OfficialIcon name="more" width={16} height={16} />
                   </button>
-                  {mobileMenuId === car.id && (
+                  {openMenuId === car.id && (
                     <div className="admin-mobile-action-dropdown">
                       {canEdit && (
                         <button
                           type="button"
                           onClick={() => {
-                            setMobileMenuId(null);
+                            setOpenMenuId(null);
                             onEdit(car);
                           }}
                         >

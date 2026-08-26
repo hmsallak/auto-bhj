@@ -15,6 +15,7 @@ const ICONS = {
   route: "itineraire.svg",
   mileage: "kilometrage.svg",
   edit: "modifier.svg",
+  more: "more.svg",
   share: "partager.svg",
   price: "prix.svg",
   budget: "budget.svg",

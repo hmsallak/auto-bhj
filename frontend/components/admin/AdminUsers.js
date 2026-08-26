@@ -144,7 +144,7 @@ export default function AdminUsers({
                           aria-expanded={openMenuId === user.id}
                           onClick={() => setOpenMenuId(openMenuId === user.id ? null : user.id)}
                         >
-                          <OfficialIcon name="edit" width={18} height={18} />
+                          <OfficialIcon name="more" width={18} height={18} />
                         </button>
                         {openMenuId === user.id && (
                           <div className="admin-action-dropdown">

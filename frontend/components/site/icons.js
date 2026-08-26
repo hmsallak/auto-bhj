@@ -122,3 +122,20 @@ export function CloseIcon(props) {
 export function WhatsAppIcon(props) {
   return <OfficialIcon name="whatsapp" {...props} />;
 }
+
+export function TrashIcon(props) {
+  return (
+    <InterfaceSvg {...props}>
+      <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+    </InterfaceSvg>
+  );
+}
+
+export function UploadCloudIcon(props) {
+  return (
+    <InterfaceSvg {...props}>
+      <path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-1 7.5" />
+      <path d="M12 12v8M9 16l3-3 3 3" />
+    </InterfaceSvg>
+  );
+}

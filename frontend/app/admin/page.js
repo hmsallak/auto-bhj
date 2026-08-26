@@ -74,6 +74,12 @@ export default function AdminPage() {
   const [editingUser, setEditingUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (!carMessage || carMessageError) return;
+    const timer = setTimeout(() => setCarMessage(""), 3500);
+    return () => clearTimeout(timer);
+  }, [carMessage, carMessageError]);
+
   async function loadCars() {
     setCars(await api("/api/cars"));
   }

@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeftIcon, ChevronRightIcon } from "./site/icons";
+import { motion, AnimatePresence, useReducedMotion, useDragControls } from "framer-motion";
+import { ChevronLeftIcon, ChevronRightIcon, TrashIcon, UploadCloudIcon } from "./site/icons";
+
+const EASE = [0.16, 1, 0.3, 1];
+const PHOTO_LONG_PRESS_MS = 350;
 
 const emptyCar = {
   brand: "",
@@ -140,14 +144,99 @@ function photosFromUrls(urls) {
   }));
 }
 
+function PhotoThumb({
+  photo,
+  index,
+  photosLength,
+  isDragging,
+  isDropTarget,
+  prefersReducedMotion,
+  onDragStateChange,
+  onReorder,
+  onRemove,
+  findPhotoKeyAtPoint,
+}) {
+  const dragControls = useDragControls();
+  const pressTimerRef = useRef(null);
+
+  function clearPressTimer() {
+    if (pressTimerRef.current) {
+      clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
+    }
+  }
+
+  function handlePointerDown(event) {
+    if (prefersReducedMotion || photosLength <= 1) return;
+    clearPressTimer();
+    pressTimerRef.current = setTimeout(() => {
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(18);
+      onDragStateChange(photo.key, null);
+      dragControls.start(event);
+    }, PHOTO_LONG_PRESS_MS);
+  }
+
+  return (
+    <motion.div
+      layout={!prefersReducedMotion && !isDragging}
+      data-photo-key={photo.key}
+      className={`photo-thumb ${isDragging ? "dragging" : ""} ${isDropTarget ? "drop-target" : ""}`}
+      initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.85 }}
+      transition={{ duration: 0.22, ease: EASE }}
+      drag={!prefersReducedMotion && photosLength > 1}
+      dragListener={false}
+      dragControls={dragControls}
+      dragSnapToOrigin
+      dragElastic={0.15}
+      dragMomentum={false}
+      whileDrag={{ scale: 1.06, zIndex: 5, boxShadow: "0 16px 32px rgba(15, 23, 42, 0.32)" }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={clearPressTimer}
+      onPointerLeave={clearPressTimer}
+      onPointerCancel={clearPressTimer}
+      onDrag={(event, info) => {
+        const targetKey = findPhotoKeyAtPoint(info.point.x, info.point.y);
+        onDragStateChange(photo.key, targetKey && targetKey !== photo.key ? targetKey : null);
+      }}
+      onDragEnd={(event, info) => {
+        clearPressTimer();
+        const targetKey = findPhotoKeyAtPoint(info.point.x, info.point.y);
+        if (targetKey) onReorder(photo.key, targetKey);
+        onDragStateChange(null, null);
+      }}
+    >
+      <img src={photo.previewUrl} alt="" draggable={false} />
+      <span className="photo-thumb-position">{index + 1}</span>
+      {index === 0 && <span className="photo-thumb-cover">Couverture</span>}
+      <div className="photo-thumb-actions">
+        <button
+          type="button"
+          className="danger"
+          onClick={() => onRemove(photo.key)}
+          aria-label="Supprimer la photo"
+        >
+          <TrashIcon width="14" height="14" />
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
   const formRef = useRef(null);
   const fileInputRef = useRef(null);
   const [photos, setPhotos] = useState([]);
-  const [photoUrlInput, setPhotoUrlInput] = useState("");
   const [selectedEquipment, setSelectedEquipment] = useState(new Set());
   const [stepIndex, setStepIndex] = useState(0);
   const [review, setReview] = useState(null);
+  const [isDropzoneActive, setIsDropzoneActive] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [draggedPhotoKey, setDraggedPhotoKey] = useState(null);
+  const [dropTargetKey, setDropTargetKey] = useState(null);
+  const dragCounter = useRef(0);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const form = formRef.current;
@@ -182,7 +271,7 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
   }, [photos]);
 
   function addFiles(fileList) {
-    const files = Array.from(fileList || []);
+    const files = Array.from(fileList || []).filter((file) => file.type.startsWith("image/"));
     if (!files.length) return;
 
     setPhotos((current) => [
@@ -196,31 +285,46 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
     ]);
   }
 
-  function addPhotoUrl() {
-    const url = photoUrlInput.trim();
-    if (!url) return;
-
-    setPhotos((current) => [
-      ...current,
-      { key: `existing-${nextPhotoKey++}`, kind: "existing", url, previewUrl: url },
-    ]);
-    setPhotoUrlInput("");
-  }
-
   function removePhoto(key) {
     setPhotos((current) => current.filter((photo) => photo.key !== key));
   }
 
-  function movePhoto(key, direction) {
+  function reorderPhoto(draggedKey, targetKey) {
+    if (!draggedKey || draggedKey === targetKey) return;
+
     setPhotos((current) => {
-      const index = current.findIndex((photo) => photo.key === key);
-      const targetIndex = index + direction;
-      if (index === -1 || targetIndex < 0 || targetIndex >= current.length) return current;
+      const fromIndex = current.findIndex((photo) => photo.key === draggedKey);
+      const toIndex = current.findIndex((photo) => photo.key === targetKey);
+      if (fromIndex === -1 || toIndex === -1) return current;
 
       const next = [...current];
-      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+      [next[fromIndex], next[toIndex]] = [next[toIndex], next[fromIndex]];
       return next;
     });
+  }
+
+  function photoKeyAtPoint(x, y) {
+    const target = document.elementFromPoint(x, y)?.closest("[data-photo-key]");
+    return target?.getAttribute("data-photo-key") || null;
+  }
+
+  function handleDropzoneDragEnter(event) {
+    event.preventDefault();
+    dragCounter.current += 1;
+    setIsDropzoneActive(true);
+  }
+
+  function handleDropzoneDragLeave(event) {
+    event.preventDefault();
+    dragCounter.current = Math.max(0, dragCounter.current - 1);
+    if (dragCounter.current === 0) setIsDropzoneActive(false);
+  }
+
+  function handleDropzoneDrop(event) {
+    event.preventDefault();
+    dragCounter.current = 0;
+    setIsDropzoneActive(false);
+    addFiles(event.dataTransfer.files);
   }
 
   function validateBasics() {
@@ -274,7 +378,9 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
     event.preventDefault();
   }
 
-  function submitForm() {
+  async function submitForm() {
+    if (isSubmitting) return;
+
     const form = formRef.current;
     if (!form) return;
 
@@ -300,7 +406,12 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
     const equipment = selectionToEquipment(selectedEquipment);
     if (equipment) formData.append("equipment", JSON.stringify(equipment));
 
-    onSubmit(formData);
+    setIsSubmitting(true);
+    try {
+      await onSubmit(formData);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const equipment = selectionToEquipment(selectedEquipment);
@@ -327,7 +438,22 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
               onClick={() => goToStep(index)}
               disabled={index > stepIndex}
             >
-              <span className="wizard-step-number">{index < stepIndex ? "✓" : index + 1}</span>
+              <span className="wizard-step-number">
+                {index === stepIndex && !prefersReducedMotion && (
+                  <motion.span
+                    layoutId="wizardStepRing"
+                    className="wizard-step-ring"
+                    transition={{ type: "spring", stiffness: 500, damping: 34 }}
+                  />
+                )}
+                {index < stepIndex ? (
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  index + 1
+                )}
+              </span>
               <span className="wizard-step-label">{step.label}</span>
             </button>
           </li>
@@ -394,13 +520,32 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
           <div className="photo-manager">
             <div className="photo-manager-head">
               <span>Photos {photos.length > 0 && `(${photos.length})`}</span>
-              <button
-                className="button neutral small"
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Ajouter des photos
-              </button>
+              {photos.length > 1 && (
+                <p className="photo-manager-hint">Glissez une photo pour changer l&apos;ordre.</p>
+              )}
+            </div>
+
+            <div
+              className={`photo-dropzone ${isDropzoneActive ? "active" : ""}`}
+              role="button"
+              tabIndex={0}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              onDragEnter={handleDropzoneDragEnter}
+              onDragOver={(event) => event.preventDefault()}
+              onDragLeave={handleDropzoneDragLeave}
+              onDrop={handleDropzoneDrop}
+            >
+              <UploadCloudIcon width="26" height="26" />
+              <p className="photo-dropzone-title">
+                Glissez vos photos ici <span>ou cliquez pour parcourir</span>
+              </p>
+              <span className="photo-dropzone-hint">JPG, PNG ou WEBP</span>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -416,60 +561,31 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
 
             {photos.length ? (
               <div className="photo-grid">
-                {photos.map((photo, index) => (
-                  <div className="photo-thumb" key={photo.key}>
-                    <img src={photo.previewUrl} alt="" />
-                    {index === 0 && <span className="photo-thumb-cover">Couverture</span>}
-                    <div className="photo-thumb-actions">
-                      <button
-                        type="button"
-                        onClick={() => movePhoto(photo.key, -1)}
-                        disabled={index === 0}
-                        aria-label="Deplacer avant"
-                      >
-                        ‹
-                      </button>
-                      <button
-                        type="button"
-                        className="danger"
-                        onClick={() => removePhoto(photo.key)}
-                        aria-label="Supprimer la photo"
-                      >
-                        ×
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => movePhoto(photo.key, 1)}
-                        disabled={index === photos.length - 1}
-                        aria-label="Deplacer apres"
-                      >
-                        ›
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                <AnimatePresence initial={false}>
+                  {photos.map((photo, index) => (
+                    <PhotoThumb
+                      key={photo.key}
+                      photo={photo}
+                      index={index}
+                      photosLength={photos.length}
+                      isDragging={draggedPhotoKey === photo.key}
+                      isDropTarget={dropTargetKey === photo.key}
+                      prefersReducedMotion={prefersReducedMotion}
+                      onDragStateChange={(draggedKey, targetKey) => {
+                        setDraggedPhotoKey(draggedKey);
+                        setDropTargetKey(targetKey);
+                      }}
+                      onReorder={reorderPhoto}
+                      onRemove={removePhoto}
+                      findPhotoKeyAtPoint={photoKeyAtPoint}
+                    />
+                  ))}
+                </AnimatePresence>
               </div>
             ) : (
-              <p className="empty">Aucune photo. La premiere ajoutee sert de couverture.</p>
+              <p className="empty">Aucune photo pour l&apos;instant.</p>
             )}
 
-            <div className="photo-url-row">
-              <input
-                type="text"
-                placeholder="Ou coller une URL d'image (https://...)"
-                value={photoUrlInput}
-                onChange={(event) => setPhotoUrlInput(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    addPhotoUrl();
-                  }
-                }}
-              />
-              <button className="button neutral small" type="button" onClick={addPhotoUrl}>
-                Ajouter
-              </button>
-            </div>
           </div>
         </div>
 
@@ -748,8 +864,12 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
               <ChevronRightIcon width="16" height="16" />
             </button>
           ) : (
-            <button className="button primary" type="button" onClick={submitForm}>
-              {editingCar ? "Mettre a jour les modifications" : "Publier la voiture"}
+            <button className="button primary" type="button" onClick={submitForm} disabled={isSubmitting}>
+              {isSubmitting
+                ? "Envoi en cours..."
+                : editingCar
+                  ? "Mettre a jour les modifications"
+                  : "Publier la voiture"}
             </button>
           )}
         </div>
