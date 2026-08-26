@@ -14377,6 +14377,19 @@ main > .legal-shell,
   border-radius: 9px;
   background: rgba(255, 255, 255, 0.035);
   touch-action: none;
+  /* Without these, a mobile long-press opens the native "save image" callout
+     mid-gesture, which hijacks the touch sequence before the long-press
+     timer below can hand it off to the drag - the photo never budges. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.photo-manager > .photo-grid .photo-thumb img {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
 }
 
 .photo-manager > .photo-grid .photo-thumb.dragging {

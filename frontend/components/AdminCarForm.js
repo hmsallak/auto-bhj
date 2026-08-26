@@ -196,6 +196,7 @@ function PhotoThumb({
       onPointerUp={clearPressTimer}
       onPointerLeave={clearPressTimer}
       onPointerCancel={clearPressTimer}
+      onContextMenu={(event) => event.preventDefault()}
       onDrag={(event, info) => {
         const targetKey = findPhotoKeyAtPoint(info.point.x, info.point.y);
         onDragStateChange(photo.key, targetKey && targetKey !== photo.key ? targetKey : null);
