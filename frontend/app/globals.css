@@ -14376,7 +14376,11 @@ main > .legal-shell,
   border: 1px solid var(--admin-border);
   border-radius: 9px;
   background: rgba(255, 255, 255, 0.035);
-  touch-action: none;
+  /* pan-y (not none) so a normal vertical scroll/swipe that starts on a
+     photo still scrolls the page - the long-press timer in JS is what
+     decides whether this is a hold (drag) or a scroll, not this property.
+     Locked to none only once .dragging is actually active, below. */
+  touch-action: pan-y;
   /* Without these, a mobile long-press opens the native "save image" callout
      mid-gesture, which hijacks the touch sequence before the long-press
      timer below can hand it off to the drag - the photo never budges. */
@@ -14394,6 +14398,14 @@ main > .legal-shell,
 
 .photo-manager > .photo-grid .photo-thumb.dragging {
   z-index: 5;
+  touch-action: none;
+  /* The dragged tile follows the pointer and sits on top of everything,
+     so elementFromPoint(x, y) at the pointer's position would otherwise
+     hit this tile itself instead of whatever's underneath it - making the
+     drop-target lookup always resolve to "itself" or nothing. Pointer
+     capture (already active once the drag starts) keeps delivering move/up
+     events to it regardless, so this is safe to disable mid-drag. */
+  pointer-events: none;
 }
 
 .photo-manager > .photo-grid .photo-thumb.dragging img {

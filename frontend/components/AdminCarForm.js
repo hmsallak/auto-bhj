@@ -5,7 +5,8 @@ import { motion, AnimatePresence, useReducedMotion, useDragControls } from "fram
 import { ChevronLeftIcon, ChevronRightIcon, TrashIcon, UploadCloudIcon } from "./site/icons";
 
 const EASE = [0.16, 1, 0.3, 1];
-const PHOTO_LONG_PRESS_MS = 350;
+const PHOTO_LONG_PRESS_MS = 3000;
+const PHOTO_PRESS_MOVE_TOLERANCE = 10;
 
 const emptyCar = {
   brand: "",
@@ -158,22 +159,38 @@ function PhotoThumb({
 }) {
   const dragControls = useDragControls();
   const pressTimerRef = useRef(null);
+  const pressOriginRef = useRef(null);
 
   function clearPressTimer() {
     if (pressTimerRef.current) {
       clearTimeout(pressTimerRef.current);
       pressTimerRef.current = null;
     }
+    pressOriginRef.current = null;
   }
 
   function handlePointerDown(event) {
     if (prefersReducedMotion || photosLength <= 1) return;
     clearPressTimer();
+    pressOriginRef.current = { x: event.clientX, y: event.clientY };
     pressTimerRef.current = setTimeout(() => {
       if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(18);
       onDragStateChange(photo.key, null);
       dragControls.start(event);
     }, PHOTO_LONG_PRESS_MS);
+  }
+
+  // A scroll/swipe starts with the same pointerdown as a long-press - only
+  // once the finger has moved past a small tolerance do we know it's a
+  // scroll, not a hold, so the pending drag-start gets cancelled and the
+  // page keeps scrolling normally instead of hijacking the gesture.
+  function handlePointerMove(event) {
+    const origin = pressOriginRef.current;
+    if (!origin) return;
+
+    const dx = event.clientX - origin.x;
+    const dy = event.clientY - origin.y;
+    if (Math.hypot(dx, dy) > PHOTO_PRESS_MOVE_TOLERANCE) clearPressTimer();
   }
 
   return (
@@ -193,6 +210,7 @@ function PhotoThumb({
       dragMomentum={false}
       whileDrag={{ scale: 1.06, zIndex: 5, boxShadow: "0 16px 32px rgba(15, 23, 42, 0.32)" }}
       onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
       onPointerUp={clearPressTimer}
       onPointerLeave={clearPressTimer}
       onPointerCancel={clearPressTimer}
