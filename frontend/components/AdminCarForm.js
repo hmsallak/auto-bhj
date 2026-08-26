@@ -7,6 +7,7 @@ import { ChevronLeftIcon, ChevronRightIcon, TrashIcon, UploadCloudIcon } from ".
 const EASE = [0.16, 1, 0.3, 1];
 const PHOTO_LONG_PRESS_MS = 500;
 const PHOTO_PRESS_MOVE_TOLERANCE = 10;
+const PHOTO_DOUBLE_TAP_MS = 300;
 
 const emptyCar = {
   brand: "",
@@ -155,11 +156,13 @@ function PhotoThumb({
   onDragStateChange,
   onReorder,
   onRemove,
+  onMoveUp,
   findPhotoKeyAtPoint,
 }) {
   const dragControls = useDragControls();
   const pressTimerRef = useRef(null);
   const pressOriginRef = useRef(null);
+  const lastTapAtRef = useRef(0);
 
   function clearPressTimer() {
     if (pressTimerRef.current) {
@@ -193,6 +196,25 @@ function PhotoThumb({
     if (Math.hypot(dx, dy) > PHOTO_PRESS_MOVE_TOLERANCE) clearPressTimer();
   }
 
+  // Simple, reliable alternative to the long-press drag on touch devices
+  // where drag gestures are flaky: two quick taps move the photo one slot
+  // earlier, same as the old "previous" arrow did.
+  function handlePointerUp() {
+    clearPressTimer();
+    if (isDragging) return;
+
+    const now = Date.now();
+    if (now - lastTapAtRef.current < PHOTO_DOUBLE_TAP_MS) {
+      lastTapAtRef.current = 0;
+      if (index > 0) {
+        if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(12);
+        onMoveUp(photo.key);
+      }
+    } else {
+      lastTapAtRef.current = now;
+    }
+  }
+
   return (
     <motion.div
       layout={!prefersReducedMotion && !isDragging}
@@ -211,7 +233,7 @@ function PhotoThumb({
       whileDrag={{ scale: 1.06, zIndex: 5, boxShadow: "0 16px 32px rgba(15, 23, 42, 0.32)" }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
-      onPointerUp={clearPressTimer}
+      onPointerUp={handlePointerUp}
       onPointerLeave={clearPressTimer}
       onPointerCancel={clearPressTimer}
       onContextMenu={(event) => event.preventDefault()}
@@ -306,6 +328,17 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
 
   function removePhoto(key) {
     setPhotos((current) => current.filter((photo) => photo.key !== key));
+  }
+
+  function movePhotoUp(key) {
+    setPhotos((current) => {
+      const index = current.findIndex((photo) => photo.key === key);
+      if (index <= 0) return current;
+
+      const next = [...current];
+      [next[index - 1], next[index]] = [next[index], next[index - 1]];
+      return next;
+    });
   }
 
   function reorderPhoto(draggedKey, targetKey) {
@@ -540,7 +573,9 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
             <div className="photo-manager-head">
               <span>Photos {photos.length > 0 && `(${photos.length})`}</span>
               {photos.length > 1 && (
-                <p className="photo-manager-hint">Glissez une photo pour changer l&apos;ordre.</p>
+                <p className="photo-manager-hint">
+                  Glissez une photo, ou tapez deux fois pour la faire remonter d&apos;un cran.
+                </p>
               )}
             </div>
 
@@ -596,6 +631,7 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
                       }}
                       onReorder={reorderPhoto}
                       onRemove={removePhoto}
+                      onMoveUp={movePhotoUp}
                       findPhotoKeyAtPoint={photoKeyAtPoint}
                     />
                   ))}
