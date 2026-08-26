@@ -11,6 +11,7 @@ import AdminUserForm from "../../components/admin/AdminUserForm";
 import AdminProfile from "../../components/admin/AdminProfile";
 import AdminSettings from "../../components/admin/AdminSettings";
 import AdminCarForm from "../../components/AdminCarForm";
+import { MenuIcon } from "../../components/home/icons";
 
 const TAB_TITLES = {
   overview: "Tableau de bord",
@@ -318,9 +319,7 @@ export default function AdminPage() {
               aria-expanded={mobileMenuOpen}
               onClick={() => setMobileMenuOpen(true)}
             >
-              <span />
-              <span />
-              <span />
+              <MenuIcon width="22" height="22" aria-hidden="true" />
             </button>
             <div>
               <h1>{TAB_TITLES[activeTab]}</h1>

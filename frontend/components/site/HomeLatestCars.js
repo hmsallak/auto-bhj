@@ -26,7 +26,7 @@ function FilterSelect({ id, name, label, value, onChange, options, formatLabel, 
         name={name}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-[48px] cursor-pointer rounded-lg border border-line bg-white px-3 text-[15px] font-medium text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand"
+        className="min-h-[48px] cursor-pointer rounded-lg border border-line bg-white px-3 text-[15px] font-normal text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
         <option value="">{defaultOptionLabel}</option>
         {options.map((option) => (

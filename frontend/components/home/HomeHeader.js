@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { MenuIcon, CloseIcon, PhoneIcon } from "./icons";
+import OfficialIcon from "../OfficialIcon";
+import { MenuIcon, CloseIcon } from "./icons";
 
 const LINKS = [
   { href: "/", label: "Accueil" },
@@ -56,7 +57,7 @@ export default function HomeHeader() {
             href="tel:+32483208801"
             className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-brand px-5 text-[14px] font-semibold text-white transition-colors hover:bg-brand-dark"
           >
-            <PhoneIcon className="h-4 w-4" />
+            <OfficialIcon name="phone" width={16} height={16} />
             0483 20 88 01
           </a>
         </nav>
@@ -90,7 +91,7 @@ export default function HomeHeader() {
               onClick={() => setOpen(false)}
               className="mt-2 inline-flex min-h-[44px] w-fit items-center justify-center gap-2 self-start rounded-lg bg-brand px-4 text-[14px] font-semibold text-white hover:bg-brand-dark"
             >
-              <PhoneIcon className="h-4 w-4" />
+              <OfficialIcon name="phone" width={16} height={16} />
               0483 20 88 01
             </a>
           </div>

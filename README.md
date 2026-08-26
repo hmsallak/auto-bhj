@@ -14,6 +14,28 @@ Regles de design/CSS du site (couleurs, typographie, icones, boutons,
 structure de section) : voir [`DESIGN.md`](./DESIGN.md). A consulter avant
 de coder une nouvelle section plutot que d'inventer un nouveau style.
 
+## Icones officielles
+
+Le dossier `C:\Users\hilya\Downloads\auto_bhj_svg_icons(1)` contient les icones
+officielles du site Auto BHJ. Pour les icones produit ou contenu du site, utiliser
+ce set officiel en priorite afin de garder une identite visuelle coherente.
+
+## Couleurs officielles
+
+Les couleurs officielles du site Auto BHJ sont le vert profond, le vert sombre,
+le vert pastel, le blanc casse, le gris-vert clair et le blanc :
+
+- Vert principal : `#1a4d3e`
+- Vert sombre : `#123a2e`
+- Vert pastel : `#e3efe9`
+- Blanc casse : `#f7f7f2`
+- Gris-vert clair : `#f1f1ea`
+- Blanc : `#ffffff`
+
+Ne pas remplacer cette palette par du bleu ou du rouge pour le style general du
+site ou de l'admin. Le rouge doit rester limite aux vrais messages d'erreur ou
+aux actions dangereuses si necessaire.
+
 ## Base de donnees
 
 Chaque voiture est stockee dans une vraie base SQLite (`backend/data/autobhj.db`,

@@ -70,7 +70,7 @@ function FilterSelect({ id, label, value, onChange, options, defaultOptionLabel 
         id={id}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-[44px] cursor-pointer rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand"
+        className="min-h-[44px] cursor-pointer rounded-lg border border-line bg-white px-3 text-[14px] font-normal text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
         <option value="">{defaultOptionLabel}</option>
         {options.map((option) => (
@@ -89,7 +89,7 @@ function PillSelect({ id, value, onChange, options, defaultOptionLabel }) {
       id={id}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-11 w-auto cursor-pointer rounded-full border border-line bg-white px-4 text-[14px] font-medium text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      className="h-11 w-auto cursor-pointer rounded-full border border-line bg-white px-4 text-[14px] font-normal text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       <option value="">{defaultOptionLabel}</option>
       {options.map((option) => (
@@ -412,7 +412,7 @@ export default function CarBrowser() {
                   updateFilter("sort", value);
                   setSortOpen(false);
                 }}
-                className={`cursor-pointer rounded-lg px-3 py-2.5 text-left text-[14px] font-medium ${
+                className={`cursor-pointer rounded-lg px-3 py-2.5 text-left text-[14px] font-normal ${
                   filters.sort === value ? "bg-brand-pastel text-brand" : "text-ink hover:bg-surface"
                 }`}
               >
@@ -663,4 +663,3 @@ export default function CarBrowser() {
     </div>
   );
 }
-

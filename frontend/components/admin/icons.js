@@ -1,29 +1,31 @@
-import OfficialIcon from "../OfficialIcon";
+function AdminNavIcon({ file }) {
+  return <img src={`/icons/${file}`} alt="" width={18} height={18} aria-hidden="true" />;
+}
 
 export function OverviewIcon() {
-  return <OfficialIcon name="inspection" width={18} height={18} />;
+  return <AdminNavIcon file="info.svg" />;
 }
 
 export function StockIcon() {
-  return <OfficialIcon name="car" width={18} height={18} />;
+  return <AdminNavIcon file="voiture.svg" />;
 }
 
 export function AddIcon() {
-  return <OfficialIcon name="available" width={18} height={18} />;
+  return <AdminNavIcon file="cle.svg" />;
 }
 
 export function MessagesIcon() {
-  return <OfficialIcon name="contact" width={18} height={18} />;
+  return <AdminNavIcon file="email.svg" />;
 }
 
 export function UsersIcon() {
-  return <OfficialIcon name="about" width={18} height={18} />;
+  return <AdminNavIcon file="famille.svg" />;
 }
 
 export function ProfileIcon() {
-  return <OfficialIcon name="about" width={18} height={18} />;
+  return <AdminNavIcon file="anciens_proprietaires.svg" />;
 }
 
 export function SettingsIcon() {
-  return <OfficialIcon name="filters" width={18} height={18} />;
+  return <AdminNavIcon file="entretien.svg" />;
 }

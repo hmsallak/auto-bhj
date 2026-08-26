@@ -136,19 +136,17 @@
   --soft: #f8fafc;
   --brand: #1e293b;
   --brand-dark: #0f172a;
-  --accent: #0056B3;
-  --accent-dark: #0A2540;
+  --accent: #1a4d3e;
+  --accent-dark: #123a2e;
   --success: #0f766e;
-  /* Dashboard tokens: dark back-office shell, red plate-badge accent lifted
-     from the real AUTO BHJ building signage, kept separate from the public
-     site's teal/amber so the two areas read as distinct but related. */
-  --dash-bg: #0d1114;
-  --dash-sidebar: #14191f;
-  --dash-sidebar-line: #232a32;
-  --dash-text: #c9d2d8;
-  --dash-text-dim: #7c8791;
-  --dash-accent: #dc2626;
-  --dash-accent-dim: #451414;
+  /* Dashboard tokens: same light 60-30-10 system as the public site. */
+  --dash-bg: #f7f7f2;
+  --dash-sidebar: #f1f1ea;
+  --dash-sidebar-line: rgba(28, 28, 26, 0.14);
+  --dash-text: #1c1c1a;
+  --dash-text-dim: #5c5c55;
+  --dash-accent: #1a4d3e;
+  --dash-accent-dim: rgba(26, 77, 62, 0.12);
   /* Public site 60-30-10 palette:
      60% dominant background, 30% cards/filters, 10% action/price accent. */
   --page-bg: #F8F9FA;
@@ -156,11 +154,11 @@
 
   --carbon: #F8F9FA;
   --carbon-raised: #E9ECEF;
-  --carbon-line: rgba(10, 37, 64, 0.14);
-  --carbon-text: #0A2540;
+  --carbon-line: rgba(28, 28, 26, 0.14);
+  --carbon-text: #123a2e;
   --carbon-text-dim: #516170;
-  --signal: #0056B3;
-  --signal-dim: #0A2540;
+  --signal: #1a4d3e;
+  --signal-dim: #123a2e;
   --font-editorial: var(--font-display), var(--font-template), Arial, Helvetica, sans-serif;
 
   /* "Paper" -- the light-section counterpart to --carbon, used to break the
@@ -169,9 +167,9 @@
      site, so it reads as the same family as --carbon rather than a
      different palette bolted on. */
   --paper: #F8F9FA;
-  --paper-ink: #0A2540;
+  --paper-ink: #123a2e;
   --paper-muted: #516170;
-  --paper-line: rgba(10, 37, 64, 0.12);
+  --paper-line: rgba(28, 28, 26, 0.12);
 
   /* Precision scale, lifted from the shared reference (styles.refero.design)
      -- its spacing steps, radius tiers and "felt not seen" shadow philosophy,
@@ -1264,9 +1262,8 @@ h4,
   text-transform: uppercase;
 }
 
-/* Admin uses its own accent (red, from the dashboard tokens) instead of the
-   public site's teal, so the whole back-office reads as one consistent
-   color language instead of mixing the two brand accents. */
+/* Admin uses the same blue accent as the public site, so both areas read as
+   one consistent product. */
 .dash-panel > h2 {
   font-size: clamp(22px, 2.4vw, 30px);
 }
@@ -1278,20 +1275,18 @@ h4,
   letter-spacing: 0;
 }
 
-/* Admin uses a single accent (red) for every primary action instead of the
-   public site's amber, so there is exactly one "loud" color in the whole
-   back-office instead of two competing warm colors. */
+/* Admin uses a single blue accent for every primary action. */
 .dashboard .button.primary,
 .admin-login-card .button.primary {
   color: white;
   background: var(--dash-accent);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 16px -8px rgba(220, 38, 38, 0.45);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 16px -8px rgba(26, 77, 62, 0.28);
 }
 
 .dashboard .button.primary:hover:not(:disabled),
 .admin-login-card .button.primary:hover:not(:disabled) {
-  background: #c11e1e;
-  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08), 0 12px 20px -8px rgba(220, 38, 38, 0.55);
+  background: #123a2e;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08), 0 12px 20px -8px rgba(26, 77, 62, 0.36);
 }
 
 .dashboard .button,
@@ -2825,21 +2820,26 @@ main,
   min-height: 100dvh;
   padding: 24px;
   background:
-    radial-gradient(circle at 18% 12%, rgba(220, 38, 38, 0.18), transparent 34%),
-    radial-gradient(circle at 88% 0%, rgba(255, 255, 255, 0.08), transparent 28%),
-    linear-gradient(135deg, rgba(8, 11, 14, 0.96), rgba(21, 26, 32, 0.98)),
+    radial-gradient(circle at 18% 12%, rgba(26, 77, 62, 0.1), transparent 34%),
+    radial-gradient(circle at 88% 0%, rgba(28, 28, 26, 0.06), transparent 28%),
+    linear-gradient(135deg, rgba(247, 247, 242, 0.96), rgba(241, 241, 234, 0.98)),
     var(--dash-bg);
 }
 
 .admin-login-card {
+  --admin-card-2: #ffffff;
+  --admin-hover: #e3efe9;
+  --admin-border: rgba(28, 28, 26, 0.14);
+  --admin-accent: #1a4d3e;
+  --admin-accent-hover: #123a2e;
+  --admin-text: #1c1c1a;
   width: min(460px, 100%);
   padding: clamp(28px, 5vw, 46px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(28, 28, 26, 0.14);
   border-radius: 24px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 247, 249, 0.96));
+  background: #ffffff;
   box-shadow:
-    0 28px 70px rgba(0, 0, 0, 0.36),
+    0 28px 70px rgba(28, 28, 26, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.78);
 }
 
@@ -2856,7 +2856,7 @@ main,
 
 .admin-login-card h1 {
   margin: 8px 0 0;
-  color: #111827;
+  color: var(--dash-text);
   font-size: clamp(28px, 4vw, 34px);
   line-height: 1.05;
   text-align: center;
@@ -2865,7 +2865,7 @@ main,
 .admin-login-lead {
   margin: 12px auto 28px;
   max-width: 32ch;
-  color: #68707b;
+  color: var(--dash-text-dim);
   font-size: 14.5px;
   line-height: 1.55;
   text-align: center;
@@ -2884,7 +2884,7 @@ main,
 
 .admin-login-card label {
   gap: 8px;
-  color: #4b5563;
+  color: var(--dash-text-dim);
   font-size: 13px;
   font-weight: 800;
 }
@@ -2892,17 +2892,17 @@ main,
 .admin-login-card input {
   min-height: 50px;
   padding: 0 15px;
-  border: 1px solid rgba(17, 24, 39, 0.14);
+  border: 1px solid var(--dash-sidebar-line);
   border-radius: 12px;
-  color: #111827;
+  color: var(--dash-text);
   background: #ffffff;
   box-shadow: 0 1px 0 rgba(17, 24, 39, 0.03);
   font-size: 15px;
 }
 
 .admin-login-card input:focus-visible {
-  border-color: rgba(220, 38, 38, 0.72);
-  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+  border-color: rgba(26, 77, 62, 0.72);
+  box-shadow: 0 0 0 4px rgba(26, 77, 62, 0.12);
   outline: none;
 }
 
@@ -2923,7 +2923,7 @@ main,
   padding: 0 11px;
   border: 0;
   border-radius: 999px;
-  background: rgba(220, 38, 38, 0.08);
+  background: rgba(26, 77, 62, 0.08);
   color: var(--dash-accent);
   font-weight: 700;
   font-size: 12.5px;
@@ -2931,7 +2931,7 @@ main,
 }
 
 .password-toggle:hover {
-  background: rgba(220, 38, 38, 0.14);
+  background: rgba(26, 77, 62, 0.14);
 }
 
 .admin-login-submit {
@@ -2948,8 +2948,8 @@ main,
   gap: 8px;
   margin-top: 26px;
   padding-top: 20px;
-  border-top: 1px solid rgba(17, 24, 39, 0.1);
-  color: #6b7280;
+  border-top: 1px solid var(--dash-sidebar-line);
+  color: var(--dash-text-dim);
   font-size: 12px;
   text-align: center;
 }
@@ -2965,7 +2965,7 @@ main,
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100dvh;
-  background: #f5f6f8;
+  background: var(--dash-bg);
 }
 
 .dash-sidebar {
@@ -2976,10 +2976,8 @@ main,
   flex-direction: column;
   gap: 18px;
   padding: 14px 12px;
-  border-right: 1px solid rgba(15, 23, 42, 0.08);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
-    #11171d;
+  border-right: 1px solid var(--dash-sidebar-line);
+  background: var(--dash-sidebar);
   color: var(--dash-text);
 }
 
@@ -2990,8 +2988,8 @@ main,
   min-height: 58px;
   padding: 10px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.045);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px var(--dash-sidebar-line);
 }
 
 .dash-logo {
@@ -3003,7 +3001,7 @@ main,
 .dash-brand-sub {
   display: block;
   min-width: 0;
-  color: rgba(201, 210, 216, 0.64);
+  color: var(--dash-text-dim);
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
@@ -3034,7 +3032,7 @@ main,
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: rgba(201, 210, 216, 0.62);
+  color: var(--dash-text-dim);
   font: inherit;
   font-weight: 650;
   font-size: 13px;
@@ -3063,18 +3061,18 @@ main,
 }
 
 .dash-nav-item:hover {
-  background: rgba(255, 255, 255, 0.065);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(26, 77, 62, 0.08);
+  color: var(--dash-text);
   transform: translateX(2px);
 }
 
 .dash-nav-item.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: rgba(26, 77, 62, 0.12);
+  color: var(--dash-text);
   font-weight: 760;
   box-shadow:
     inset 3px 0 0 var(--dash-accent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 0 0 1px rgba(26, 77, 62, 0.12);
 }
 
 .dash-nav-item.active img,
@@ -4146,7 +4144,7 @@ main > .legal-shell {
   color: var(--carbon-text);
   background:
     linear-gradient(130deg, rgba(255, 255, 255, 0.72) 0%, transparent 65%),
-    radial-gradient(560px circle at 88% 18%, rgba(0, 86, 179, 0.06), transparent 70%),
+    radial-gradient(560px circle at 88% 18%, rgba(26, 77, 62, 0.06), transparent 70%),
     var(--carbon);
 }
 
@@ -4172,7 +4170,7 @@ main > .legal-shell {
 .site-footer {
   background:
     linear-gradient(130deg, rgba(255, 255, 255, 0.72) 0%, transparent 65%),
-    radial-gradient(580px circle at 88% 20%, rgba(0, 86, 179, 0.06), transparent 72%),
+    radial-gradient(580px circle at 88% 20%, rgba(26, 77, 62, 0.06), transparent 72%),
     var(--carbon);
   color: var(--carbon-text);
 }
@@ -4185,7 +4183,7 @@ main > .legal-shell {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, transparent 180px),
     linear-gradient(130deg, rgba(255, 255, 255, 0.72) 0%, transparent 65%),
-    radial-gradient(580px circle at 88% 20%, rgba(0, 86, 179, 0.06), transparent 72%),
+    radial-gradient(580px circle at 88% 20%, rgba(26, 77, 62, 0.06), transparent 72%),
     var(--carbon);
 }
 
@@ -4314,9 +4312,9 @@ label,
 .stock-card:hover,
 .stock-card:focus-within,
 .legal-section:hover {
-  border-color: rgba(0, 86, 179, 0.24);
+  border-color: rgba(26, 77, 62, 0.24);
   box-shadow:
-    0 0 0 1px rgba(0, 86, 179, 0.1),
+    0 0 0 1px rgba(26, 77, 62, 0.1),
     0 36px 90px -72px rgba(27, 35, 41, 0.6);
 }
 
@@ -4388,8 +4386,8 @@ label,
 .spec-highlight-icon,
 .car-specs span {
   color: var(--signal);
-  background: rgba(0, 86, 179, 0.12);
-  border: 1px solid rgba(0, 86, 179, 0.18);
+  background: rgba(26, 77, 62, 0.12);
+  border: 1px solid rgba(26, 77, 62, 0.18);
 }
 
 .button,
@@ -4431,7 +4429,7 @@ label,
 .gallery-lightbox-close:hover {
   color: var(--carbon-text);
   background: rgba(27, 35, 41, 0.09);
-  border-color: rgba(0, 86, 179, 0.24);
+  border-color: rgba(26, 77, 62, 0.24);
   transform: translateY(-1px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
@@ -4467,13 +4465,14 @@ label,
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    border-color: rgba(0, 86, 179, 0.72);
-    box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.16);
+    border-color: rgba(26, 77, 62, 0.72);
+    box-shadow: 0 0 0 4px rgba(26, 77, 62, 0.16);
   }
 }
 
 select option {
   color: var(--ink);
+  font-weight: 400;
 }
 
 .status {
@@ -4495,7 +4494,7 @@ select option {
 
 .status.sold {
   color: #fca5a5;
-  background: rgba(0, 86, 179, 0.16);
+  background: rgba(26, 77, 62, 0.16);
 }
 
 .site-footer {
@@ -4908,7 +4907,7 @@ textarea,
 
 .detail-contact-panel .button.navy {
   background:
-    linear-gradient(135deg, rgba(0, 86, 179, 0.96), rgba(10, 37, 64, 0.98)),
+    linear-gradient(135deg, rgba(26, 77, 62, 0.96), rgba(28, 28, 26, 0.98)),
     var(--signal);
   border-color: rgba(255, 255, 255, 0.18);
 }
@@ -5464,7 +5463,7 @@ textarea,
 }
 
 .stock-sidebar::-webkit-scrollbar-thumb {
-  background: rgba(0, 86, 179, 0.72);
+  background: rgba(26, 77, 62, 0.72);
   border-radius: 999px;
 }
 
@@ -5536,13 +5535,14 @@ textarea,
 .stock-filters-panel select option {
   color: #111827;
   background: white;
+  font-weight: 400;
 }
 
 .stock-search input:focus-visible,
 .stock-filters-panel input:focus-visible,
 .stock-filters-panel select:focus-visible {
-  border-color: rgba(0, 86, 179, 0.72);
-  box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.16);
+  border-color: rgba(26, 77, 62, 0.72);
+  box-shadow: 0 0 0 4px rgba(26, 77, 62, 0.16);
 }
 
 
@@ -5559,7 +5559,7 @@ textarea,
 
 .stock-select-option.is-selected {
   color: white;
-  background: rgba(0, 86, 179, 0.28);
+  background: rgba(26, 77, 62, 0.28);
 }
 
 .stock-choice-group {
@@ -5624,7 +5624,7 @@ textarea,
   overflow-y: auto;
   padding: 0 8px 8px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 86, 179, 0.72) rgba(255, 255, 255, 0.08);
+  scrollbar-color: rgba(26, 77, 62, 0.72) rgba(255, 255, 255, 0.08);
 }
 
 .stock-choice-options::-webkit-scrollbar {
@@ -5637,7 +5637,7 @@ textarea,
 }
 
 .stock-choice-options::-webkit-scrollbar-thumb {
-  background: rgba(0, 86, 179, 0.72);
+  background: rgba(26, 77, 62, 0.72);
   border-radius: 999px;
 }
 
@@ -5654,6 +5654,7 @@ textarea,
   background: transparent;
   font: inherit;
   font-size: 13px;
+  font-weight: 400;
   text-align: left;
   cursor: pointer;
 }
@@ -5674,10 +5675,10 @@ textarea,
 }
 
 .stock-choice-option.is-selected .stock-choice-box {
-  border-color: rgba(0, 86, 179, 0.98);
+  border-color: rgba(26, 77, 62, 0.98);
   background:
     linear-gradient(135deg, transparent 48%, white 49% 58%, transparent 59%) 35% 54% / 8px 8px no-repeat,
-    rgba(0, 86, 179, 0.95);
+    rgba(26, 77, 62, 0.95);
 }
 
 .stock-choice-option em {
@@ -5704,7 +5705,7 @@ textarea,
   border-top: 1px solid rgba(23, 22, 15, 0.1);
   color: var(--paper-ink);
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -5763,7 +5764,7 @@ textarea,
   padding: 0 9px;
   border-radius: 999px;
   color: white;
-  background: rgba(0, 86, 179, 0.82);
+  background: rgba(26, 77, 62, 0.82);
   font-size: 13px;
 }
 
@@ -5790,8 +5791,8 @@ textarea,
 .stock-filter-actions .button.ghost:hover,
 .stock-reset-inline.button.ghost:hover {
   color: white;
-  background: rgba(0, 86, 179, 0.22);
-  border-color: rgba(0, 86, 179, 0.42);
+  background: rgba(26, 77, 62, 0.22);
+  border-color: rgba(26, 77, 62, 0.42);
 }
 
 .stock-filter-actions {
@@ -5815,7 +5816,7 @@ textarea,
 
 .stock-show-results {
   color: white;
-  background: rgba(0, 86, 179, 0.94);
+  background: rgba(26, 77, 62, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
@@ -5876,7 +5877,7 @@ textarea,
     0 16px 34px rgba(0, 0, 0, 0.26),
     0 3px 8px rgba(0, 0, 0, 0.22);
   font-size: 14px;
-  font-weight: 650;
+  font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
   transition: none;
@@ -5935,9 +5936,9 @@ textarea,
 .button.neutral.stock-desktop-sort-toggle.is-active[aria-expanded="true"] {
   color: #ffffff;
   background:
-    linear-gradient(180deg, rgba(0, 86, 179, 0.34), rgba(0, 86, 179, 0.14)),
-    #0A2540;
-  border-color: rgba(0, 86, 179, 0.62);
+    linear-gradient(180deg, rgba(26, 77, 62, 0.34), rgba(26, 77, 62, 0.14)),
+    #123a2e;
+  border-color: rgba(26, 77, 62, 0.62);
 }
 
 .button.neutral.stock-desktop-sort-toggle.is-active img {
@@ -6021,9 +6022,9 @@ textarea,
 }
 
 .stock-sort .stock-choice-option.is-selected {
-  background: rgba(0, 86, 179, 0.9);
+  background: rgba(26, 77, 62, 0.9);
   border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 14px 28px rgba(0, 86, 179, 0.18);
+  box-shadow: 0 14px 28px rgba(26, 77, 62, 0.18);
 }
 
 
@@ -6038,8 +6039,8 @@ textarea,
 .stock-reset-inline.button.ghost:hover,
 .stock-reset-inline.button.ghost:focus-visible {
   color: white;
-  background: rgba(0, 86, 179, 0.2);
-  border-color: rgba(0, 86, 179, 0.36);
+  background: rgba(26, 77, 62, 0.2);
+  border-color: rgba(26, 77, 62, 0.36);
 }
 
 .stock-active-filters {
@@ -6095,9 +6096,9 @@ textarea,
 
 .stock-pagination button.is-active {
   color: white;
-  background: rgba(0, 86, 179, 0.9);
-  border-color: rgba(0, 86, 179, 0.72);
-  box-shadow: 0 14px 28px rgba(0, 86, 179, 0.18);
+  background: rgba(26, 77, 62, 0.9);
+  border-color: rgba(26, 77, 62, 0.72);
+  box-shadow: 0 14px 28px rgba(26, 77, 62, 0.18);
 }
 
 .stock-pagination-next {
@@ -6625,9 +6626,9 @@ canvas {
   .stock-mobile-action.is-active {
     color: #ffffff;
     background:
-      linear-gradient(180deg, rgba(0, 86, 179, 0.34), rgba(0, 86, 179, 0.14)),
-      #0A2540;
-    border-color: rgba(0, 86, 179, 0.62);
+      linear-gradient(180deg, rgba(26, 77, 62, 0.34), rgba(26, 77, 62, 0.14)),
+      #123a2e;
+    border-color: rgba(26, 77, 62, 0.62);
   }
 
   .stock-mobile-action.is-active img {
@@ -6656,9 +6657,9 @@ canvas {
   .button.neutral.stock-mobile-action.is-active[aria-expanded="true"] {
     color: #ffffff;
     background:
-      linear-gradient(180deg, rgba(0, 86, 179, 0.34), rgba(0, 86, 179, 0.14)),
-      #0A2540;
-    border-color: rgba(0, 86, 179, 0.62);
+      linear-gradient(180deg, rgba(26, 77, 62, 0.34), rgba(26, 77, 62, 0.14)),
+      #123a2e;
+    border-color: rgba(26, 77, 62, 0.62);
   }
 
   .button.neutral.stock-mobile-action:hover:not(:disabled) img,
@@ -7120,6 +7121,7 @@ canvas {
   .stock-sidebar .stock-filters-panel select option {
     color: var(--paper-ink);
     background: #ffffff;
+    font-weight: 400;
   }
 
   .stock-sidebar .stock-choice-group,
@@ -7292,7 +7294,7 @@ canvas {
   align-self: center;
   gap: 8px;
   padding-left: 18px;
-  border-left: 2px solid rgba(0, 86, 179, 0.78);
+  border-left: 2px solid rgba(26, 77, 62, 0.78);
 }
 
 .stock-catalog-proof-item {
@@ -7320,7 +7322,7 @@ canvas {
 .stock-catalog-proof-item:hover,
 .stock-catalog-proof-item:focus-within {
   transform: translateY(-3px);
-  border-color: rgba(0, 86, 179, 0.62);
+  border-color: rgba(26, 77, 62, 0.62);
   background: #F1F4F8;
   box-shadow: 0 12px 28px rgba(27, 35, 41, 0.12);
 }
@@ -9356,7 +9358,7 @@ body {
 
 .contact-simple-card:hover {
   background: #F1F4F8;
-  border-color: rgba(0, 86, 179, 0.22);
+  border-color: rgba(26, 77, 62, 0.22);
 }
 
 .contact-simple-icon {
@@ -9488,7 +9490,7 @@ body {
     background: transparent !important;
     box-shadow: none !important;
     font-size: 13px;
-    font-weight: 650;
+    font-weight: 400;
     white-space: nowrap;
   }
 
@@ -9574,7 +9576,7 @@ body {
     box-shadow: none !important;
     font-family: var(--font-display), Arial, Helvetica, sans-serif;
     font-size: 13px;
-    font-weight: 650;
+    font-weight: 400;
     line-height: 1.2;
     letter-spacing: 0;
   }
@@ -9703,7 +9705,7 @@ body {
     box-shadow: none !important;
     font-family: var(--font-display), Arial, Helvetica, sans-serif;
     font-size: 13px;
-    font-weight: 650;
+    font-weight: 400;
     line-height: 1.2;
     letter-spacing: 0;
   }
@@ -9748,7 +9750,7 @@ body {
     background: transparent !important;
     color: var(--paper-ink);
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 400;
     letter-spacing: 0;
     text-transform: none;
   }
@@ -9760,7 +9762,7 @@ body {
   .stock-filter-pair label span {
     color: var(--paper-ink);
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1;
     white-space: nowrap;
   }
@@ -9781,7 +9783,7 @@ body {
     width: 100%;
     color: var(--paper-ink) !important;
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 400;
     text-align: right;
   }
 
@@ -10004,10 +10006,10 @@ body {
   color: #ffffff;
   background:
     radial-gradient(circle at 22% 0%, rgba(255, 255, 255, 0.34), transparent 34%),
-    linear-gradient(135deg, #0056B3 0%, #0056B3 48%, #0A2540 100%);
+    linear-gradient(135deg, #1a4d3e 0%, #1a4d3e 48%, #123a2e 100%);
   box-shadow:
-    0 16px 34px rgba(0, 86, 179, 0.28),
-    0 0 0 0 rgba(0, 86, 179, 0.34);
+    0 16px 34px rgba(26, 77, 62, 0.28),
+    0 0 0 0 rgba(26, 77, 62, 0.34);
   font-family: var(--font-display), Arial, Helvetica, sans-serif;
   font-size: 17px;
   font-weight: 800;
@@ -10035,8 +10037,8 @@ body {
 .home-latest-cars .stock-catalog-more-button:focus-visible {
   color: #ffffff;
   box-shadow:
-    0 22px 42px rgba(0, 86, 179, 0.36),
-    0 0 0 8px rgba(0, 86, 179, 0.1);
+    0 22px 42px rgba(26, 77, 62, 0.36),
+    0 0 0 8px rgba(26, 77, 62, 0.1);
   transform: translateY(-3px) scale(1.035);
 }
 
@@ -10066,14 +10068,14 @@ body {
   0%,
   100% {
     box-shadow:
-      0 16px 34px rgba(0, 86, 179, 0.28),
-      0 0 0 0 rgba(0, 86, 179, 0.34);
+      0 16px 34px rgba(26, 77, 62, 0.28),
+      0 0 0 0 rgba(26, 77, 62, 0.34);
   }
 
   50% {
     box-shadow:
-      0 18px 40px rgba(0, 86, 179, 0.34),
-      0 0 0 10px rgba(0, 86, 179, 0);
+      0 18px 40px rgba(26, 77, 62, 0.34),
+      0 0 0 10px rgba(26, 77, 62, 0);
   }
 }
 
@@ -10099,19 +10101,19 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(10, 37, 64, 0.14) !important;
+  border: 1px solid rgba(28, 28, 26, 0.14) !important;
   border-radius: 20px !important;
   color: var(--carbon-text) !important;
   background: #E9ECEF !important;
-  box-shadow: 0 12px 24px rgba(10, 37, 64, 0.08) !important;
+  box-shadow: 0 12px 24px rgba(28, 28, 26, 0.08) !important;
   text-decoration: none;
 }
 
 #stock .stock-card:hover,
 #stock .stock-card:focus-within {
   transform: translateY(-2px);
-  border-color: rgba(0, 86, 179, 0.3) !important;
-  box-shadow: 0 14px 28px rgba(10, 37, 64, 0.12) !important;
+  border-color: rgba(26, 77, 62, 0.3) !important;
+  box-shadow: 0 14px 28px rgba(28, 28, 26, 0.12) !important;
 }
 
 #stock .stock-card-media {
@@ -10148,7 +10150,7 @@ body {
   padding: 0;
   color: transparent;
   background:
-    radial-gradient(circle at 5px 50%, #0056B3 0 4px, transparent 4.5px),
+    radial-gradient(circle at 5px 50%, #1a4d3e 0 4px, transparent 4.5px),
     radial-gradient(circle at 23px 50%, #ADB5BD 0 4px, transparent 4.5px),
     radial-gradient(circle at 41px 50%, #ADB5BD 0 4px, transparent 4.5px);
   border: 0;
@@ -10236,11 +10238,11 @@ body {
   gap: 12px;
   margin-top: 2px;
   padding-top: 16px;
-  border-top: 1px solid rgba(10, 37, 64, 0.14) !important;
+  border-top: 1px solid rgba(28, 28, 26, 0.14) !important;
 }
 
 #stock .stock-card-price {
-  color: #0056B3 !important;
+  color: #1a4d3e !important;
   font-family: var(--font-display), Arial, Helvetica, sans-serif;
   min-width: 0;
   font-size: clamp(24px, 1.75vw, 28px);
@@ -10260,7 +10262,7 @@ body {
   border: 0 !important;
   border-radius: 999px !important;
   color: #FFFFFF !important;
-  background: #0056B3 !important;
+  background: #1a4d3e !important;
   box-shadow: none !important;
   font-family: var(--font-display), Arial, Helvetica, sans-serif;
   font-size: 14px;
@@ -10332,7 +10334,7 @@ body {
 body,
 main {
   background: #F8F9FA;
-  color: #0A2540;
+  color: #123a2e;
 }
 
 main > .section,
@@ -10347,9 +10349,9 @@ main > .legal-shell,
 .site-footer {
   background:
     linear-gradient(130deg, rgba(255, 255, 255, 0.64) 0%, transparent 62%),
-    radial-gradient(580px circle at 88% 20%, rgba(0, 86, 179, 0.055), transparent 72%),
+    radial-gradient(580px circle at 88% 20%, rgba(26, 77, 62, 0.055), transparent 72%),
     #F8F9FA !important;
-  color: #0A2540;
+  color: #123a2e;
 }
 
 .nv-card,
@@ -10370,9 +10372,9 @@ main > .legal-shell,
 .decision-proof span,
 .spec-highlight {
   background: #E9ECEF !important;
-  border-color: rgba(10, 37, 64, 0.14) !important;
-  color: #0A2540 !important;
-  box-shadow: 0 18px 42px rgba(10, 37, 64, 0.08) !important;
+  border-color: rgba(28, 28, 26, 0.14) !important;
+  color: #123a2e !important;
+  box-shadow: 0 18px 42px rgba(28, 28, 26, 0.08) !important;
 }
 
 .nv-card-title,
@@ -10386,7 +10388,7 @@ main > .legal-shell,
 .reasons-card h3,
 .about-bhj-feature h3,
 .data-row-value {
-  color: #0A2540 !important;
+  color: #123a2e !important;
 }
 
 .section-head p,
@@ -10407,9 +10409,9 @@ main > .legal-shell,
 .stock-card-cta,
 .home-latest-cars .stock-catalog-more-button,
 #stock .stock-card-cta {
-  background: #0056B3 !important;
+  background: #1a4d3e !important;
   color: #ffffff !important;
-  border-color: #0056B3 !important;
+  border-color: #1a4d3e !important;
 }
 
 .button.primary:hover,
@@ -10418,8 +10420,8 @@ main > .legal-shell,
 .stock-card-cta:hover,
 .home-latest-cars .stock-catalog-more-button:hover,
 #stock .stock-card-cta:hover {
-  background: #0A2540 !important;
-  border-color: #0A2540 !important;
+  background: #123a2e !important;
+  border-color: #123a2e !important;
 }
 
 .stock-card-price,
@@ -10427,24 +10429,24 @@ main > .legal-shell,
 #stock .stock-card-price,
 .detail-market-sidebar .car-price,
 .nv-card-price {
-  color: #0056B3 !important;
+  color: #1a4d3e !important;
 }
 
 #stock .stock-card,
 #stock .stock-card-media {
   background: #E9ECEF !important;
-  border-color: rgba(10, 37, 64, 0.14) !important;
+  border-color: rgba(28, 28, 26, 0.14) !important;
 }
 
 #stock .stock-card {
-  color: #0A2540 !important;
-  box-shadow: 0 18px 42px rgba(10, 37, 64, 0.1) !important;
+  color: #123a2e !important;
+  box-shadow: 0 18px 42px rgba(28, 28, 26, 0.1) !important;
 }
 
 #stock .stock-card:hover,
 #stock .stock-card:focus-within {
-  border-color: rgba(0, 86, 179, 0.32) !important;
-  box-shadow: 0 22px 48px rgba(10, 37, 64, 0.14) !important;
+  border-color: rgba(26, 77, 62, 0.32) !important;
+  box-shadow: 0 22px 48px rgba(28, 28, 26, 0.14) !important;
 }
 
 #stock .stock-card-media {
@@ -10457,7 +10459,7 @@ main > .legal-shell,
 
 #stock .photo-count {
   background:
-    radial-gradient(circle at 5px 50%, #0056B3 0 4px, transparent 4.5px),
+    radial-gradient(circle at 5px 50%, #1a4d3e 0 4px, transparent 4.5px),
     radial-gradient(circle at 23px 50%, #ADB5BD 0 4px, transparent 4.5px),
     radial-gradient(circle at 41px 50%, #ADB5BD 0 4px, transparent 4.5px) !important;
 }
@@ -10466,7 +10468,7 @@ main > .legal-shell,
 #stock .stock-card-body,
 #stock .stock-card-specs,
 #stock .stock-card-specs span {
-  color: #0A2540 !important;
+  color: #123a2e !important;
 }
 
 #stock .stock-card-subtitle {
@@ -10474,38 +10476,40 @@ main > .legal-shell,
 }
 
 #stock .stock-card-footer {
-  border-top-color: rgba(10, 37, 64, 0.14) !important;
+  border-top-color: rgba(28, 28, 26, 0.14) !important;
 }
 
 #stock .stock-card-price {
-  color: #0056B3 !important;
+  color: #1a4d3e !important;
 }
 
 #stock .stock-card-cta {
-  background: #0056B3 !important;
+  background: #1a4d3e !important;
   color: #ffffff !important;
 }
 
 #stock .stock-card-cta:hover {
-  background: #0A2540 !important;
+  background: #123a2e !important;
 }
 
-/* Admin dashboard dark rebuild */
+/* Admin dashboard light rebuild */
 .dashboard {
-  --admin-bg: #080B0E;
-  --admin-sidebar: #090C0F;
-  --admin-card: #10151A;
-  --admin-card-2: #141A1F;
-  --admin-hover: #191F25;
-  --admin-border: #252C32;
-  --admin-red: #E31E2B;
-  --admin-red-hover: #C91925;
-  --admin-text: #F5F5F5;
-  --admin-muted: #969DA5;
-  --admin-dim: #69717A;
-  --admin-success: #22C55E;
-  --admin-warning: #F59E0B;
-  --admin-info: #3B82F6;
+  --admin-bg: #f7f7f2;
+  --admin-sidebar: #f1f1ea;
+  --admin-card: #f1f1ea;
+  --admin-card-2: #ffffff;
+  --admin-hover: #e3efe9;
+  --admin-border: rgba(28, 28, 26, 0.14);
+  --admin-accent: #1a4d3e;
+  --admin-accent-hover: #123a2e;
+  --admin-danger: #5c5c55;
+  --admin-danger-hover: #1c1c1a;
+  --admin-text: #123a2e;
+  --admin-muted: #5c5c55;
+  --admin-dim: #96968c;
+  --admin-success: #047857;
+  --admin-warning: #B45309;
+  --admin-info: #1a4d3e;
   grid-template-columns: 230px minmax(0, 1fr);
   background: var(--admin-bg);
   color: var(--admin-text);
@@ -10527,7 +10531,7 @@ main > .legal-shell,
 }
 
 .dashboard :is(button, a, input, select, textarea):focus-visible {
-  outline: 2px solid var(--admin-red);
+  outline: 2px solid var(--admin-accent);
   outline-offset: 3px;
 }
 
@@ -10597,9 +10601,9 @@ main > .legal-shell,
 }
 
 .dash-nav-item.active {
-  border-color: rgba(227, 30, 43, 0.35);
-  background: rgba(227, 30, 43, 0.14);
-  color: #ffffff;
+  border-color: rgba(26, 77, 62, 0.35);
+  background: rgba(26, 77, 62, 0.14);
+  color: var(--admin-text);
   font-weight: 600;
   box-shadow: none;
 }
@@ -10621,7 +10625,7 @@ main > .legal-shell,
 
 .dash-nav-item.active .dash-nav-badge,
 .dash-nav-badge.unread {
-  background: var(--admin-red);
+  background: var(--admin-accent);
   color: #ffffff;
 }
 
@@ -10649,7 +10653,7 @@ main > .legal-shell,
 }
 
 .dash-sidebar-footer a:hover {
-  color: var(--admin-red);
+  color: var(--admin-accent);
 }
 
 .dash-sidebar-logout {
@@ -10660,10 +10664,10 @@ main > .legal-shell,
   justify-content: center;
   margin-top: 8px;
   padding: 0 12px;
-  border: 1px solid rgba(227, 30, 43, 0.38);
+  border: 1px solid rgba(26, 77, 62, 0.38);
   border-radius: 999px;
-  background: rgba(227, 30, 43, 0.12);
-  color: #ffffff;
+  background: rgba(26, 77, 62, 0.12);
+  color: var(--admin-accent);
   font-family: inherit;
   font-size: 12px;
   font-weight: 650;
@@ -10671,8 +10675,9 @@ main > .legal-shell,
 }
 
 .dash-sidebar-logout:hover {
-  border-color: var(--admin-red);
-  background: var(--admin-red);
+  border-color: var(--admin-accent);
+  background: var(--admin-accent);
+  color: #ffffff;
 }
 
 .dash-main {
@@ -10735,9 +10740,9 @@ main > .legal-shell,
 }
 
 .dash-topbar .link-button:hover {
-  border-color: rgba(227, 30, 43, 0.35);
-  background: rgba(227, 30, 43, 0.1);
-  color: #ffffff;
+  border-color: rgba(26, 77, 62, 0.35);
+  background: rgba(26, 77, 62, 0.1);
+  color: var(--admin-text);
   transform: none;
 }
 
@@ -10815,7 +10820,7 @@ main > .legal-shell,
 }
 
 .kpi-tile:hover {
-  border-color: #343C43;
+  border-color: rgba(26, 77, 62, 0.28);
   background: var(--admin-hover);
   box-shadow: none;
   transform: none;
@@ -10844,7 +10849,7 @@ main > .legal-shell,
 }
 
 .kpi-value.sold {
-  color: var(--admin-red);
+  color: var(--admin-danger);
 }
 
 .dash-overview-grid {
@@ -10884,7 +10889,7 @@ main > .legal-shell,
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--admin-red);
+  background: var(--admin-accent);
 }
 
 .dash-bar-row.warning .dash-bar-track i {
@@ -11015,9 +11020,9 @@ main > .legal-shell,
 }
 
 .status.sold {
-  border-color: rgba(227, 30, 43, 0.28);
-  color: var(--admin-red);
-  background: rgba(227, 30, 43, 0.08);
+  border-color: rgba(92, 92, 85, 0.26);
+  color: var(--admin-danger);
+  background: rgba(92, 92, 85, 0.08);
 }
 
 .stock-filters {
@@ -11062,8 +11067,8 @@ main > .legal-shell,
 .dashboard input:focus-visible,
 .dashboard select:focus-visible,
 .dashboard textarea:focus-visible {
-  border-color: rgba(227, 30, 43, 0.55);
-  box-shadow: 0 0 0 3px rgba(227, 30, 43, 0.16);
+  border-color: rgba(26, 77, 62, 0.55);
+  box-shadow: 0 0 0 3px rgba(26, 77, 62, 0.16);
   outline: none;
 }
 
@@ -11094,16 +11099,16 @@ main > .legal-shell,
 
 .dashboard .button.primary,
 .admin-login-card .button.primary {
-  border: 1px solid var(--admin-red);
-  background: var(--admin-red);
+  border: 1px solid var(--admin-accent);
+  background: var(--admin-accent);
   color: #ffffff;
   box-shadow: none;
 }
 
 .dashboard .button.primary:hover:not(:disabled),
 .admin-login-card .button.primary:hover:not(:disabled) {
-  background: var(--admin-red-hover);
-  border-color: var(--admin-red-hover);
+  background: var(--admin-accent-hover);
+  border-color: var(--admin-accent-hover);
   box-shadow: none;
   transform: none;
 }
@@ -11121,23 +11126,24 @@ main > .legal-shell,
 .dashboard .button.neutral:hover:not(:disabled),
 .dashboard .button.ghost:hover:not(:disabled),
 .dashboard .button.navy:hover:not(:disabled) {
-  border-color: #343C43;
+  border-color: rgba(26, 77, 62, 0.28);
   background: var(--admin-hover);
-  color: #ffffff;
+  color: var(--admin-text);
   transform: none;
 }
 
 .danger {
   min-height: 36px;
-  border: 1px solid rgba(227, 30, 43, 0.42);
+  border: 1px solid rgba(92, 92, 85, 0.36);
   border-radius: 8px;
-  background: rgba(227, 30, 43, 0.14);
-  color: #ffffff;
+  background: rgba(92, 92, 85, 0.1);
+  color: var(--admin-danger);
   box-shadow: none;
 }
 
 .danger:hover {
-  background: var(--admin-red);
+  background: var(--admin-danger);
+  color: #ffffff;
   box-shadow: none;
 }
 
@@ -11226,8 +11232,8 @@ main > .legal-shell,
 
 .admin-action-toggle:hover,
 .admin-action-toggle[aria-expanded="true"] {
-  border-color: rgba(227, 30, 43, 0.4);
-  background: rgba(227, 30, 43, 0.12);
+  border-color: rgba(26, 77, 62, 0.4);
+  background: rgba(26, 77, 62, 0.12);
 }
 
 .admin-action-toggle:active {
@@ -11249,8 +11255,8 @@ main > .legal-shell,
   padding: 6px;
   border: 1px solid var(--admin-border);
   border-radius: 10px;
-  background: #151b21;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(28, 28, 26, 0.12);
 }
 
 .admin-action-dropdown button {
@@ -11262,7 +11268,7 @@ main > .legal-shell,
   color: var(--admin-text);
   font: inherit;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 400;
   text-align: left;
   cursor: pointer;
 }
@@ -11272,12 +11278,12 @@ main > .legal-shell,
 }
 
 .admin-action-dropdown .danger-text {
-  color: #ff8b92;
+  color: var(--admin-danger);
 }
 
 .admin-action-dropdown .danger-text:hover {
-  background: rgba(227, 30, 43, 0.14);
-  color: #ffffff;
+  background: rgba(92, 92, 85, 0.1);
+  color: var(--admin-danger);
 }
 
 .admin-confirm-overlay {
@@ -11287,7 +11293,7 @@ main > .legal-shell,
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(5, 8, 11, 0.68);
+  background: rgba(28, 28, 26, 0.38);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -11299,8 +11305,8 @@ main > .legal-shell,
   padding: 22px;
   border: 1px solid var(--admin-border);
   border-radius: 14px;
-  background: #151b21;
-  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
+  background: #ffffff;
+  box-shadow: 0 26px 70px rgba(28, 28, 26, 0.16);
 }
 
 .admin-confirm-dialog h3 {
@@ -11548,15 +11554,15 @@ main > .legal-shell,
 
 .message-item:hover,
 .member-item:hover {
-  border-color: #343C43;
+  border-color: rgba(26, 77, 62, 0.28);
   background: var(--admin-hover);
   box-shadow: none;
   transform: none;
 }
 
 .message-item.unread {
-  border-color: rgba(227, 30, 43, 0.35);
-  background: rgba(227, 30, 43, 0.08);
+  border-color: rgba(26, 77, 62, 0.35);
+  background: rgba(26, 77, 62, 0.08);
 }
 
 .message-ref {
@@ -11577,10 +11583,10 @@ main > .legal-shell,
 
 .member-permissions label:has(input:checked),
 .equipment-checkbox:has(input:checked) {
-  border-color: rgba(227, 30, 43, 0.35);
-  background: rgba(227, 30, 43, 0.1);
+  border-color: rgba(26, 77, 62, 0.35);
+  background: rgba(26, 77, 62, 0.1);
   color: var(--admin-text);
-  box-shadow: inset 3px 0 0 var(--admin-red);
+  box-shadow: inset 3px 0 0 var(--admin-accent);
 }
 
 .photo-grid {
@@ -11618,11 +11624,12 @@ main > .legal-shell,
 }
 
 .wizard-step-dot.done:not(:last-child)::after {
-  background: var(--admin-red);
+  background: var(--admin-accent);
 }
 
 .wizard-step-button {
   color: var(--admin-muted);
+  font-weight: 400;
 }
 
 .wizard-step-number {
@@ -11631,22 +11638,24 @@ main > .legal-shell,
   border: 1px solid var(--admin-border);
   background: var(--admin-card-2);
   color: var(--admin-muted);
+  font-weight: 500;
 }
 
 .wizard-step-dot.current .wizard-step-number {
-  border-color: rgba(227, 30, 43, 0.42);
-  background: rgba(227, 30, 43, 0.12);
-  color: #ffffff;
+  border-color: rgba(26, 77, 62, 0.42);
+  background: rgba(26, 77, 62, 0.12);
+  color: var(--admin-text);
 }
 
 .wizard-step-dot.done .wizard-step-number {
-  border-color: var(--admin-red);
-  background: var(--admin-red);
+  border-color: var(--admin-accent);
+  background: var(--admin-accent);
   color: #ffffff;
 }
 
 .wizard-step-dot.current .wizard-step-label {
   color: var(--admin-text);
+  font-weight: 500;
 }
 
 .wizard-nav {
@@ -11785,10 +11794,10 @@ main > .legal-shell,
   display: inline-flex;
   align-items: center;
   padding: 0 10px;
-  border: 1px solid rgba(227, 30, 43, 0.26);
+  border: 1px solid rgba(26, 77, 62, 0.26);
   border-radius: 999px;
   color: var(--admin-muted);
-  background: rgba(227, 30, 43, 0.08);
+  background: rgba(26, 77, 62, 0.08);
   font-size: 12px;
   font-weight: 500;
 }
@@ -11977,9 +11986,9 @@ main > .legal-shell,
 }
 
 .team-permissions-inline label:has(input:checked) {
-  border-color: rgba(227, 30, 43, 0.35);
+  border-color: rgba(26, 77, 62, 0.35);
   color: var(--admin-text);
-  background: rgba(227, 30, 43, 0.1);
+  background: rgba(26, 77, 62, 0.1);
 }
 
 .team-permission-picker {
@@ -12038,7 +12047,7 @@ main > .legal-shell,
   height: 16px;
   min-height: 0;
   margin: 2px 0 0;
-  accent-color: var(--admin-red);
+  accent-color: var(--admin-accent);
 }
 
 .team-permission-card span {
@@ -12196,9 +12205,9 @@ main > .legal-shell,
 }
 
 .team-badge.owner {
-  border-color: rgba(227, 30, 43, 0.35);
+  border-color: rgba(26, 77, 62, 0.35);
   color: var(--admin-text);
-  background: rgba(227, 30, 43, 0.1);
+  background: rgba(26, 77, 62, 0.1);
 }
 
 .team-badge.success {
@@ -12312,7 +12321,7 @@ main > .legal-shell,
   margin-bottom: 10px;
   color: var(--admin-dim);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -12338,7 +12347,7 @@ main > .legal-shell,
   height: 16px;
   min-height: 0;
   margin: 2px 0 0;
-  accent-color: var(--admin-red);
+  accent-color: var(--admin-accent);
 }
 
 .team-permission-line span {
@@ -12959,6 +12968,12 @@ main > .legal-shell,
     touch-action: manipulation;
   }
 
+  .dash-mobile-menu-close svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+  }
+
   .dash-mobile-backdrop {
     position: fixed;
     inset: 0;
@@ -13115,6 +13130,7 @@ main > .legal-shell,
   .wizard-step-label {
     display: block;
     max-width: 86px;
+    font-weight: 400;
   }
 
   .photo-manager-head,
@@ -13197,7 +13213,7 @@ main > .legal-shell,
     margin: 14px 0 8px;
     color: var(--admin-text);
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 400;
     line-height: 1.35;
     text-align: center;
   }
@@ -13237,7 +13253,7 @@ main > .legal-shell,
   }
 
   .wizard-step-dot.done::before {
-    background: rgba(227, 30, 43, 0.62);
+    background: rgba(26, 77, 62, 0.62);
   }
 
   .wizard-step-button {
@@ -13263,20 +13279,20 @@ main > .legal-shell,
     background: var(--admin-bg);
     color: var(--admin-dim);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 500;
     box-shadow: inset 0 0 0 1px var(--admin-border);
   }
 
   .wizard-step-dot.current .wizard-step-number {
-    background: var(--admin-red);
+    background: var(--admin-accent);
     color: #ffffff;
     box-shadow: none;
   }
 
   .wizard-step-dot.done .wizard-step-number {
-    background: rgba(227, 30, 43, 0.18);
-    color: #ffffff;
-    box-shadow: inset 0 0 0 1px rgba(227, 30, 43, 0.45);
+    background: rgba(26, 77, 62, 0.18);
+    color: var(--admin-text);
+    box-shadow: inset 0 0 0 1px rgba(26, 77, 62, 0.45);
   }
 
   .wizard-step-label {
@@ -13461,7 +13477,7 @@ main > .legal-shell,
   .wizard-mobile-progress {
     margin: 16px 0 10px;
     font-size: 13px;
-    font-weight: 650;
+    font-weight: 400;
   }
 
   .wizard-steps {
@@ -13791,7 +13807,7 @@ main > .legal-shell,
 }
 
 .dashboard .status.sold {
-  color: var(--admin-red);
+  color: var(--admin-danger);
 }
 
 .dashboard .dash-period,
@@ -14179,12 +14195,13 @@ main > .legal-shell,
   }
 
   .stock-mobile-filter-drawer select {
-    color: #ffffff;
+    color: var(--admin-text);
   }
 
   .stock-mobile-filter-drawer option {
-    background: var(--admin-card);
-    color: #ffffff;
+    background: #ffffff;
+    color: var(--admin-text);
+    font-weight: 400;
   }
 }
 
@@ -14243,7 +14260,7 @@ main > .legal-shell,
     color: var(--admin-text);
     font: inherit;
     font-size: 12px;
-    font-weight: 650;
+    font-weight: 400;
     text-align: left;
   }
 
@@ -14252,20 +14269,20 @@ main > .legal-shell,
   }
 
   .admin-mobile-action-dropdown .danger-text {
-    color: var(--admin-red);
+    color: var(--admin-danger);
   }
 }
 
 .dashboard select {
   color: var(--admin-text);
-  background-color: rgba(255, 255, 255, 0.045);
-  font-weight: 650;
+  background-color: var(--admin-card-2);
+  font-weight: 400;
 }
 
 .dashboard select option {
-  background-color: #101820;
-  color: #ffffff;
-  font-weight: 600;
+  background-color: #ffffff;
+  color: var(--admin-text);
+  font-weight: 400;
 }
 
 .dashboard select:disabled {
@@ -14281,7 +14298,7 @@ main > .legal-shell,
   gap: 3px;
   border: 1px solid var(--admin-border);
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--admin-card-2);
 }
 
 .stock-sort-segment button {
@@ -14293,7 +14310,7 @@ main > .legal-shell,
   color: var(--admin-muted);
   font: inherit;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1;
   cursor: pointer;
   touch-action: manipulation;
@@ -14307,8 +14324,8 @@ main > .legal-shell,
 
 .stock-sort-segment button.active,
 .stock-sort-segment button[aria-pressed="true"] {
-  background: rgba(227, 30, 43, 0.18);
-  color: #ffffff;
+  background: rgba(26, 77, 62, 0.18);
+  color: var(--admin-text);
 }
 
 @media (max-width: 720px) {
@@ -14334,8 +14351,8 @@ main > .legal-shell,
   .stock-sort-segment button.active,
   .stock-sort-segment button[aria-pressed="true"] {
     background: transparent;
-    border-bottom-color: var(--admin-red);
-    color: #ffffff;
+    border-bottom-color: var(--admin-accent);
+    color: var(--admin-text);
   }
 }
 

@@ -138,7 +138,7 @@ function FilterSelect({ label, options }) {
       </label>
       <select
         id={id}
-        className="min-h-[48px] cursor-pointer rounded-lg border border-gray-300 bg-white px-3 text-[15px] font-medium text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+        className="min-h-[48px] cursor-pointer rounded-lg border border-gray-300 bg-white px-3 text-[15px] font-normal text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
         defaultValue={options[0]}
       >
         {options.map((option) => (
