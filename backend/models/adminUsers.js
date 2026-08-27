@@ -181,6 +181,17 @@ function countAdmins() {
   return db.prepare("SELECT COUNT(*) AS count FROM admin_users").get().count;
 }
 
+// Active owners with a usable e-mail - recipients for "new signup request"
+// notifications.
+function getOwnerEmails() {
+  return getDb()
+    .prepare(
+      "SELECT email FROM admin_users WHERE role = 'owner' AND status = 'active' AND email IS NOT NULL AND email <> ''"
+    )
+    .all()
+    .map((row) => row.email);
+}
+
 function ensureSeedAdmin(username, password) {
   if (countAdmins() > 0) return;
 
@@ -272,6 +283,7 @@ module.exports = {
   findById,
   listUsers,
   countAdmins,
+  getOwnerEmails,
   ensureSeedAdmin,
   updatePassword,
   updateEmail,

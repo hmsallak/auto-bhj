@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { createResetToken } from "../../../../../backend/auth/passwordReset";
-import { sendMail } from "../../../../../backend/mail";
+import { sendMail, renderEmail } from "../../../../../backend/mail";
 import { isRateLimited, recordFailedLogin } from "../../../../../backend/auth/rateLimit";
 import { getClientIp } from "../../../../lib/adminAuth";
 import { apiRoute } from "../../../../lib/apiRoute";
@@ -41,11 +41,16 @@ export const POST = apiRoute(async function handleForgot(request) {
         text:
           `Pour choisir un nouveau mot de passe, ouvrez ce lien (valable 30 minutes) :\n\n` +
           `${link}\n\nSi vous n'avez rien demande, ignorez cet e-mail.`,
-        html:
-          `<p>Pour choisir un nouveau mot de passe, cliquez sur ce lien ` +
-          `(valable 30 minutes) :</p>` +
-          `<p><a href="${link}">${link}</a></p>` +
-          `<p>Si vous n'avez rien demande, ignorez cet e-mail.</p>`,
+        html: renderEmail({
+          heading: "Reinitialisation du mot de passe",
+          lines: [
+            "Une demande de reinitialisation a ete faite pour ton compte administrateur Auto BHJ.",
+            "Clique sur le bouton ci-dessous pour choisir un nouveau mot de passe.",
+          ],
+          button: { label: "Choisir un nouveau mot de passe", url: link },
+          footnote:
+            "Lien valable 30 minutes. Si tu n'as rien demande, ignore cet e-mail, ton mot de passe reste inchange.",
+        }),
       });
     } catch (error) {
       console.error("[forgot] mail send failed:", error.message);

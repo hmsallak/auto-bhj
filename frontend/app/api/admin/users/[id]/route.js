@@ -5,7 +5,7 @@ import {
   rejectUser,
   deleteUser,
 } from "../../../../../../backend/models/adminUsers";
-import { sendMail } from "../../../../../../backend/mail";
+import { sendMail, renderEmail } from "../../../../../../backend/mail";
 import { requireOwner, authError } from "../../../../../lib/adminAuth";
 import { apiRoute } from "../../../../../lib/apiRoute";
 
@@ -39,10 +39,14 @@ export const PATCH = apiRoute(async function handleUpdate(request, { params }) {
           text:
             `Bonne nouvelle : ta demande de compte a ete approuvee.\n\n` +
             `Connecte-toi sur ${base}/admin avec ton adresse e-mail et ton mot de passe.`,
-          html:
-            `<p>Bonne nouvelle : ta demande de compte a ete approuvee.</p>` +
-            `<p>Connecte-toi sur <a href="${base}/admin">${base}/admin</a> avec ton ` +
-            `adresse e-mail et ton mot de passe.</p>`,
+          html: renderEmail({
+            heading: "Ton compte est actif",
+            lines: [
+              "Bonne nouvelle : ta demande de compte a ete approuvee par un administrateur.",
+              "Tu peux maintenant te connecter avec ton adresse e-mail et le mot de passe choisi a l'inscription.",
+            ],
+            button: { label: "Acceder a l'espace admin", url: `${base}/admin` },
+          }),
         });
       } catch (error) {
         console.error("[approve] mail send failed:", error.message);

@@ -79,7 +79,10 @@ function confirmEmailToken(token) {
     .get(row.username);
   if (!account) return { error: "Compte introuvable." };
 
-  if (account.status === "pending_email") {
+  // transitioned is true only on the real pending_email -> pending_approval
+  // step, so clicking the link twice does not re-notify the owner.
+  const transitioned = account.status === "pending_email";
+  if (transitioned) {
     db.prepare("UPDATE admin_users SET status = 'pending_approval' WHERE username = ?").run(
       row.username
     );
@@ -89,7 +92,7 @@ function confirmEmailToken(token) {
     tokenHash
   );
 
-  return { ok: true, email: account.email || row.username };
+  return { ok: true, email: account.email || row.username, transitioned };
 }
 
 module.exports = { signup, confirmEmailToken };

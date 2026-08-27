@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { signup } from "../../../../../backend/auth/accountSignup";
-import { sendMail } from "../../../../../backend/mail";
+import { sendMail, renderEmail } from "../../../../../backend/mail";
 import { isRateLimited, recordFailedLogin } from "../../../../../backend/auth/rateLimit";
 import { getClientIp } from "../../../../lib/adminAuth";
 import { apiRoute } from "../../../../lib/apiRoute";
@@ -46,11 +46,16 @@ export const POST = apiRoute(async function handleSignup(request) {
           `Confirme ton adresse e-mail pour finaliser ta demande de compte ` +
           `(lien valable 24 heures) :\n\n${link}\n\n` +
           `Si tu n'es pas a l'origine de cette demande, ignore cet e-mail.`,
-        html:
-          `<p>Confirme ton adresse e-mail pour finaliser ta demande de compte ` +
-          `(lien valable 24 heures) :</p>` +
-          `<p><a href="${link}">${link}</a></p>` +
-          `<p>Si tu n'es pas a l'origine de cette demande, ignore cet e-mail.</p>`,
+        html: renderEmail({
+          heading: "Confirme ton adresse",
+          lines: [
+            "Tu as demande un compte pour l'espace administrateur d'Auto BHJ.",
+            "Clique sur le bouton ci-dessous pour confirmer ton adresse. Ta demande sera ensuite examinee par un administrateur.",
+          ],
+          button: { label: "Confirmer mon adresse", url: link },
+          footnote:
+            "Lien valable 24 heures. Si tu n'es pas a l'origine de cette demande, ignore cet e-mail.",
+        }),
       });
     } catch (error) {
       console.error("[signup] mail send failed:", error.message);
