@@ -3780,6 +3780,38 @@ main,
   display: none;
 }
 
+/* Step 4 (technical details): lots of short fields - a dense auto-fitting
+   grid with slightly smaller inputs instead of tall 2-column rows. */
+.wizard-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px 16px;
+}
+
+.wizard-details-grid label {
+  gap: 4px;
+  font-size: 12px;
+}
+
+.wizard-details-grid input {
+  min-height: 38px;
+  font-size: 13.5px;
+}
+
+.wizard-details-wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 640px) {
+  .wizard-details-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .wizard-details-wide {
+    grid-column: 1 / -1;
+  }
+}
+
 @keyframes wizardPanelIn {
   from {
     opacity: 0;

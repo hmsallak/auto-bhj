@@ -702,7 +702,7 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
         </div>
 
         <div className={`wizard-panel ${stepIndex === 3 ? "" : "wizard-panel-hidden"}`}>
-          <div className="two-cols">
+          <div className="wizard-details-grid">
             <label>
               Carrosserie
               <input name="bodyType" placeholder="Berline, Monospace..." />
@@ -711,8 +711,6 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
               Couleur exterieure
               <input name="exteriorColor" placeholder="Noir" />
             </label>
-          </div>
-          <div className="two-cols">
             <label>
               Sieges
               <input name="seats" type="number" min="1" max="9" inputMode="numeric" />
@@ -721,8 +719,6 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
               Portes
               <input name="doors" type="number" min="2" max="6" inputMode="numeric" />
             </label>
-          </div>
-          <div className="two-cols">
             <label>
               Puissance (kW)
               <input name="powerKw" type="number" min="0" inputMode="numeric" />
@@ -731,8 +727,6 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
               Puissance (ch)
               <input name="powerCh" type="number" min="0" inputMode="numeric" />
             </label>
-          </div>
-          <div className="two-cols">
             <label>
               Cylindree (cm3)
               <input name="engineCc" type="number" min="0" inputMode="numeric" />
@@ -741,8 +735,6 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
               Vitesses
               <input name="gears" type="number" min="1" max="10" inputMode="numeric" />
             </label>
-          </div>
-          <div className="two-cols">
             <label>
               Cylindres
               <input name="cylinders" type="number" min="1" max="16" inputMode="numeric" />
@@ -751,9 +743,7 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
               Classe d&apos;emission
               <input name="emissionClass" placeholder="Euro 5" />
             </label>
-          </div>
-          <div className="two-cols">
-            <label>
+            <label className="wizard-details-wide">
               Consommation
               <input name="consumption" placeholder="5,00 l/100 km (mixte)" />
             </label>
@@ -761,8 +751,6 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
               Type de peinture
               <input name="paintType" placeholder="Metallisee, Autres..." />
             </label>
-          </div>
-          <div className="two-cols">
             <label>
               Couleur interieure
               <input name="interiorColor" placeholder="Gris" />
@@ -771,8 +759,6 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
               Interieur
               <input name="interiorMaterial" placeholder="Tissu, Cuir..." />
             </label>
-          </div>
-          <div className="two-cols">
             <label>
               Proprietaires precedents
               <input name="previousOwners" placeholder="1, 2..." />
