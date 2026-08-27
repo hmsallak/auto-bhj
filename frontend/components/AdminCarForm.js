@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion, useDragControls } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon, TrashIcon, UploadCloudIcon } from "./site/icons";
+import CarSpecSheet, { SpecHighlights } from "./CarSpecSheet";
+import { carPriceLabel, statusLabel } from "../lib/format";
 
 const EASE = [0.16, 1, 0.3, 1];
 const PHOTO_LONG_PRESS_MS = 500;
@@ -48,26 +50,6 @@ const STEPS = [
 const REVIEW_STEP = STEPS.length - 1;
 
 const BASIC_REQUIRED = ["brand", "model", "year", "mileage", "price", "fuel", "gearbox", "status"];
-
-const DETAIL_LABELS = [
-  ["bodyType", "Carrosserie"],
-  ["exteriorColor", "Couleur exterieure"],
-  ["seats", "Sieges"],
-  ["doors", "Portes"],
-  ["powerKw", "Puissance (kW)"],
-  ["powerCh", "Puissance (ch)"],
-  ["engineCc", "Cylindree (cm3)"],
-  ["gears", "Vitesses"],
-  ["cylinders", "Cylindres"],
-  ["emissionClass", "Classe d'emission"],
-  ["consumption", "Consommation"],
-  ["paintType", "Type de peinture"],
-  ["interiorColor", "Couleur interieure"],
-  ["interiorMaterial", "Interieur"],
-  ["previousOwners", "Proprietaires precedents"],
-];
-
-const STATUS_LABEL = { available: "Disponible", reserved: "Reserve", sold: "Vendu" };
 
 // Fixed checklist instead of free text: covers what the previously imported
 // listings actually used (so editing an older car keeps its checkboxes
@@ -495,6 +477,40 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
 
   const equipment = selectionToEquipment(selectedEquipment);
 
+  // A car-shaped object built from the form data, so the review step can be
+  // rendered with the exact same components as the public vehicle page.
+  const num = (value) => (value === "" || value == null ? null : Number(value));
+  const previewCar = review
+    ? {
+        brand: review.brand,
+        model: review.model,
+        year: review.year,
+        mileage: num(review.mileage) ?? 0,
+        price: num(review.price) ?? 0,
+        fuel: review.fuel,
+        gearbox: review.gearbox,
+        status: review.status,
+        description: review.description,
+        bodyType: review.bodyType || null,
+        seats: review.seats || null,
+        doors: review.doors || null,
+        powerKw: num(review.powerKw),
+        powerCh: num(review.powerCh),
+        engineCc: num(review.engineCc),
+        gears: review.gears || null,
+        cylinders: review.cylinders || null,
+        emissionClass: review.emissionClass || null,
+        consumption: review.consumption || null,
+        exteriorColor: review.exteriorColor || null,
+        paintType: review.paintType || null,
+        interiorColor: review.interiorColor || null,
+        interiorMaterial: review.interiorMaterial || null,
+        previousOwners: review.previousOwners || null,
+        equipment: equipment || null,
+        images: photos.map((photo) => photo.previewUrl),
+      }
+    : null;
+
   return (
     <div className="panel dash-panel">
       <p className="eyebrow">{editingCar ? "Modifier une voiture" : "Ajouter une voiture"}</p>
@@ -789,73 +805,21 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
         </div>
 
         <div className={`wizard-panel ${stepIndex === REVIEW_STEP ? "" : "wizard-panel-hidden"}`}>
-          {review && (
+          {previewCar && (
             <div className="wizard-review">
-              <div className="wizard-preview-card">
-                <div className="wizard-preview-media">
-                  {photos[0] ? (
-                    <img src={photos[0].previewUrl} alt="" />
-                  ) : (
-                    <div className="detail-media-placeholder">Pas de photo</div>
-                  )}
-                </div>
-                <div className="wizard-preview-body">
-                  <span className="wizard-preview-eyebrow">Apercu de l&apos;annonce</span>
+              <p className="eyebrow">Apercu tel qu&apos;il apparaitra sur le site</p>
+
+              <div className="wizard-review-site">
+                <div className="wizard-review-heading">
                   <h3>
-                    {review.brand} {review.model}
+                    {previewCar.brand} <span>{previewCar.model}</span>
                   </h3>
-                  <p className="wizard-preview-specs">
-                    {review.fuel} · {review.mileage || "-"} km · {review.year || "-"} · {review.gearbox}
-                  </p>
-                  <p className="wizard-preview-price">{review.price || "-"} EUR</p>
+                  <div className="wizard-review-heading-meta">
+                    <strong>{carPriceLabel(previewCar) || "Prix a definir"}</strong>
+                    <span>{statusLabel(previewCar.status)}</span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="wizard-review-block">
-                <div className="wizard-review-block-head">
-                  <h4>Informations</h4>
-                  <button type="button" className="link-button" onClick={() => goToStep(0)}>
-                    Modifier
-                  </button>
-                </div>
-                <p className="wizard-review-title">
-                  {review.brand} {review.model}
-                </p>
-                <div className="data-grid">
-                  <div className="data-row">
-                    <span className="data-row-label">Annee</span>
-                    <span className="data-row-value">{review.year || "-"}</span>
-                  </div>
-                  <div className="data-row">
-                    <span className="data-row-label">Kilometrage</span>
-                    <span className="data-row-value">{review.mileage || "-"} km</span>
-                  </div>
-                  <div className="data-row">
-                    <span className="data-row-label">Prix</span>
-                    <span className="data-row-value">{review.price || "-"} EUR</span>
-                  </div>
-                  <div className="data-row">
-                    <span className="data-row-label">Carburant</span>
-                    <span className="data-row-value">{review.fuel}</span>
-                  </div>
-                  <div className="data-row">
-                    <span className="data-row-label">Boite</span>
-                    <span className="data-row-value">{review.gearbox}</span>
-                  </div>
-                  <div className="data-row">
-                    <span className="data-row-label">Statut</span>
-                    <span className="data-row-value">{STATUS_LABEL[review.status] || review.status}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="wizard-review-block">
-                <div className="wizard-review-block-head">
-                  <h4>Photos ({photos.length})</h4>
-                  <button type="button" className="link-button" onClick={() => goToStep(1)}>
-                    Modifier
-                  </button>
-                </div>
                 {photos.length ? (
                   <div className="photo-grid">
                     {photos.map((photo, index) => (
@@ -868,64 +832,28 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
                 ) : (
                   <p className="empty">Aucune photo ajoutee.</p>
                 )}
+
+                <SpecHighlights car={previewCar} />
+                <CarSpecSheet car={previewCar} />
               </div>
 
-              <div className="wizard-review-block">
-                <div className="wizard-review-block-head">
-                  <h4>Description</h4>
-                  <button type="button" className="link-button" onClick={() => goToStep(2)}>
-                    Modifier
-                  </button>
-                </div>
-                <p className="car-description">
-                  {review.description || "Aucune description renseignee."}
-                </p>
-              </div>
-
-              <div className="wizard-review-block">
-                <div className="wizard-review-block-head">
-                  <h4>Details techniques</h4>
-                  <button type="button" className="link-button" onClick={() => goToStep(3)}>
-                    Modifier
-                  </button>
-                </div>
-                {DETAIL_LABELS.some(([key]) => review[key]) ? (
-                  <div className="data-grid">
-                    {DETAIL_LABELS.filter(([key]) => review[key]).map(([key, label]) => (
-                      <div className="data-row" key={key}>
-                        <span className="data-row-label">{label}</span>
-                        <span className="data-row-value">{review[key]}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="empty">Aucun detail technique renseigne.</p>
-                )}
-              </div>
-
-              <div className="wizard-review-block">
-                <div className="wizard-review-block-head">
-                  <h4>Equipements</h4>
-                  <button type="button" className="link-button" onClick={() => goToStep(4)}>
-                    Modifier
-                  </button>
-                </div>
-                {equipment ? (
-                  <div className="equipment-columns">
-                    {Object.entries(equipment).map(([category, items]) => (
-                      <div key={category} className="equipment-category">
-                        <h4>{category}</h4>
-                        <ul>
-                          {items.map((item) => (
-                            <li key={item}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="empty">Aucun equipement renseigne.</p>
-                )}
+              <div className="wizard-review-edit">
+                <span>Modifier :</span>
+                <button type="button" className="link-button" onClick={() => goToStep(0)}>
+                  Infos
+                </button>
+                <button type="button" className="link-button" onClick={() => goToStep(1)}>
+                  Photos
+                </button>
+                <button type="button" className="link-button" onClick={() => goToStep(2)}>
+                  Description
+                </button>
+                <button type="button" className="link-button" onClick={() => goToStep(3)}>
+                  Details
+                </button>
+                <button type="button" className="link-button" onClick={() => goToStep(4)}>
+                  Equipements
+                </button>
               </div>
             </div>
           )}

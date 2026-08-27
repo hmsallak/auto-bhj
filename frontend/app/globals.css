@@ -3843,7 +3843,73 @@ main,
 
 .wizard-review {
   display: grid;
-  gap: 22px;
+  gap: 18px;
+}
+
+/* Review step rendered with the real site components (SpecHighlights /
+   CarSpecSheet) so it matches the public vehicle page exactly. */
+.wizard-review-site {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 18px;
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.wizard-review-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line, #e6ebe9);
+}
+
+.wizard-review-heading h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink, #1c1c1a);
+}
+
+.wizard-review-heading h3 span {
+  color: var(--sage, #73a58d);
+}
+
+.wizard-review-heading-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.wizard-review-heading-meta strong {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--brand-dark, #1a4d3e);
+}
+
+.wizard-review-heading-meta span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sage, #73a58d);
+}
+
+.wizard-review-edit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--admin-border);
+  font-size: 13px;
+}
+
+.wizard-review-edit > span {
+  color: var(--admin-muted);
+  font-weight: 600;
 }
 
 .wizard-review-block-head {
