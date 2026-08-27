@@ -3,6 +3,31 @@
 import { useState } from "react";
 import { USER_PERMISSIONS } from "./userPermissions";
 
+function PasswordField({ label, name, autoComplete, minLength, visible, onToggleVisibility }) {
+  return (
+    <label>
+      {label}
+      <div className="password-field">
+        <input
+          name={name}
+          type={visible ? "text" : "password"}
+          autoComplete={autoComplete}
+          minLength={minLength}
+          required
+        />
+        <button
+          type="button"
+          className="password-toggle"
+          onClick={onToggleVisibility}
+          aria-label={visible ? "Masquer les mots de passe" : "Afficher les mots de passe"}
+        >
+          {visible ? "Masquer" : "Afficher"}
+        </button>
+      </div>
+    </label>
+  );
+}
+
 function accessLabel(user) {
   if (user?.role === "owner") return "Full acces Admin";
   const hasEverything = USER_PERMISSIONS.every((permission) =>
@@ -15,6 +40,7 @@ export default function AdminProfile({ user, onChangePassword, onLogout }) {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
   const activePermissions =
     user?.role === "owner"
@@ -103,18 +129,29 @@ export default function AdminProfile({ user, onChangePassword, onLogout }) {
         </div>
 
         <form className="profile-password-form" onSubmit={handlePasswordSubmit}>
-          <label>
-            Mot de passe actuel
-            <input name="currentPassword" type="password" autoComplete="current-password" required />
-          </label>
-          <label>
-            Nouveau mot de passe
-            <input name="newPassword" type="password" autoComplete="new-password" minLength={8} required />
-          </label>
-          <label>
-            Confirmation
-            <input name="confirmPassword" type="password" autoComplete="new-password" minLength={8} required />
-          </label>
+          <PasswordField
+            label="Mot de passe actuel"
+            name="currentPassword"
+            autoComplete="current-password"
+            visible={showPassword}
+            onToggleVisibility={() => setShowPassword((value) => !value)}
+          />
+          <PasswordField
+            label="Nouveau mot de passe"
+            name="newPassword"
+            autoComplete="new-password"
+            minLength={8}
+            visible={showPassword}
+            onToggleVisibility={() => setShowPassword((value) => !value)}
+          />
+          <PasswordField
+            label="Confirmation"
+            name="confirmPassword"
+            autoComplete="new-password"
+            minLength={8}
+            visible={showPassword}
+            onToggleVisibility={() => setShowPassword((value) => !value)}
+          />
           <button className="button primary small" type="submit" disabled={submitting}>
             {submitting ? "Mise a jour..." : "Changer le mot de passe"}
           </button>
