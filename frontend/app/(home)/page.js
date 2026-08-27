@@ -44,7 +44,9 @@ export default function HomePage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(businessSchema).replace(/</g, "\\u003c"),
+        }}
       />
       <Hero />
       <section className="py-16" id="stock">

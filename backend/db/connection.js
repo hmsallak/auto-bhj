@@ -183,6 +183,30 @@ function applyAdminPasswordOverride(database) {
   );
 }
 
+// Housekeeping run once per process start: drop expired sessions, stale
+// login/contact attempts and spent one-time tokens so these tables don't
+// grow without bound. Best-effort - a failure here must not block startup.
+function purgeStaleRows(database) {
+  const now = Date.now();
+  const dayAgo = now - 24 * 60 * 60 * 1000;
+
+  const statements = [
+    ["DELETE FROM sessions WHERE expires_at < ?", now],
+    ["DELETE FROM login_attempts WHERE attempted_at < ?", dayAgo],
+    ["DELETE FROM contact_attempts WHERE attempted_at < ?", dayAgo],
+    ["DELETE FROM password_reset_tokens WHERE used_at IS NOT NULL OR expires_at < ?", now],
+    ["DELETE FROM email_verification_tokens WHERE used_at IS NOT NULL OR expires_at < ?", now],
+  ];
+
+  for (const [sql, arg] of statements) {
+    try {
+      database.prepare(sql).run(arg);
+    } catch {
+      // table may not exist yet on a very old DB - ignore
+    }
+  }
+}
+
 function getDb() {
   if (db) return db;
 
@@ -201,6 +225,7 @@ function getDb() {
   migrateColumns(db, "sessions", SESSIONS_COLUMNS);
   ensureOwnerExists(db);
   applyAdminPasswordOverride(db);
+  purgeStaleRows(db);
 
   return db;
 }

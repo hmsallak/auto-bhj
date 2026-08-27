@@ -123,3 +123,11 @@ CREATE TABLE IF NOT EXISTS email_verification_tokens (
 );
 
 CREATE INDEX IF NOT EXISTS idx_email_verification_username ON email_verification_tokens (username, created_at);
+
+-- Per-IP throttle for the public contact endpoint (no form/auth in front).
+CREATE TABLE IF NOT EXISTS contact_attempts (
+  ip TEXT NOT NULL,
+  attempted_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_contact_attempts_ip ON contact_attempts (ip, attempted_at);

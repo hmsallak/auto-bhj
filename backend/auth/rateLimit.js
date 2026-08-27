@@ -23,4 +23,28 @@ function clearFailedLogins(ip) {
   getDb().prepare("DELETE FROM login_attempts WHERE ip = ?").run(ip);
 }
 
-module.exports = { isRateLimited, recordFailedLogin, clearFailedLogins };
+const CONTACT_WINDOW_MS = 1000 * 60 * 10;
+const CONTACT_MAX = 6;
+
+function isContactRateLimited(ip) {
+  const since = Date.now() - CONTACT_WINDOW_MS;
+  const { count } = getDb()
+    .prepare("SELECT COUNT(*) AS count FROM contact_attempts WHERE ip = ? AND attempted_at > ?")
+    .get(ip, since);
+
+  return count >= CONTACT_MAX;
+}
+
+function recordContactAttempt(ip) {
+  getDb()
+    .prepare("INSERT INTO contact_attempts (ip, attempted_at) VALUES (?, ?)")
+    .run(ip, Date.now());
+}
+
+module.exports = {
+  isRateLimited,
+  recordFailedLogin,
+  clearFailedLogins,
+  isContactRateLimited,
+  recordContactAttempt,
+};

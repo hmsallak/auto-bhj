@@ -76,12 +76,16 @@ export default async function CarDetailPage({ params }) {
     },
   };
 
+  // Escape "<" so an admin-entered field (e.g. a description containing
+  // "</script>") can't break out of this inline <script> tag.
+  const jsonLd = JSON.stringify(structuredData).replace(/</g, "\\u003c");
+
   return (
     <section className="mx-auto max-w-6xl px-6 py-10">
       <VehicleViewTracker reference={car.reference} />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
 
       <nav className="flex items-center gap-2 text-[14px] text-subtle" aria-label="Fil d'Ariane">
