@@ -24,6 +24,9 @@ export async function getCurrentUser() {
   if (!session) return null;
 
   const row = findByUsername(session.username);
+  // A session outlives a status change: an account that is no longer active
+  // (rejected / awaiting approval) must not resolve to a usable user.
+  if (row && row.status && row.status !== "active") return null;
   return rowToUser(row);
 }
 

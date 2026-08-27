@@ -40,8 +40,15 @@ export default function AdminLogin({ onSubmit, message }) {
           }}
         >
           <label>
-            Utilisateur
-            <input name="username" autoComplete="username" required autoFocus />
+            Email
+            <input
+              name="identifier"
+              type="email"
+              autoComplete="username"
+              placeholder="vous@exemple.com"
+              required
+              autoFocus
+            />
           </label>
           <label>
             Mot de passe

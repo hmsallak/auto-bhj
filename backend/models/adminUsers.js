@@ -67,6 +67,7 @@ function rowToUser(row) {
     lastName: row.last_name || "",
     email: row.email || "",
     role: row.role,
+    status: row.status || "active",
     permissions: row.role === "owner" ? [...VALID_PERMISSIONS] : parsePermissions(row.permissions),
     createdAt: row.created_at,
   };
@@ -104,6 +105,19 @@ function findByUsername(username) {
   return db
     .prepare("SELECT * FROM admin_users WHERE username = ?")
     .get(cleanText(username));
+}
+
+// Login accepts either the account's e-mail or its (legacy) username,
+// case-insensitively - accounts are identified by e-mail going forward.
+function findByLogin(value) {
+  const clean = cleanText(value).toLowerCase();
+  if (!clean) return undefined;
+
+  return getDb()
+    .prepare(
+      "SELECT * FROM admin_users WHERE lower(username) = ? OR (email IS NOT NULL AND lower(email) = ?)"
+    )
+    .get(clean, clean);
 }
 
 function findById(id) {
@@ -219,6 +233,7 @@ module.exports = {
   rowToUser,
   hasPermission,
   findByUsername,
+  findByLogin,
   findById,
   listUsers,
   countAdmins,

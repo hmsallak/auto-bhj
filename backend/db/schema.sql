@@ -54,6 +54,9 @@ CREATE TABLE IF NOT EXISTS admin_users (
   email TEXT,
   role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('owner', 'member')),
   permissions TEXT NOT NULL DEFAULT '[]',
+  -- 'active' can sign in. Self-signups walk pending_email -> pending_approval
+  -- -> active; a rejected request is 'rejected'.
+  status TEXT NOT NULL DEFAULT 'active',
   created_at TEXT NOT NULL
 );
 

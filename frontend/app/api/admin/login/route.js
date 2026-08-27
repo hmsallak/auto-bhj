@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { findByUsername, ensureSeedAdmin } from "../../../../../backend/models/adminUsers";
+import { findByLogin, ensureSeedAdmin } from "../../../../../backend/models/adminUsers";
 import { verifyPassword } from "../../../../../backend/auth/passwords";
 import { createSessionToken, SESSION_TTL_MS } from "../../../../../backend/auth/sessions";
 import { isRateLimited, recordFailedLogin, clearFailedLogins } from "../../../../../backend/auth/rateLimit";
@@ -15,15 +15,27 @@ export const POST = apiRoute(async function handleLogin(request) {
   }
 
   const payload = await request.json().catch(() => ({}));
-  const username = String(payload.username || "").trim();
+  const identifier = String(payload.identifier || payload.username || "").trim();
   const password = String(payload.password || "");
 
-  const admin = findByUsername(username);
+  const admin = findByLogin(identifier);
   const validPassword = admin ? verifyPassword(password, admin.password_hash) : false;
 
   if (!admin || !validPassword) {
     recordFailedLogin(ip);
     return NextResponse.json({ error: "Identifiants incorrects." }, { status: 401 });
+  }
+
+  if (admin.status && admin.status !== "active") {
+    const messages = {
+      pending_email: "Confirme d'abord ton adresse e-mail via le lien recu par mail.",
+      pending_approval: "Ton compte attend l'approbation d'un administrateur.",
+      rejected: "Ta demande de compte a ete refusee.",
+    };
+    return NextResponse.json(
+      { error: messages[admin.status] || "Ce compte n'est pas actif." },
+      { status: 403 }
+    );
   }
 
   clearFailedLogins(ip);

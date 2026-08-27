@@ -41,6 +41,7 @@ const ADMIN_USERS_COLUMNS = {
   email: "TEXT",
   role: "TEXT NOT NULL DEFAULT 'member'",
   permissions: "TEXT NOT NULL DEFAULT '[]'",
+  status: "TEXT NOT NULL DEFAULT 'active'",
 };
 
 const SESSIONS_COLUMNS = {
