@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { findByUsername, ensureSeedAdmin } from "../../../../../backend/models/adminUsers";
+import { findByUsername, ensureSeedAdmin, applyPasswordOverride } from "../../../../../backend/models/adminUsers";
 import { verifyPassword } from "../../../../../backend/auth/passwords";
 import { createSessionToken, SESSION_TTL_MS } from "../../../../../backend/auth/sessions";
 import { isRateLimited, recordFailedLogin, clearFailedLogins } from "../../../../../backend/auth/rateLimit";
@@ -8,6 +8,7 @@ import { apiRoute } from "../../../../lib/apiRoute";
 
 export const POST = apiRoute(async function handleLogin(request) {
   ensureSeedAdmin(process.env.ADMIN_USER || "admin", process.env.ADMIN_PASSWORD || "change-moi");
+  applyPasswordOverride();
 
   const ip = await getClientIp();
   if (isRateLimited(ip)) {
