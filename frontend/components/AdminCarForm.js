@@ -784,23 +784,31 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
 
         <div className={`wizard-panel ${stepIndex === 4 ? "" : "wizard-panel-hidden"}`}>
           <div className="equipment-picker">
-            {Object.entries(EQUIPMENT_CATALOG).map(([category, items]) => (
-              <div className="equipment-picker-group" key={category}>
-                <h4>{category}</h4>
-                <div className="equipment-picker-grid">
-                  {items.map((item) => (
-                    <label className="equipment-checkbox" key={item}>
-                      <input
-                        type="checkbox"
-                        checked={selectedEquipment.has(item)}
-                        onChange={() => toggleEquipmentItem(item)}
-                      />
-                      {item}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
+            {Object.entries(EQUIPMENT_CATALOG).map(([category, items]) => {
+              const chosen = items.filter((item) => selectedEquipment.has(item)).length;
+              return (
+                <section className="equipment-cat" key={category}>
+                  <header className="equipment-cat-head">
+                    <h4>{category}</h4>
+                    <span className="equipment-cat-count">
+                      {chosen}/{items.length}
+                    </span>
+                  </header>
+                  <div className="equipment-cat-list">
+                    {items.map((item) => (
+                      <label className="equipment-checkbox" key={item}>
+                        <input
+                          type="checkbox"
+                          checked={selectedEquipment.has(item)}
+                          onChange={() => toggleEquipmentItem(item)}
+                        />
+                        {item}
+                      </label>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
           </div>
         </div>
 
