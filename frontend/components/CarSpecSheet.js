@@ -24,13 +24,13 @@ export function SpecHighlights({ car }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
       {cells.map(({ icon: Icon, label, value }) => (
-        <div key={label} className="flex min-w-0 flex-col gap-2 rounded-xl bg-sage/10 p-4">
-          <Icon className="h-6 w-6 shrink-0 text-brand" />
+        <div key={label} className="flex min-w-0 flex-col gap-1.5 rounded-xl bg-sage/10 p-3">
+          <Icon className="h-5 w-5 shrink-0 text-brand" />
           <div className="flex min-w-0 flex-col">
-            <span className="text-[13px] text-subtle">{label}</span>
-            <strong className="break-words text-[15px] font-bold text-ink">{value}</strong>
+            <span className="text-[12px] text-subtle">{label}</span>
+            <strong className="break-words text-[14px] font-bold text-ink">{value}</strong>
           </div>
         </div>
       ))}
@@ -41,9 +41,9 @@ export function SpecHighlights({ car }) {
 function DataRow({ label, value, valueClassName = "text-ink" }) {
   if (value === null || value === undefined || value === "") return null;
   return (
-    <div className="flex items-center gap-2.5 py-2.5">
-      <span className="flex-1 text-[14px] text-body">{label}</span>
-      <span className={`text-[14px] font-semibold ${valueClassName}`}>{value}</span>
+    <div className="flex items-center gap-2.5 py-1.5">
+      <span className="flex-1 text-[13.5px] text-body">{label}</span>
+      <span className={`text-[13.5px] font-semibold ${valueClassName}`}>{value}</span>
     </div>
   );
 }
@@ -67,14 +67,14 @@ function SpecSection({ title, rows }) {
 function Block({ icon: Icon, title, open, onToggle, children }) {
   return (
     <details className="group" open={open} onToggle={(event) => onToggle(event.target.open)}>
-      <summary className="flex w-full cursor-pointer list-none items-center justify-between py-5 [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] [&::-webkit-details-marker]:hidden [&::marker]:hidden">
+      <summary className="flex w-full cursor-pointer list-none items-center justify-between py-4 [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] [&::-webkit-details-marker]:hidden [&::marker]:hidden">
         <span className="flex items-center gap-2.5">
           <Icon className="h-5 w-5 text-brand" />
-          <h3 className="text-[18px] font-bold text-ink">{title}</h3>
+          <h3 className="text-[17px] font-bold text-ink">{title}</h3>
         </span>
         <ChevronDownIcon className="h-4 w-4 text-subtle transition-transform group-open:rotate-180" />
       </summary>
-      <div className="pb-6">{children}</div>
+      <div className="pb-5">{children}</div>
     </details>
   );
 }
@@ -147,7 +147,7 @@ export default function CarSpecSheet({ car }) {
     <div className="flex flex-col divide-y divide-sage border-b border-sage">
       {hasAnyData && (
         <Block icon={SlidersIcon} title="Caracteristiques techniques" open={generalOpen} onToggle={setGeneralOpen}>
-          <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
             {sections.map((section) => (
               <SpecSection key={section.title} title={section.title} rows={section.rows} />
             ))}
