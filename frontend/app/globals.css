@@ -4012,25 +4012,24 @@ main,
 
 .equipment-picker-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 2px 16px;
 }
 
 .equipment-checkbox {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 10px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  gap: 8px;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
   font-size: 13px;
   cursor: pointer;
-  transition: border-color 150ms ease, background 150ms ease;
 }
 
 .equipment-checkbox:has(input:checked) {
-  border-color: var(--dash-accent);
-  background: #fee2e2;
+  font-weight: 600;
 }
 
 .equipment-checkbox input {
@@ -11910,17 +11909,16 @@ button.danger-text:disabled {
 
 .member-permissions label,
 .equipment-checkbox {
-  min-height: 32px;
-  border-color: var(--admin-border);
-  border-radius: 8px;
-  background: var(--admin-card-2);
-  color: var(--admin-muted);
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--admin-text);
   text-transform: none;
   letter-spacing: 0;
 }
 
-.member-permissions label:has(input:checked),
-.equipment-checkbox:has(input:checked) {
+.member-permissions label:has(input:checked) {
   border-color: rgba(26, 77, 62, 0.35);
   background: rgba(26, 77, 62, 0.1);
   color: var(--admin-text);
