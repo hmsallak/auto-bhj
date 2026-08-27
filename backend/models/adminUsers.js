@@ -65,10 +65,29 @@ function rowToUser(row) {
     username: row.username,
     firstName: row.first_name || "",
     lastName: row.last_name || "",
+    email: row.email || "",
     role: row.role,
     permissions: row.role === "owner" ? [...VALID_PERMISSIONS] : parsePermissions(row.permissions),
     createdAt: row.created_at,
   };
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Lets a signed-in admin set/clear their own recovery email (used by the
+// password-reset flow). An empty value clears it; anything non-empty must
+// look like an address.
+function updateEmail(username, email) {
+  const clean = cleanText(email).toLowerCase();
+  if (clean && !EMAIL_RE.test(clean)) {
+    return { error: "Adresse e-mail invalide." };
+  }
+
+  getDb()
+    .prepare("UPDATE admin_users SET email = ? WHERE username = ?")
+    .run(clean || null, cleanText(username));
+
+  return { ok: true, email: clean };
 }
 
 // Owners implicitly have every permission; members only what's granted.
@@ -205,6 +224,7 @@ module.exports = {
   countAdmins,
   ensureSeedAdmin,
   updatePassword,
+  updateEmail,
   createUser,
   updateUser,
   updateUserPermissions,

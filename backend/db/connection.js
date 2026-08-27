@@ -38,6 +38,7 @@ const CARS_COLUMNS = {
 const ADMIN_USERS_COLUMNS = {
   first_name: "TEXT",
   last_name: "TEXT",
+  email: "TEXT",
   role: "TEXT NOT NULL DEFAULT 'member'",
   permissions: "TEXT NOT NULL DEFAULT '[]'",
 };

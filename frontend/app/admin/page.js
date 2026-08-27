@@ -118,6 +118,7 @@ export default function AdminPage() {
               username: session.username,
               firstName: session.firstName,
               lastName: session.lastName,
+              email: session.email,
               role: session.role,
               permissions: session.permissions,
             }
@@ -172,6 +173,7 @@ export default function AdminPage() {
         username: session.username,
         firstName: session.firstName,
         lastName: session.lastName,
+        email: session.email,
         role: session.role,
         permissions: session.permissions,
       };
@@ -237,6 +239,15 @@ export default function AdminPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ currentPassword, newPassword }),
     });
+  }
+
+  async function handleUpdateEmail(email) {
+    const result = await api("/api/admin/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    setUser((current) => (current ? { ...current, email: result.email } : current));
   }
 
   async function handleToggleMessageRead(msg) {
@@ -423,6 +434,7 @@ export default function AdminPage() {
             <AdminProfile
               user={user}
               onChangePassword={handleChangePassword}
+              onUpdateEmail={handleUpdateEmail}
               onLogout={handleLogout}
             />
           )}

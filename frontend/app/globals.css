@@ -12561,6 +12561,17 @@ main > .legal-shell,
   gap: 12px;
 }
 
+.profile-email-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+}
+
+.profile-email-form label {
+  flex: 1 1 260px;
+}
+
 /* Icon-only reveal toggle - just enough right padding for a 18px icon,
    no pill/background so it stays discreet inside the field. */
 .profile-password-form .password-field input {

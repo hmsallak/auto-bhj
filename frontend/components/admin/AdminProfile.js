@@ -57,18 +57,38 @@ function accessLabel(user) {
   return hasEverything ? "Full acces" : "Acces limite";
 }
 
-export default function AdminProfile({ user, onChangePassword, onLogout }) {
+export default function AdminProfile({ user, onChangePassword, onUpdateEmail, onLogout }) {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   // Visible by default so you can check exactly what you are setting - the
   // "Masquer" button hides it again.
   const [showPassword, setShowPassword] = useState(true);
+  const [emailMessage, setEmailMessage] = useState("");
+  const [emailIsError, setEmailIsError] = useState(false);
+  const [emailSubmitting, setEmailSubmitting] = useState(false);
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
   const activePermissions =
     user?.role === "owner"
       ? USER_PERMISSIONS
       : USER_PERMISSIONS.filter((permission) => user?.permissions?.includes(permission.key));
+
+  async function handleEmailSubmit(event) {
+    event.preventDefault();
+    const email = new FormData(event.currentTarget).get("email");
+    setEmailMessage("");
+    setEmailIsError(false);
+    setEmailSubmitting(true);
+    try {
+      await onUpdateEmail(email);
+      setEmailMessage("Email enregistre.");
+    } catch (error) {
+      setEmailMessage(error.message);
+      setEmailIsError(true);
+    } finally {
+      setEmailSubmitting(false);
+    }
+  }
 
   async function handlePasswordSubmit(event) {
     event.preventDefault();
@@ -153,6 +173,26 @@ export default function AdminProfile({ user, onChangePassword, onLogout }) {
           <h3 id="profile-security-title">Securite</h3>
           <p>Change ton mot de passe ou ferme la session pour utiliser un autre compte.</p>
         </div>
+
+        <form className="profile-email-form" onSubmit={handleEmailSubmit}>
+          <label>
+            Email de recuperation
+            <input
+              name="email"
+              type="email"
+              defaultValue={user?.email || ""}
+              autoComplete="email"
+              placeholder="prenom@exemple.com"
+            />
+          </label>
+          <button className="button neutral small" type="submit" disabled={emailSubmitting}>
+            {emailSubmitting ? "..." : "Enregistrer"}
+          </button>
+        </form>
+
+        {emailMessage && (
+          <p className={`message ${emailIsError ? "error" : ""}`}>{emailMessage}</p>
+        )}
 
         <form className="profile-password-form" onSubmit={handlePasswordSubmit}>
           <PasswordField

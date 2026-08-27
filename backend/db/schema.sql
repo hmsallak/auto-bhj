@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
   password_hash TEXT NOT NULL,
   first_name TEXT,
   last_name TEXT,
+  email TEXT,
   role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('owner', 'member')),
   permissions TEXT NOT NULL DEFAULT '[]',
   created_at TEXT NOT NULL
