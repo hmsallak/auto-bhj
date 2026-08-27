@@ -40,7 +40,9 @@ export default function AdminProfile({ user, onChangePassword, onLogout }) {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  // Visible by default so you can check exactly what you are setting - the
+  // "Masquer" button hides it again.
+  const [showPassword, setShowPassword] = useState(true);
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
   const activePermissions =
     user?.role === "owner"
