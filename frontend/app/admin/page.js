@@ -9,6 +9,7 @@ import AdminMessages from "../../components/admin/AdminMessages";
 import AdminUsers from "../../components/admin/AdminUsers";
 import AdminUserForm from "../../components/admin/AdminUserForm";
 import AdminProfile from "../../components/admin/AdminProfile";
+import AdminSiteSettings from "../../components/admin/AdminSiteSettings";
 import AdminCarForm from "../../components/AdminCarForm";
 import { MenuIcon } from "../../components/home/icons";
 
@@ -20,7 +21,7 @@ const TAB_TITLES = {
   users: "Equipe",
   userForm: "Creer / Modifier un membre",
   profile: "Parametres du compte",
-  settings: "Parametres",
+  settings: "Parametres site",
 };
 
 const TAB_SUBTITLES = {
@@ -31,7 +32,7 @@ const TAB_SUBTITLES = {
   users: "Gerez les acces de l'equipe Auto BHJ.",
   userForm: "Configurez les informations et les autorisations du membre.",
   profile: "Consultez votre compte et gerez votre session.",
-  settings: "Gardez le compte administrateur securise.",
+  settings: "Coordonnees publiques affichees sur le site.",
 };
 
 function hasPermission(user, permission) {
@@ -249,6 +250,18 @@ export default function AdminPage() {
     setUser((current) => (current ? { ...current, email: result.email } : current));
   }
 
+  async function loadSiteSettings() {
+    return api("/api/admin/site-settings");
+  }
+
+  async function saveSiteSettings({ currentPassword, phone, email }) {
+    return api("/api/admin/site-settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword, phone, email }),
+    });
+  }
+
   async function handleToggleMessageRead(msg) {
     await api(`/api/admin/messages/${msg.id}`, {
       method: "PATCH",
@@ -456,6 +469,10 @@ export default function AdminPage() {
               onUpdateEmail={handleUpdateEmail}
               onLogout={handleLogout}
             />
+          )}
+
+          {activeTab === "settings" && user?.role === "owner" && (
+            <AdminSiteSettings onLoad={loadSiteSettings} onSave={saveSiteSettings} />
           )}
         </div>
       </div>

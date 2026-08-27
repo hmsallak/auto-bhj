@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { WhatsAppIcon } from "./icons";
-
-const WHATSAPP_HREF = `https://wa.me/32483208801?text=${encodeURIComponent(
-  "Bonjour Auto BHJ, je souhaite des informations sur une voiture."
-)}`;
+import { useSiteSettings } from "../SiteSettingsProvider";
 
 export default function WhatsAppFab() {
+  const { whatsapp } = useSiteSettings();
+  const whatsappHref = `https://wa.me/${whatsapp}?text=${encodeURIComponent(
+    "Bonjour Auto BHJ, je souhaite des informations sur une voiture."
+  )}`;
   const [hiddenByFooter, setHiddenByFooter] = useState(false);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function WhatsAppFab() {
 
   return (
     <a
-      href={WHATSAPP_HREF}
+      href={whatsappHref}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Ecrire sur WhatsApp a Auto BHJ"

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import OfficialIcon from "../OfficialIcon";
 import { MenuIcon, CloseIcon } from "./icons";
+import { useSiteSettings } from "../SiteSettingsProvider";
 
 const LINKS = [
   { href: "/", label: "Accueil" },
@@ -13,6 +14,7 @@ const LINKS = [
 ];
 
 export default function HomeHeader() {
+  const { phone, phoneTel } = useSiteSettings();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -54,11 +56,11 @@ export default function HomeHeader() {
             </a>
           ))}
           <a
-            href="tel:+32483208801"
+            href={`tel:${phoneTel}`}
             className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-brand px-5 text-[14px] font-semibold text-white transition-colors hover:bg-brand-dark"
           >
             <OfficialIcon name="phone" width={16} height={16} />
-            0483 20 88 01
+            {phone}
           </a>
         </nav>
 
@@ -87,12 +89,12 @@ export default function HomeHeader() {
               </a>
             ))}
             <a
-              href="tel:+32483208801"
+              href={`tel:${phoneTel}`}
               onClick={() => setOpen(false)}
               className="mt-2 inline-flex min-h-[44px] w-fit items-center justify-center gap-2 self-start rounded-lg bg-brand px-4 text-[14px] font-semibold text-white hover:bg-brand-dark"
             >
               <OfficialIcon name="phone" width={16} height={16} />
-              0483 20 88 01
+              {phone}
             </a>
           </div>
         </nav>

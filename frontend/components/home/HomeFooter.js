@@ -1,8 +1,12 @@
+"use client";
+
 import Image from "next/image";
 import { PinIcon, PhoneIcon, MailIcon } from "./icons";
+import { useSiteSettings } from "../SiteSettingsProvider";
 
 export default function HomeFooter() {
   const year = new Date().getFullYear();
+  const { phone, phoneTel, email } = useSiteSettings();
 
   return (
     <footer className="border-t border-white/10 bg-ink">
@@ -34,12 +38,18 @@ export default function HomeFooter() {
           <span className="inline-flex items-center gap-2 text-[15px] text-white">
             <PinIcon className="h-4 w-4 shrink-0 text-brand-accent" /> Mekingenweg 99, 1600 Sint-Pieters-Leeuw
           </span>
-          <span className="inline-flex items-center gap-2 text-[15px] text-white">
-            <PhoneIcon className="h-4 w-4 shrink-0 text-brand-accent" /> +32 483 20 88 01
-          </span>
-          <span className="inline-flex items-center gap-2 text-[15px] text-white">
-            <MailIcon className="h-4 w-4 shrink-0 text-brand-accent" /> contact@autobhj.be
-          </span>
+          <a
+            href={`tel:${phoneTel}`}
+            className="inline-flex items-center gap-2 text-[15px] text-white transition-colors hover:text-brand-accent"
+          >
+            <PhoneIcon className="h-4 w-4 shrink-0 text-brand-accent" /> {phone}
+          </a>
+          <a
+            href={`mailto:${email}`}
+            className="inline-flex items-center gap-2 text-[15px] text-white transition-colors hover:text-brand-accent"
+          >
+            <MailIcon className="h-4 w-4 shrink-0 text-brand-accent" /> {email}
+          </a>
         </div>
 
         <div className="flex flex-col gap-3">

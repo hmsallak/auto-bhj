@@ -131,3 +131,10 @@ CREATE TABLE IF NOT EXISTS contact_attempts (
 );
 
 CREATE INDEX IF NOT EXISTS idx_contact_attempts_ip ON contact_attempts (ip, attempted_at);
+
+-- Editable public contact info (phone, e-mail). Key/value; missing keys fall
+-- back to code defaults.
+CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);

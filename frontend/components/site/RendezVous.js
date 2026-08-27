@@ -1,47 +1,51 @@
+"use client";
+
 import { MailIcon, PhoneIcon, PinIcon, WhatsAppIcon } from "../home/icons";
 import SectionEyebrow from "../home/SectionEyebrow";
 import Reveal from "../home/Reveal";
+import { useSiteSettings } from "../SiteSettingsProvider";
 
 const ADDRESS = "Mekingenweg 99, 1600 Sint-Pieters-Leeuw";
 const MAPS_HREF = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ADDRESS)}`;
-const WHATSAPP_HREF = `https://wa.me/32483208801?text=${encodeURIComponent(
-  "Bonjour Auto BHJ, je souhaite prendre rendez-vous pour une voiture."
-)}`;
-
-const CONTACTS = [
-  {
-    icon: WhatsAppIcon,
-    label: "WhatsApp",
-    text: "Message rapide",
-    href: WHATSAPP_HREF,
-    external: true,
-    accent: "bg-[#25d366]/10 text-[#1fb958]",
-  },
-  {
-    icon: PhoneIcon,
-    label: "0483 20 88 01",
-    text: "Appel direct",
-    href: "tel:+32483208801",
-    accent: "bg-brand-pastel text-brand",
-  },
-  {
-    icon: MailIcon,
-    label: "contact@autobhj.be",
-    text: "Par e-mail",
-    href: "mailto:contact@autobhj.be",
-    accent: "bg-brand-pastel text-brand",
-  },
-  {
-    icon: PinIcon,
-    label: "Sint-Pieters-Leeuw",
-    text: "Sur rendez-vous",
-    href: MAPS_HREF,
-    external: true,
-    accent: "bg-brand-pastel text-brand",
-  },
-];
 
 export default function RendezVous() {
+  const { phone, phoneTel, whatsapp, email } = useSiteSettings();
+
+  const contacts = [
+    {
+      icon: WhatsAppIcon,
+      label: "WhatsApp",
+      text: "Message rapide",
+      href: `https://wa.me/${whatsapp}?text=${encodeURIComponent(
+        "Bonjour Auto BHJ, je souhaite prendre rendez-vous pour une voiture."
+      )}`,
+      external: true,
+      accent: "bg-[#25d366]/10 text-[#1fb958]",
+    },
+    {
+      icon: PhoneIcon,
+      label: phone,
+      text: "Appel direct",
+      href: `tel:${phoneTel}`,
+      accent: "bg-brand-pastel text-brand",
+    },
+    {
+      icon: MailIcon,
+      label: email,
+      text: "Par e-mail",
+      href: `mailto:${email}`,
+      accent: "bg-brand-pastel text-brand",
+    },
+    {
+      icon: PinIcon,
+      label: "Sint-Pieters-Leeuw",
+      text: "Sur rendez-vous",
+      href: MAPS_HREF,
+      external: true,
+      accent: "bg-brand-pastel text-brand",
+    },
+  ];
+
   return (
     <section className="py-16" aria-label="Nous contacter" id="contact">
       <div className="mx-auto max-w-6xl px-6">
@@ -51,7 +55,7 @@ export default function RendezVous() {
         </Reveal>
 
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {CONTACTS.map((contact, index) => {
+          {contacts.map((contact, index) => {
             const Icon = contact.icon;
             return (
               <Reveal key={contact.label} delay={index * 100}>
@@ -60,7 +64,9 @@ export default function RendezVous() {
                   {...(contact.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                   className="group flex items-center gap-3"
                 >
-                  <span className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${contact.accent}`}>
+                  <span
+                    className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${contact.accent}`}
+                  >
                     <Icon className="h-5 w-5" />
                   </span>
                   <span className="flex flex-col">

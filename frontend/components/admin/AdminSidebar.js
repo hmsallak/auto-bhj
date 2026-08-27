@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { CloseIcon } from "../home/icons";
 import AdminUserMenu from "./AdminUserMenu";
-import { OverviewIcon, StockIcon, MessagesIcon, UsersIcon } from "./icons";
+import { OverviewIcon, StockIcon, MessagesIcon, UsersIcon, SettingsIcon } from "./icons";
 
 // "profile" (the account settings page) is reachable only from the
 // top-right account menu, not the sidebar.
@@ -10,6 +10,7 @@ export const TABS = [
   { id: "stock", label: "Vehicules", Icon: StockIcon, permission: "stock_read" },
   { id: "messages", label: "Demandes", Icon: MessagesIcon, permission: "messages_read" },
   { id: "users", label: "Equipe", Icon: UsersIcon, ownerOnly: true },
+  { id: "settings", label: "Parametres site", Icon: SettingsIcon, ownerOnly: true },
 ];
 
 function canSeeTab(tab, user) {
