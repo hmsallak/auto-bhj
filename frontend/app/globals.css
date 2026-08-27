@@ -3997,34 +3997,53 @@ main,
   }
 }
 
+/* Categories packed into balanced columns; each category stays whole and
+   its items are a tight vertical list (checkbox + text, no boxes). */
 .equipment-picker {
-  display: grid;
-  gap: 16px;
+  column-count: 3;
+  column-gap: 34px;
+}
+
+.equipment-picker-group {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 900px) {
+  .equipment-picker {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 720px) {
+  .equipment-picker {
+    column-count: 1;
+  }
 }
 
 .equipment-picker-group h4 {
-  margin: 0 0 6px;
-  font-size: 13px;
+  margin: 0 0 3px;
+  font-size: 11.5px;
   color: var(--dash-accent);
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
 
 .equipment-picker-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 2px 16px;
+  display: block;
 }
 
 .equipment-checkbox {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 0;
+  gap: 7px;
+  padding: 2px 0;
   border: 0;
   border-radius: 0;
   background: none;
-  font-size: 13px;
+  font-size: 12.5px;
+  line-height: 1.35;
   cursor: pointer;
 }
 
@@ -4033,8 +4052,9 @@ main,
 }
 
 .equipment-checkbox input {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
   accent-color: var(--dash-accent);
 }
 
