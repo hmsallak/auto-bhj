@@ -11414,6 +11414,22 @@ main > .legal-shell,
   color: var(--admin-danger);
 }
 
+/* Bare danger button (outside the action dropdown): text-only, no box. */
+button.danger-text {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--admin-danger, #b91c1c);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button.danger-text:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .admin-action-dropdown .danger-text:hover {
   background: rgba(92, 92, 85, 0.1);
   color: var(--admin-danger);
@@ -12015,6 +12031,65 @@ main > .legal-shell,
 .team-page {
   display: grid;
   gap: 26px;
+}
+
+.team-requests {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.team-request-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.team-request {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  background: #fafbfc;
+}
+
+.team-request-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.team-request-head small {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.team-request-perms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+
+.team-request-perms label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.team-request-perms input {
+  width: auto;
+  min-height: 0;
+  margin: 0;
+}
+
+.team-request-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
 }
 
 .team-create-strip {

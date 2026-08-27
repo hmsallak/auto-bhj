@@ -125,12 +125,47 @@ function findById(id) {
   return db.prepare("SELECT * FROM admin_users WHERE id = ?").get(id);
 }
 
+// Active members plus signup requests awaiting approval. Unconfirmed
+// (pending_email) and rejected accounts are not shown.
 function listUsers() {
   const db = getDb();
   return db
-    .prepare("SELECT * FROM admin_users ORDER BY created_at ASC")
+    .prepare(
+      "SELECT * FROM admin_users WHERE status IN ('active', 'pending_approval') ORDER BY created_at ASC"
+    )
     .all()
     .map(rowToUser);
+}
+
+// Owner approves a signup request: grants permissions and activates it.
+function approveUser(id, permissions, actor) {
+  const target = findById(id);
+  if (!target) return { error: "Utilisateur introuvable." };
+  if (target.status !== "pending_approval") {
+    return { error: "Cette demande n'est plus en attente." };
+  }
+
+  const safePermissions = normalizePermissions(permissions);
+  getDb()
+    .prepare("UPDATE admin_users SET status = 'active', permissions = ? WHERE id = ?")
+    .run(JSON.stringify(safePermissions), id);
+
+  activityLog.log(actor, "user_approved", target.email || target.username);
+
+  return { user: rowToUser(findById(id)) };
+}
+
+// Owner rejects a signup request: the row is deleted so the address is free
+// to try again.
+function rejectUser(id, actor) {
+  const target = findById(id);
+  if (!target) return { error: "Utilisateur introuvable." };
+  if (target.role === "owner") return { error: "Impossible de refuser le proprietaire." };
+
+  getDb().prepare("DELETE FROM admin_users WHERE id = ?").run(id);
+  activityLog.log(actor, "user_rejected", target.email || target.username);
+
+  return { ok: true };
 }
 
 function updatePassword(username, newPassword) {
@@ -243,5 +278,7 @@ module.exports = {
   createUser,
   updateUser,
   updateUserPermissions,
+  approveUser,
+  rejectUser,
   deleteUser,
 };

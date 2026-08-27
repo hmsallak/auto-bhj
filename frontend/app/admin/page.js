@@ -297,6 +297,24 @@ export default function AdminPage() {
     await Promise.all([loadUsers(), loadActivity()]);
   }
 
+  async function handleApproveUser(id, permissions) {
+    await api(`/api/admin/users/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ approve: true, permissions }),
+    });
+    await Promise.all([loadUsers(), loadActivity()]);
+  }
+
+  async function handleRejectUser(id) {
+    await api(`/api/admin/users/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reject: true }),
+    });
+    await Promise.all([loadUsers(), loadActivity()]);
+  }
+
   async function handleDeleteUser(id) {
     await api(`/api/admin/users/${id}`, { method: "DELETE" });
     await Promise.all([loadUsers(), loadActivity()]);
@@ -309,6 +327,7 @@ export default function AdminPage() {
   }
 
   const unreadCount = messages.filter((msg) => !msg.isRead).length;
+  const pendingUserCount = users.filter((u) => u.status === "pending_approval").length;
 
   return (
     <div className="dashboard">
@@ -321,6 +340,7 @@ export default function AdminPage() {
         user={user}
         stockCount={cars.length}
         unreadCount={unreadCount}
+        pendingUserCount={pendingUserCount}
       />
       <button
         className={`dash-mobile-backdrop ${mobileMenuOpen ? "open" : ""}`}
@@ -407,6 +427,8 @@ export default function AdminPage() {
               users={users}
               activity={activity}
               onUpdatePermissions={handleUpdatePermissions}
+              onApproveUser={handleApproveUser}
+              onRejectUser={handleRejectUser}
               onDeleteUser={handleDeleteUser}
               onCreateClick={() => {
                 setEditingUser(null);

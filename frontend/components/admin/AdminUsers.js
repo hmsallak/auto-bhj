@@ -12,8 +12,77 @@ const ACTION_LABELS = {
   message_deleted: "Message supprime",
   user_created: "Membre cree",
   user_permissions_updated: "Permissions modifiees",
+  user_approved: "Demande approuvee",
+  user_rejected: "Demande refusee",
   user_deleted: "Membre supprime",
 };
+
+function PendingRequestCard({ request, onApprove, onReject }) {
+  const [selected, setSelected] = useState(() => new Set(request.permissions || []));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  function toggle(key) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  async function run(action) {
+    setBusy(true);
+    setError("");
+    try {
+      if (action === "approve") await onApprove(request.id, [...selected]);
+      else await onReject(request.id);
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <article className="team-request">
+      <div className="team-request-head">
+        <strong>{request.email || request.username}</strong>
+        <small>Demande du {new Date(request.createdAt).toLocaleDateString("fr-BE")}</small>
+      </div>
+      <div className="team-request-perms">
+        {USER_PERMISSIONS.map((permission) => (
+          <label key={permission.key}>
+            <input
+              type="checkbox"
+              checked={selected.has(permission.key)}
+              onChange={() => toggle(permission.key)}
+            />
+            {permission.group} &middot; {permission.label}
+          </label>
+        ))}
+      </div>
+      {error && <p className="message error">{error}</p>}
+      <div className="team-request-actions">
+        <button
+          className="button primary small"
+          type="button"
+          disabled={busy}
+          onClick={() => run("approve")}
+        >
+          Approuver
+        </button>
+        <button
+          className="danger-text"
+          type="button"
+          disabled={busy}
+          onClick={() => run("reject")}
+        >
+          Refuser
+        </button>
+      </div>
+    </article>
+  );
+}
 
 function relativeTime(iso) {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -38,6 +107,8 @@ function hasFullAccess(user) {
 export default function AdminUsers({
   users,
   activity,
+  onApproveUser,
+  onRejectUser,
   onDeleteUser,
   onCreateClick,
   onEditUser,
@@ -47,15 +118,24 @@ export default function AdminUsers({
   const [query, setQuery] = useState("");
   const [openMenuId, setOpenMenuId] = useState(null);
 
+  const pendingRequests = useMemo(
+    () => users.filter((user) => user.status === "pending_approval"),
+    [users]
+  );
+  const activeUsers = useMemo(
+    () => users.filter((user) => user.status !== "pending_approval"),
+    [users]
+  );
+
   const filteredUsers = useMemo(() => {
     const term = query.trim().toLowerCase();
-    if (!term) return users;
+    if (!term) return activeUsers;
 
-    return users.filter((user) => {
+    return activeUsers.filter((user) => {
       const permissions = user.permissions?.join(" ") || "";
       return `${user.username} ${user.role} ${permissions}`.toLowerCase().includes(term);
     });
-  }, [query, users]);
+  }, [query, activeUsers]);
 
   async function handleDelete(user) {
     try {
@@ -70,12 +150,35 @@ export default function AdminUsers({
     <div className="team-page">
       {message && <p className={`message ${isError ? "error" : ""}`}>{message}</p>}
 
+      {pendingRequests.length > 0 && (
+        <section className="team-requests" aria-labelledby="team-requests-title">
+          <div className="team-section-head">
+            <div>
+              <h2 id="team-requests-title">Demandes en attente</h2>
+              <p>
+                {pendingRequests.length} compte{pendingRequests.length > 1 ? "s" : ""} a valider
+              </p>
+            </div>
+          </div>
+          <div className="team-request-list">
+            {pendingRequests.map((request) => (
+              <PendingRequestCard
+                key={request.id}
+                request={request}
+                onApprove={onApproveUser}
+                onReject={onRejectUser}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="team-layout">
         <section className="team-members" aria-labelledby="team-members-title">
           <div className="team-section-head">
             <div>
               <h2 id="team-members-title">Membres</h2>
-              <p>{filteredUsers.length} sur {users.length} comptes</p>
+              <p>{filteredUsers.length} sur {activeUsers.length} comptes</p>
             </div>
             <input
               type="search"

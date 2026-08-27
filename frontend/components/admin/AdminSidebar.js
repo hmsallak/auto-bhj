@@ -34,6 +34,7 @@ export default function AdminSidebar({
   user,
   stockCount,
   unreadCount,
+  pendingUserCount = 0,
 }) {
   const visibleTabs = TABS.filter((tab) => canSeeTab(tab, user));
 
@@ -60,6 +61,9 @@ export default function AdminSidebar({
             {id === "stock" && <span className="dash-nav-badge">{stockCount}</span>}
             {id === "messages" && unreadCount > 0 && (
               <span className="dash-nav-badge unread">{unreadCount}</span>
+            )}
+            {id === "users" && pendingUserCount > 0 && (
+              <span className="dash-nav-badge unread">{pendingUserCount}</span>
             )}
           </button>
         ))}
