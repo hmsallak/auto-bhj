@@ -10856,6 +10856,87 @@ main > .legal-shell,
   font-weight: 500;
 }
 
+/* Round account button + menu, top-right of the dashboard topbar. */
+.dash-user-menu {
+  position: relative;
+  justify-self: end;
+}
+
+.dash-user-avatar {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  background: var(--admin-card, #ffffff);
+  color: var(--admin-text, #111827);
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.dash-user-avatar:hover {
+  border-color: var(--admin-accent, #1a4d3e);
+}
+
+.dash-user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  min-width: 200px;
+  display: grid;
+  padding: 6px;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(28, 28, 26, 0.14);
+}
+
+.dash-user-dropdown-head {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px 10px;
+  border-bottom: 1px solid var(--admin-border);
+  margin-bottom: 4px;
+}
+
+.dash-user-dropdown-head strong {
+  font-size: 13px;
+  color: var(--admin-text, #111827);
+}
+
+.dash-user-dropdown-head span {
+  font-size: 11.5px;
+  color: var(--admin-muted, #6b7280);
+  word-break: break-all;
+}
+
+.dash-user-dropdown button {
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--admin-text, #111827);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dash-user-dropdown button:hover {
+  background: var(--admin-hover, #f3f4f6);
+}
+
+.dash-user-dropdown button.danger-text {
+  padding: 9px 10px;
+  color: var(--admin-danger, #b91c1c);
+  font-weight: 600;
+}
+
 .dash-topbar .link-button {
   min-height: 36px;
   border-color: var(--admin-border);
@@ -12543,6 +12624,7 @@ button.danger-text:disabled {
 .profile-page {
   display: grid;
   gap: 26px;
+  max-width: 680px;
 }
 
 .profile-head {
@@ -12664,28 +12746,26 @@ button.danger-text:disabled {
   gap: clamp(22px, 4vw, 48px);
 }
 
-.profile-password-form {
+.profile-form {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) max-content;
-  align-items: end;
-  gap: 12px;
+  gap: 24px;
 }
 
-.profile-email-form {
+.profile-form label {
+  max-width: 380px;
+}
+
+.profile-password-fields {
+  display: grid;
+  gap: 14px;
+  max-width: 380px;
+}
+
+.profile-form-actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: end;
-  gap: 12px;
-}
-
-.profile-email-form label {
-  flex: 1 1 260px;
-}
-
-/* Icon-only reveal toggle - just enough right padding for a 18px icon,
-   no pill/background so it stays discreet inside the field. */
-.profile-password-form .password-field input {
-  padding-right: 38px;
+  gap: 10px;
+  padding-top: 2px;
 }
 
 .password-reveal {
@@ -12711,7 +12791,6 @@ button.danger-text:disabled {
 }
 
 .profile-session-actions {
-  grid-column: 2;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -12799,12 +12878,8 @@ button.danger-text:disabled {
     grid-template-columns: 1fr;
   }
 
-  .profile-session-actions {
-    grid-column: auto;
-  }
-
   .profile-password-form {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .settings-password-form {

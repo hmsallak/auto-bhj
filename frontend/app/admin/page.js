@@ -9,6 +9,7 @@ import AdminMessages from "../../components/admin/AdminMessages";
 import AdminUsers from "../../components/admin/AdminUsers";
 import AdminUserForm from "../../components/admin/AdminUserForm";
 import AdminProfile from "../../components/admin/AdminProfile";
+import AdminUserMenu from "../../components/admin/AdminUserMenu";
 import AdminSettings from "../../components/admin/AdminSettings";
 import AdminCarForm from "../../components/AdminCarForm";
 import { MenuIcon } from "../../components/home/icons";
@@ -20,7 +21,7 @@ const TAB_TITLES = {
   messages: "Messages",
   users: "Equipe",
   userForm: "Creer / Modifier un membre",
-  profile: "Mon profil",
+  profile: "Parametres du compte",
   settings: "Parametres",
 };
 
@@ -367,7 +368,11 @@ export default function AdminPage() {
             </div>
           </div>
           <div className="dash-topbar-actions">
-            <span className="dash-period">Donnees actuelles</span>
+            <AdminUserMenu
+              user={user}
+              onGoToProfile={() => selectAdminTab("profile")}
+              onLogout={handleLogout}
+            />
           </div>
         </header>
 

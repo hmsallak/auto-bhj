@@ -3,117 +3,78 @@
 import { useState } from "react";
 import { USER_PERMISSIONS } from "./userPermissions";
 
-function EyeIcon({ off }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
-      <circle cx="12" cy="12" r="3" />
-      {off && <path d="M4 4l16 16" />}
-    </svg>
-  );
-}
-
-function PasswordField({ label, name, autoComplete, minLength, visible, onToggleVisibility }) {
-  return (
-    <label>
-      {label}
-      <div className="password-field">
-        <input
-          name={name}
-          type={visible ? "text" : "password"}
-          autoComplete={autoComplete}
-          minLength={minLength}
-          required
-        />
-        <button
-          type="button"
-          className="password-reveal"
-          onClick={onToggleVisibility}
-          aria-label={visible ? "Masquer les mots de passe" : "Afficher les mots de passe"}
-          title={visible ? "Masquer" : "Afficher"}
-        >
-          <EyeIcon off={visible} />
-        </button>
-      </div>
-    </label>
-  );
-}
-
 function accessLabel(user) {
-  if (user?.role === "owner") return "Full acces Admin";
+  if (user?.role === "owner") return "Acces complet";
   const hasEverything = USER_PERMISSIONS.every((permission) =>
     user?.permissions?.includes(permission.key)
   );
-  return hasEverything ? "Full acces" : "Acces limite";
+  return hasEverything ? "Acces complet" : "Acces limite";
 }
 
 export default function AdminProfile({ user, onChangePassword, onUpdateEmail, onLogout }) {
+  const [showPassword, setShowPassword] = useState(true);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  // Visible by default so you can check exactly what you are setting - the
-  // "Masquer" button hides it again.
-  const [showPassword, setShowPassword] = useState(true);
-  const [emailMessage, setEmailMessage] = useState("");
-  const [emailIsError, setEmailIsError] = useState(false);
-  const [emailSubmitting, setEmailSubmitting] = useState(false);
+  // Bumping this remounts the form, so every field falls back to its
+  // defaultValue - used by Cancel and after a successful save.
+  const [formKey, setFormKey] = useState(0);
+
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
+  const roleLabel = user?.role === "owner" ? "Proprietaire" : "Membre";
   const activePermissions =
     user?.role === "owner"
       ? USER_PERMISSIONS
       : USER_PERMISSIONS.filter((permission) => user?.permissions?.includes(permission.key));
 
-  async function handleEmailSubmit(event) {
-    event.preventDefault();
-    const email = new FormData(event.currentTarget).get("email");
-    setEmailMessage("");
-    setEmailIsError(false);
-    setEmailSubmitting(true);
-    try {
-      await onUpdateEmail(email);
-      setEmailMessage("Email enregistre.");
-    } catch (error) {
-      setEmailMessage(error.message);
-      setEmailIsError(true);
-    } finally {
-      setEmailSubmitting(false);
-    }
+  function resetForm() {
+    setMessage("");
+    setIsError(false);
+    setFormKey((key) => key + 1);
   }
 
-  async function handlePasswordSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    // Grab the form node now: React nulls out event.currentTarget after the
-    // handler yields, so reading it again past the await below would throw.
     const form = event.currentTarget;
+    const data = new FormData(form);
+    const email = String(data.get("email") || "").trim();
+    const currentPassword = String(data.get("currentPassword") || "");
+    const newPassword = String(data.get("newPassword") || "");
+    const confirmPassword = String(data.get("confirmPassword") || "");
     setMessage("");
     setIsError(false);
 
-    const formData = new FormData(form);
-    const currentPassword = formData.get("currentPassword");
-    const newPassword = formData.get("newPassword");
-    const confirmPassword = formData.get("confirmPassword");
+    const wantsPasswordChange = Boolean(newPassword || confirmPassword);
 
-    if (newPassword !== confirmPassword) {
+    if (wantsPasswordChange && newPassword !== confirmPassword) {
       setMessage("Les deux mots de passe ne correspondent pas.");
+      setIsError(true);
+      return;
+    }
+    if (wantsPasswordChange && !currentPassword) {
+      setMessage("Saisis ton mot de passe actuel pour le changer.");
       setIsError(true);
       return;
     }
 
     setSubmitting(true);
     try {
-      await onChangePassword({ currentPassword, newPassword });
-      setMessage("Mot de passe mis a jour.");
-      form.reset();
+      const changed = [];
+      if (email !== (user?.email || "")) {
+        await onUpdateEmail(email);
+        changed.push("e-mail");
+      }
+      if (wantsPasswordChange) {
+        await onChangePassword({ currentPassword, newPassword });
+        changed.push("mot de passe");
+      }
+
+      if (changed.length) {
+        setMessage(`${changed.join(" et ")} mis a jour.`);
+        setFormKey((key) => key + 1);
+      } else {
+        setMessage("Aucune modification a enregistrer.");
+      }
     } catch (error) {
       setMessage(error.message);
       setIsError(true);
@@ -122,6 +83,8 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
     }
   }
 
+  const passwordType = showPassword ? "text" : "password";
+
   return (
     <section className="profile-page" aria-labelledby="profile-title">
       <div className="profile-head">
@@ -129,54 +92,46 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
           {(fullName || user?.username || "AB").slice(0, 2).toUpperCase()}
         </div>
         <div>
-          <p className="eyebrow">Mon profil</p>
-          <h2 id="profile-title">{fullName || user?.username}</h2>
-          <p>{user?.username}</p>
+          <p className="eyebrow">Parametres du compte</p>
+          <h2 id="profile-title">{fullName || user?.email || user?.username}</h2>
+          <p>
+            {user?.email || user?.username} &middot; {roleLabel}
+          </p>
         </div>
       </div>
 
-      <div className="profile-grid">
-        <section className="profile-section" aria-labelledby="profile-account-title">
-          <h3 id="profile-account-title">Compte</h3>
-          <div className="profile-lines">
-            <div>
-              <span>Role</span>
-              <strong>{user?.role === "owner" ? "Proprietaire" : "Membre"}</strong>
-            </div>
-            <div>
-              <span>Niveau d'acces</span>
-              <strong>{accessLabel(user)}</strong>
-            </div>
-            <div>
-              <span>Securite</span>
-              <strong>Session active</strong>
-            </div>
+      <section className="profile-section" aria-labelledby="profile-account-title">
+        <h3 id="profile-account-title">Compte</h3>
+        <div className="profile-lines">
+          <div>
+            <span>Identifiant</span>
+            <strong>{user?.email || user?.username}</strong>
           </div>
-        </section>
-
-        <section className="profile-section" aria-labelledby="profile-permissions-title">
-          <h3 id="profile-permissions-title">Autorisations</h3>
-          {activePermissions.length ? (
-            <div className="profile-permissions">
-              {activePermissions.map((permission) => (
-                <span key={permission.key}>{permission.label}</span>
-              ))}
-            </div>
-          ) : (
-            <p className="empty">Aucune autorisation active.</p>
-          )}
-        </section>
-      </div>
-
-      <section className="profile-section profile-security" aria-labelledby="profile-security-title">
-        <div>
-          <h3 id="profile-security-title">Securite</h3>
-          <p>Change ton mot de passe ou ferme la session pour utiliser un autre compte.</p>
+          <div>
+            <span>Role</span>
+            <strong>{roleLabel}</strong>
+          </div>
+          <div>
+            <span>Acces</span>
+            <strong>{accessLabel(user)}</strong>
+          </div>
+          <div>
+            <span>Autorisations</span>
+            <strong>
+              {activePermissions.length
+                ? activePermissions.map((permission) => permission.label).join(", ")
+                : "Aucune"}
+            </strong>
+          </div>
         </div>
+      </section>
 
-        <form className="profile-email-form" onSubmit={handleEmailSubmit}>
+      <form className="profile-form" key={formKey} onSubmit={handleSubmit}>
+        <section className="profile-section" aria-labelledby="profile-email-title">
+          <h3 id="profile-email-title">Email de recuperation</h3>
+          <p>Utilise pour reinitialiser ton mot de passe en cas d&apos;oubli.</p>
           <label>
-            Email de recuperation
+            Adresse e-mail
             <input
               name="email"
               type="email"
@@ -185,55 +140,67 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
               placeholder="prenom@exemple.com"
             />
           </label>
-          <button className="button neutral small" type="submit" disabled={emailSubmitting}>
-            {emailSubmitting ? "..." : "Enregistrer"}
-          </button>
-        </form>
+        </section>
 
-        {emailMessage && (
-          <p className={`message ${emailIsError ? "error" : ""}`}>{emailMessage}</p>
-        )}
-
-        <form className="profile-password-form" onSubmit={handlePasswordSubmit}>
-          <PasswordField
-            label="Mot de passe actuel"
-            name="currentPassword"
-            autoComplete="current-password"
-            visible={showPassword}
-            onToggleVisibility={() => setShowPassword((value) => !value)}
-          />
-          <PasswordField
-            label="Nouveau mot de passe"
-            name="newPassword"
-            autoComplete="new-password"
-            minLength={8}
-            visible={showPassword}
-            onToggleVisibility={() => setShowPassword((value) => !value)}
-          />
-          <PasswordField
-            label="Confirmation"
-            name="confirmPassword"
-            autoComplete="new-password"
-            minLength={8}
-            visible={showPassword}
-            onToggleVisibility={() => setShowPassword((value) => !value)}
-          />
-          <button className="button primary small" type="submit" disabled={submitting}>
-            {submitting ? "Mise a jour..." : "Changer le mot de passe"}
-          </button>
-        </form>
+        <section className="profile-section" aria-labelledby="profile-password-title">
+          <h3 id="profile-password-title">Changer le mot de passe</h3>
+          <p>Laisse ces champs vides pour ne pas le modifier.</p>
+          <div className="profile-password-fields">
+            <label>
+              Mot de passe actuel
+              <input name="currentPassword" type={passwordType} autoComplete="current-password" />
+            </label>
+            <label>
+              Nouveau mot de passe
+              <input
+                name="newPassword"
+                type={passwordType}
+                autoComplete="new-password"
+                minLength={8}
+              />
+            </label>
+            <label>
+              Confirmation
+              <input
+                name="confirmPassword"
+                type={passwordType}
+                autoComplete="new-password"
+                minLength={8}
+              />
+            </label>
+            <label className="reset-show-toggle">
+              <input
+                type="checkbox"
+                checked={showPassword}
+                onChange={(event) => setShowPassword(event.target.checked)}
+              />
+              Afficher les mots de passe
+            </label>
+          </div>
+        </section>
 
         {message && <p className={`message ${isError ? "error" : ""}`}>{message}</p>}
 
-        <div className="profile-session-actions">
-          <button className="button neutral small" type="button" onClick={onLogout}>
-            Se deconnecter
+        <div className="profile-form-actions">
+          <button
+            type="button"
+            className="button neutral small"
+            onClick={resetForm}
+            disabled={submitting}
+          >
+            Annuler
           </button>
-          <button className="button neutral small" type="button" onClick={onLogout}>
-            Changer d'utilisateur
+          <button type="submit" className="button primary small" disabled={submitting}>
+            {submitting ? "Enregistrement..." : "Enregistrer"}
           </button>
         </div>
-      </section>
+      </form>
+
+      <div className="profile-session-actions">
+        <button className="button neutral small" type="button" onClick={onLogout}>
+          Se deconnecter
+        </button>
+      </div>
     </section>
   );
 }
