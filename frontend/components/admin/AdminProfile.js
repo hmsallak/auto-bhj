@@ -3,6 +3,26 @@
 import { useState } from "react";
 import { USER_PERMISSIONS } from "./userPermissions";
 
+function EyeIcon({ off }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+      {off && <path d="M4 4l16 16" />}
+    </svg>
+  );
+}
+
 function PasswordField({ label, name, autoComplete, minLength, visible, onToggleVisibility }) {
   return (
     <label>
@@ -17,11 +37,12 @@ function PasswordField({ label, name, autoComplete, minLength, visible, onToggle
         />
         <button
           type="button"
-          className="password-toggle"
+          className="password-reveal"
           onClick={onToggleVisibility}
           aria-label={visible ? "Masquer les mots de passe" : "Afficher les mots de passe"}
+          title={visible ? "Masquer" : "Afficher"}
         >
-          {visible ? "Masquer" : "Afficher"}
+          <EyeIcon off={visible} />
         </button>
       </div>
     </label>

@@ -12561,6 +12561,34 @@ main > .legal-shell,
   gap: 12px;
 }
 
+/* Icon-only reveal toggle - just enough right padding for a 18px icon,
+   no pill/background so it stays discreet inside the field. */
+.profile-password-form .password-field input {
+  padding-right: 38px;
+}
+
+.password-reveal {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dash-muted, #6b7280);
+  cursor: pointer;
+}
+
+.password-reveal:hover {
+  color: var(--dash-accent);
+}
+
 .profile-session-actions {
   grid-column: 2;
   display: flex;
