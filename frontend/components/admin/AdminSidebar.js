@@ -38,6 +38,8 @@ export default function AdminSidebar({
   pendingUserCount = 0,
 }) {
   const visibleTabs = TABS.filter((tab) => canSeeTab(tab, user));
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
+  const roleLabel = user?.role === "owner" ? "Proprietaire" : "Membre";
 
   return (
     <aside className={`dash-sidebar ${isOpen ? "open" : ""}`} aria-label="Navigation admin">
@@ -47,16 +49,9 @@ export default function AdminSidebar({
           onGoToProfile={() => onSelect("profile")}
           onLogout={onLogout}
         />
-        <div className="dash-brand-logo">
-          <Image
-            className="dash-logo"
-            src="/logo-auto-bhj.png"
-            alt="Auto BHJ"
-            width={350}
-            height={200}
-            priority
-          />
-          <span className="dash-brand-sub">Administration</span>
+        <div className="dash-brand-identity">
+          <strong>{fullName || roleLabel}</strong>
+          <span>{user?.email || user?.username}</span>
         </div>
         <button
           className="dash-mobile-menu-close"
@@ -89,9 +84,18 @@ export default function AdminSidebar({
         ))}
       </nav>
 
+      <div className="dash-sidebar-logo">
+        <Image
+          className="dash-logo"
+          src="/logo-auto-bhj.png"
+          alt="Auto BHJ"
+          width={350}
+          height={200}
+          priority
+        />
+      </div>
+
       <div className="dash-sidebar-footer">
-        <span className="dash-user">{user?.username}</span>
-        <span className="dash-role">{user?.role === "owner" ? "Proprietaire" : "Membre"}</span>
         <button className="dash-sidebar-logout" type="button" onClick={onLogout}>
           Deconnexion
         </button>
