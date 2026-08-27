@@ -1,5 +1,5 @@
 const { getDb } = require("../db/connection");
-const { hashPassword, verifyPassword } = require("../auth/passwords");
+const { hashPassword } = require("../auth/passwords");
 const activityLog = require("./activityLog");
 
 const VALID_PERMISSIONS = [
@@ -122,39 +122,6 @@ function ensureSeedAdmin(username, password) {
   ).run(cleanText(username), hashPassword(password), new Date().toISOString());
 }
 
-// Break-glass reset: if ADMIN_PASSWORD_OVERRIDE is set in the environment, the
-// owner account's password is forced to that value. Meant for when you are
-// locked out - set the variable in Railway, redeploy, log in, change the
-// password from the admin, then delete the variable. It re-applies on every
-// boot while set (harmless, same value), and always warns so a forgotten
-// variable is visible in the logs.
-function applyPasswordOverride() {
-  const override = process.env.ADMIN_PASSWORD_OVERRIDE;
-  if (!override || override.length < 8) return;
-
-  const db = getDb();
-  const owner = db
-    .prepare("SELECT * FROM admin_users WHERE role = 'owner' ORDER BY id ASC LIMIT 1")
-    .get();
-  if (!owner) return;
-
-  if (verifyPassword(override, owner.password_hash)) {
-    console.warn(
-      `[admin] ADMIN_PASSWORD_OVERRIDE is still set for "${owner.username}" - remove it from the environment.`
-    );
-    return;
-  }
-
-  db.prepare("UPDATE admin_users SET password_hash = ? WHERE id = ?").run(
-    hashPassword(override),
-    owner.id
-  );
-  console.warn(
-    `[admin] Password reset for owner "${owner.username}" from ADMIN_PASSWORD_OVERRIDE. ` +
-      "Log in, change it from the admin, then delete the variable."
-  );
-}
-
 function createUser({ username, password, firstName, lastName, permissions }, actor) {
   const cleanUsername = cleanText(username);
   const cleanFirstName = cleanText(firstName);
@@ -237,7 +204,6 @@ module.exports = {
   listUsers,
   countAdmins,
   ensureSeedAdmin,
-  applyPasswordOverride,
   updatePassword,
   createUser,
   updateUser,

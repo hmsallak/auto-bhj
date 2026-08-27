@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { DatabaseSync } = require("node:sqlite");
+const { hashPassword, verifyPassword } = require("../auth/passwords");
 
 // Resolved from process.cwd() (the repo root, where npm scripts run from)
 // rather than __dirname: when this module is bundled by Next.js, __dirname
@@ -149,6 +150,37 @@ function ensureOwnerExists(database) {
   database.prepare("UPDATE admin_users SET role = 'owner' WHERE id = ?").run(oldest.id);
 }
 
+// Break-glass reset: if ADMIN_PASSWORD_OVERRIDE is set (>= 8 chars), the owner
+// account's password is forced to that value - once, here at DB init (process
+// start / redeploy), never per request. Set the variable in Railway, redeploy,
+// log in, change the password from the admin, then delete the variable. While
+// it stays set it re-applies on every redeploy and warns in the logs; it does
+// NOT fight password changes made between redeploys.
+function applyAdminPasswordOverride(database) {
+  const override = process.env.ADMIN_PASSWORD_OVERRIDE;
+  if (!override || override.length < 8) return;
+
+  const owner = database
+    .prepare("SELECT id, username, password_hash FROM admin_users WHERE role = 'owner' ORDER BY id ASC LIMIT 1")
+    .get();
+  if (!owner) return;
+
+  if (verifyPassword(override, owner.password_hash)) {
+    console.warn(
+      `[admin] ADMIN_PASSWORD_OVERRIDE is still set for "${owner.username}" - delete it from the environment.`
+    );
+    return;
+  }
+
+  database
+    .prepare("UPDATE admin_users SET password_hash = ? WHERE id = ?")
+    .run(hashPassword(override), owner.id);
+  console.warn(
+    `[admin] Password reset for owner "${owner.username}" from ADMIN_PASSWORD_OVERRIDE. ` +
+      "Log in, change it from the admin, then delete the variable."
+  );
+}
+
 function getDb() {
   if (db) return db;
 
@@ -166,6 +198,7 @@ function getDb() {
   migrateColumns(db, "admin_users", ADMIN_USERS_COLUMNS);
   migrateColumns(db, "sessions", SESSIONS_COLUMNS);
   ensureOwnerExists(db);
+  applyAdminPasswordOverride(db);
 
   return db;
 }
