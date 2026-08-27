@@ -14660,14 +14660,14 @@ button.danger-text:disabled {
 
 .photo-manager > .photo-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) repeat(2, minmax(96px, 0.65fr));
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
   align-items: start;
-  gap: 10px;
+  gap: 8px;
 }
 
 .photo-manager > .photo-grid .photo-thumb {
   min-height: 0;
-  aspect-ratio: 1 / 0.72;
+  aspect-ratio: 1 / 1;
   border: 1px solid var(--admin-border);
   border-radius: 9px;
   background: rgba(255, 255, 255, 0.035);
@@ -14708,13 +14708,10 @@ button.danger-text:disabled {
   transition: filter 120ms ease;
 }
 
-.photo-manager > .photo-grid .photo-thumb:first-child {
-  grid-row: span 2;
-  aspect-ratio: 16 / 10;
-}
-
+.photo-manager > .photo-grid .photo-thumb:first-child,
 .photo-manager > .photo-grid .photo-thumb:not(:first-child) {
-  aspect-ratio: 1 / 0.74;
+  grid-row: auto;
+  aspect-ratio: 1 / 1;
 }
 
 .photo-manager > .photo-grid .photo-thumb img {
@@ -14724,22 +14721,22 @@ button.danger-text:disabled {
 }
 
 .photo-manager > .photo-grid .photo-thumb-actions {
-  padding: 6px;
+  padding: 4px;
 }
 
 .photo-manager > .photo-grid .photo-thumb-actions button {
-  width: 32px;
-  height: 32px;
-  min-height: 32px;
-  font-size: 15px;
+  width: 26px;
+  height: 26px;
+  min-height: 26px;
+  font-size: 13px;
 }
 
 .photo-manager > .photo-grid .photo-thumb-position {
-  top: 8px;
-  right: 8px;
-  min-width: 22px;
-  height: 22px;
-  font-size: 12px;
+  top: 5px;
+  right: 5px;
+  min-width: 18px;
+  height: 18px;
+  font-size: 11px;
 }
 
 @media (max-width: 720px) {
@@ -14748,31 +14745,22 @@ button.danger-text:disabled {
     gap: 8px;
   }
 
-  .photo-manager > .photo-grid .photo-thumb:first-child {
-    grid-column: 1 / -1;
-    grid-row: auto;
-    aspect-ratio: 16 / 9;
-  }
-
+  .photo-manager > .photo-grid .photo-thumb:first-child,
   .photo-manager > .photo-grid .photo-thumb:not(:first-child) {
-    aspect-ratio: 1 / 0.82;
+    grid-column: auto;
+    grid-row: auto;
+    aspect-ratio: 1 / 1;
   }
 
   .photo-manager > .photo-grid .photo-thumb-actions {
-    padding: 5px;
+    padding: 4px;
   }
 
   .photo-manager > .photo-grid .photo-thumb-actions button,
   .photo-manager > .photo-grid .photo-thumb-actions button.danger {
-    width: 34px;
-    height: 34px;
-    min-height: 34px;
-  }
-}
-
-@media (max-width: 430px) {
-  .photo-manager > .photo-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 28px;
+    height: 28px;
+    min-height: 28px;
   }
 }
 

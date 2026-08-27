@@ -174,7 +174,19 @@ function PhotoThumb({
 
   function handlePointerDown(event) {
     if (prefersReducedMotion || photosLength <= 1) return;
+    // Never start a drag from the delete button.
+    if (event.target?.closest?.(".photo-thumb-actions")) return;
     clearPressTimer();
+
+    // Mouse: drag starts on press, no hold needed (holding a mouse still for
+    // half a second is unnatural). Touch/pen keeps the long-press so a normal
+    // vertical scroll that begins on a photo still scrolls the page.
+    if (event.pointerType === "mouse") {
+      onDragStateChange(photo.key, null);
+      dragControls.start(event);
+      return;
+    }
+
     pressOriginRef.current = { x: event.clientX, y: event.clientY };
     pressTimerRef.current = setTimeout(() => {
       if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(18);
@@ -236,12 +248,12 @@ function PhotoThumb({
       onPointerCancel={clearPressTimer}
       onContextMenu={(event) => event.preventDefault()}
       onDrag={(event, info) => {
-        const targetKey = findPhotoKeyAtPoint(info.point.x, info.point.y);
+        const targetKey = findPhotoKeyAtPoint(event, info);
         onDragStateChange(photo.key, targetKey && targetKey !== photo.key ? targetKey : null);
       }}
       onDragEnd={(event, info) => {
         clearPressTimer();
-        const targetKey = findPhotoKeyAtPoint(info.point.x, info.point.y);
+        const targetKey = findPhotoKeyAtPoint(event, info);
         if (targetKey) onReorder(photo.key, targetKey);
         onDragStateChange(null, null);
       }}
@@ -363,7 +375,14 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
     });
   }
 
-  function photoKeyAtPoint(x, y) {
+  // Framer's info.point is in page coordinates (it includes scroll), while
+  // elementFromPoint wants viewport coordinates - on a long form the photo
+  // grid is scrolled well down, so the raw point lands nowhere and no drop
+  // target is found ("the hand closes but nothing happens"). The native
+  // event's clientX/clientY are already viewport-relative.
+  function photoKeyAtPoint(event, info) {
+    const x = typeof event?.clientX === "number" ? event.clientX : info.point.x - window.scrollX;
+    const y = typeof event?.clientY === "number" ? event.clientY : info.point.y - window.scrollY;
     const target = document.elementFromPoint(x, y)?.closest("[data-photo-key]");
     return target?.getAttribute("data-photo-key") || null;
   }
