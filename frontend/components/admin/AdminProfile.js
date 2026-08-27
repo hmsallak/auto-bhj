@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { USER_PERMISSIONS } from "./userPermissions";
 
 function accessLabel(user) {
@@ -12,13 +12,18 @@ function accessLabel(user) {
 }
 
 export default function AdminProfile({ user, onChangePassword, onUpdateEmail, onLogout }) {
-  const [showPassword, setShowPassword] = useState(true);
   const [message, setMessage] = useState("");
-  const [isError, setIsError] = useState(false);
+  const [toast, setToast] = useState("");
   const [submitting, setSubmitting] = useState(false);
   // Bumping this remounts the form, so every field falls back to its
   // defaultValue - used by Cancel and after a successful save.
   const [formKey, setFormKey] = useState(0);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(""), 3200);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
   const roleLabel = user?.role === "owner" ? "Proprietaire" : "Membre";
@@ -29,7 +34,6 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
 
   function resetForm() {
     setMessage("");
-    setIsError(false);
     setFormKey((key) => key + 1);
   }
 
@@ -42,18 +46,15 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
     const newPassword = String(data.get("newPassword") || "");
     const confirmPassword = String(data.get("confirmPassword") || "");
     setMessage("");
-    setIsError(false);
 
     const wantsPasswordChange = Boolean(newPassword || confirmPassword);
 
     if (wantsPasswordChange && newPassword !== confirmPassword) {
       setMessage("Les deux mots de passe ne correspondent pas.");
-      setIsError(true);
       return;
     }
     if (wantsPasswordChange && !currentPassword) {
       setMessage("Saisis ton mot de passe actuel pour le changer.");
-      setIsError(true);
       return;
     }
 
@@ -62,31 +63,35 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
       const changed = [];
       if (email !== (user?.email || "")) {
         await onUpdateEmail(email);
-        changed.push("e-mail");
+        changed.push("E-mail");
       }
       if (wantsPasswordChange) {
         await onChangePassword({ currentPassword, newPassword });
-        changed.push("mot de passe");
+        changed.push("Mot de passe");
       }
 
       if (changed.length) {
-        setMessage(`${changed.join(" et ")} mis a jour.`);
+        setToast(`${changed.join(" et ")} modifie${changed.length > 1 ? "s" : ""} avec succes.`);
         setFormKey((key) => key + 1);
       } else {
         setMessage("Aucune modification a enregistrer.");
       }
     } catch (error) {
       setMessage(error.message);
-      setIsError(true);
     } finally {
       setSubmitting(false);
     }
   }
 
-  const passwordType = showPassword ? "text" : "password";
-
   return (
     <section className="profile-page" aria-labelledby="profile-title">
+      {toast && (
+        <div className="admin-toast" role="status">
+          <span aria-hidden="true">&#10003;</span>
+          {toast}
+        </div>
+      )}
+
       <div className="profile-head">
         <div className="profile-avatar" aria-hidden="true">
           {(fullName || user?.username || "AB").slice(0, 2).toUpperCase()}
@@ -148,38 +153,25 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
           <div className="profile-password-fields">
             <label>
               Mot de passe actuel
-              <input name="currentPassword" type={passwordType} autoComplete="current-password" />
+              <input name="currentPassword" type="password" autoComplete="current-password" />
             </label>
             <label>
               Nouveau mot de passe
-              <input
-                name="newPassword"
-                type={passwordType}
-                autoComplete="new-password"
-                minLength={8}
-              />
+              <input name="newPassword" type="password" autoComplete="new-password" minLength={8} />
             </label>
             <label>
               Confirmation
               <input
                 name="confirmPassword"
-                type={passwordType}
+                type="password"
                 autoComplete="new-password"
                 minLength={8}
               />
             </label>
-            <label className="reset-show-toggle">
-              <input
-                type="checkbox"
-                checked={showPassword}
-                onChange={(event) => setShowPassword(event.target.checked)}
-              />
-              Afficher les mots de passe
-            </label>
           </div>
         </section>
 
-        {message && <p className={`message ${isError ? "error" : ""}`}>{message}</p>}
+        {message && <p className="message error">{message}</p>}
 
         <div className="profile-form-actions">
           <button
@@ -191,7 +183,7 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
             Annuler
           </button>
           <button type="submit" className="button primary small" disabled={submitting}>
-            {submitting ? "Enregistrement..." : "Enregistrer"}
+            {submitting ? "Enregistrement..." : "Sauvegarder"}
           </button>
         </div>
       </form>

@@ -5,16 +5,16 @@ import {
   StockIcon,
   MessagesIcon,
   UsersIcon,
-  ProfileIcon,
   SettingsIcon,
 } from "./icons";
 
+// "profile" is still a valid tab (opened from the top-right account menu),
+// it just no longer has an entry in the sidebar.
 export const TABS = [
   { id: "overview", label: "Tableau de bord", Icon: OverviewIcon },
   { id: "stock", label: "Vehicules", Icon: StockIcon, permission: "stock_read" },
   { id: "messages", label: "Demandes", Icon: MessagesIcon, permission: "messages_read" },
   { id: "users", label: "Equipe", Icon: UsersIcon, ownerOnly: true },
-  { id: "profile", label: "Mon profil", Icon: ProfileIcon },
   { id: "settings", label: "Parametres", Icon: SettingsIcon, ownerOnly: true },
 ];
 
