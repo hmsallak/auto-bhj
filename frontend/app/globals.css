@@ -2982,13 +2982,25 @@ main,
   font-weight: 700;
 }
 
-.admin-login-forgot {
-  display: block;
+.admin-login-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
   margin-top: 14px;
+}
+
+.admin-login-links a {
   color: rgba(255, 255, 255, 0.82);
   font-size: 12.5px;
   font-weight: 600;
-  text-align: center;
+}
+
+.signup-rules {
+  margin: -4px 0 2px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .reset-show-toggle {

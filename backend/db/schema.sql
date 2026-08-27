@@ -112,3 +112,14 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
 );
 
 CREATE INDEX IF NOT EXISTS idx_password_reset_username ON password_reset_tokens (username, created_at);
+
+-- Self-signup e-mail confirmation links (same shape as password resets).
+CREATE TABLE IF NOT EXISTS email_verification_tokens (
+  token_hash TEXT PRIMARY KEY,
+  username TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL,
+  used_at INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_verification_username ON email_verification_tokens (username, created_at);

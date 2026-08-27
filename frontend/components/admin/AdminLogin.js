@@ -74,9 +74,10 @@ export default function AdminLogin({ onSubmit, message }) {
           </button>
         </form>
 
-        <a className="admin-login-forgot" href="/admin/forgot">
-          Mot de passe oublie ?
-        </a>
+        <div className="admin-login-links">
+          <a href="/admin/forgot">Mot de passe oublie ?</a>
+          <a href="/admin/signup">Creer un compte</a>
+        </div>
 
         {message && <p className="message error">{message}</p>}
 
