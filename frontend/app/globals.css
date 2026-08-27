@@ -3933,11 +3933,11 @@ main,
 
 .equipment-picker {
   display: grid;
-  gap: 22px;
+  gap: 16px;
 }
 
 .equipment-picker-group h4 {
-  margin: 0 0 10px;
+  margin: 0 0 6px;
   font-size: 13px;
   color: var(--dash-accent);
   text-transform: uppercase;
@@ -3946,18 +3946,18 @@ main,
 
 .equipment-picker-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 6px;
 }
 
 .equipment-checkbox {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 12px;
+  gap: 7px;
+  padding: 6px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: border-color 150ms ease, background 150ms ease;
 }
@@ -3968,8 +3968,8 @@ main,
 }
 
 .equipment-checkbox input {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   accent-color: var(--dash-accent);
 }
 
@@ -11844,7 +11844,7 @@ button.danger-text:disabled {
 
 .member-permissions label,
 .equipment-checkbox {
-  min-height: 40px;
+  min-height: 32px;
   border-color: var(--admin-border);
   border-radius: 8px;
   background: var(--admin-card-2);
