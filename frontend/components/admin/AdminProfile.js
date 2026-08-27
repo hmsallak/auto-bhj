@@ -49,10 +49,13 @@ export default function AdminProfile({ user, onChangePassword, onLogout }) {
 
   async function handlePasswordSubmit(event) {
     event.preventDefault();
+    // Grab the form node now: React nulls out event.currentTarget after the
+    // handler yields, so reading it again past the await below would throw.
+    const form = event.currentTarget;
     setMessage("");
     setIsError(false);
 
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(form);
     const currentPassword = formData.get("currentPassword");
     const newPassword = formData.get("newPassword");
     const confirmPassword = formData.get("confirmPassword");
@@ -67,7 +70,7 @@ export default function AdminProfile({ user, onChangePassword, onLogout }) {
     try {
       await onChangePassword({ currentPassword, newPassword });
       setMessage("Mot de passe mis a jour.");
-      event.currentTarget.reset();
+      form.reset();
     } catch (error) {
       setMessage(error.message);
       setIsError(true);
