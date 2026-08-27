@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { formatKm } from "../lib/format";
 import {
   MileageIcon,
@@ -80,24 +80,11 @@ function Block({ icon: Icon, title, open, onToggle, children }) {
 }
 
 export default function CarSpecSheet({ car }) {
+  // Only the first section is open on load; Equipements and Description
+  // start collapsed. The user can still toggle any of them.
   const [generalOpen, setGeneralOpen] = useState(true);
-  const [equipmentOpen, setEquipmentOpen] = useState(true);
-  const [infoOpen, setInfoOpen] = useState(true);
-
-  useEffect(() => {
-    const mobileQuery = window.matchMedia("(max-width: 820px)");
-
-    function syncAccordionState(eventOrQuery = mobileQuery) {
-      const openByDefault = !eventOrQuery.matches;
-      setGeneralOpen(openByDefault);
-      setEquipmentOpen(openByDefault);
-      setInfoOpen(openByDefault);
-    }
-
-    syncAccordionState(mobileQuery);
-    mobileQuery.addEventListener("change", syncAccordionState);
-    return () => mobileQuery.removeEventListener("change", syncAccordionState);
-  }, []);
+  const [equipmentOpen, setEquipmentOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
 
   const power = car.powerKw && car.powerCh ? `${car.powerKw} kW (${car.powerCh} ch)` : null;
 
