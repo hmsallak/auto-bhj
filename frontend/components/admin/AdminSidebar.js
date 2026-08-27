@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { CloseIcon } from "../home/icons";
+import AdminUserMenu from "./AdminUserMenu";
 import {
   OverviewIcon,
   StockIcon,
@@ -41,9 +42,28 @@ export default function AdminSidebar({
   return (
     <aside className={`dash-sidebar ${isOpen ? "open" : ""}`} aria-label="Navigation admin">
       <div className="dash-brand">
-        <Image className="dash-logo" src="/logo-auto-bhj.png" alt="Auto BHJ" width={350} height={200} priority />
-        <span className="dash-brand-sub">Administration</span>
-        <button className="dash-mobile-menu-close" type="button" aria-label="Fermer le menu" onClick={onClose}>
+        <AdminUserMenu
+          user={user}
+          onGoToProfile={() => onSelect("profile")}
+          onLogout={onLogout}
+        />
+        <div className="dash-brand-logo">
+          <Image
+            className="dash-logo"
+            src="/logo-auto-bhj.png"
+            alt="Auto BHJ"
+            width={350}
+            height={200}
+            priority
+          />
+          <span className="dash-brand-sub">Administration</span>
+        </div>
+        <button
+          className="dash-mobile-menu-close"
+          type="button"
+          aria-label="Fermer le menu"
+          onClick={onClose}
+        >
           <CloseIcon aria-hidden="true" />
         </button>
       </div>
