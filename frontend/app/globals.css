@@ -10856,10 +10856,18 @@ main > .legal-shell,
   font-weight: 500;
 }
 
-/* Round account button + menu, top-right of the dashboard topbar. */
+/* Round account button + menu, top-right of the dashboard topbar.
+   Desktop only - on mobile the collapsible sidebar already carries
+   the logout action. */
 .dash-user-menu {
   position: relative;
   justify-self: end;
+}
+
+@media (max-width: 980px) {
+  .dash-user-menu {
+    display: none;
+  }
 }
 
 .dash-user-avatar {
