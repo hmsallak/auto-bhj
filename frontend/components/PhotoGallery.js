@@ -182,7 +182,7 @@ export default function PhotoGallery({ images, alt, status }) {
   return (
     <div className="flex flex-col gap-3">
       <div
-        className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-line bg-white sm:aspect-[16/10]"
+        className="relative aspect-[4/3] overflow-hidden rounded-xl border border-line bg-white sm:aspect-[16/10]"
         onTouchStart={active && !sold ? handleTouchStart : undefined}
         onTouchEnd={active && !sold ? handleTouchEnd : undefined}
       >

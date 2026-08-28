@@ -1,4 +1,4 @@
-import { Outfit, Plus_Jakarta_Sans, Poppins } from "next/font/google";
+import { Montserrat, Plus_Jakarta_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -8,9 +8,9 @@ const jakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-const outfit = Outfit({
+const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-display",
   display: "swap",
 });
@@ -34,7 +34,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="fr" className={`${jakarta.variable} ${outfit.variable} ${poppins.variable}`}>
+    <html lang="fr" className={`${jakarta.variable} ${montserrat.variable} ${poppins.variable}`}>
       <head>
       </head>
       <body>{children}</body>

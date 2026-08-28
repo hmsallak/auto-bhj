@@ -1,15 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { WhatsAppIcon } from "./icons";
 import { useSiteSettings } from "../SiteSettingsProvider";
 
 export default function WhatsAppFab() {
   const { whatsapp } = useSiteSettings();
+  const pathname = usePathname();
   const whatsappHref = `https://wa.me/${whatsapp}?text=${encodeURIComponent(
     "Bonjour Auto BHJ, je souhaite des informations sur une voiture."
   )}`;
   const [hiddenByFooter, setHiddenByFooter] = useState(false);
+
+  // Sur la fiche vehicule, le contact se fait via les boutons de la page :
+  // pas de raccourci WhatsApp flottant ici.
+  const hideOnRoute = pathname?.startsWith("/cars/");
 
   useEffect(() => {
     const footer = document.querySelector("footer");
@@ -33,6 +39,8 @@ export default function WhatsAppFab() {
 
     return () => observer.disconnect();
   }, []);
+
+  if (hideOnRoute) return null;
 
   return (
     <a

@@ -12,25 +12,32 @@ import {
   SlidersIcon,
   ChevronDownIcon,
   CheckCircleIcon,
+  LeafIcon,
 } from "./home/icons";
 
 export function SpecHighlights({ car }) {
   const cells = [
+    { icon: RegistrationIcon, label: "Annee", value: car.year },
     { icon: MileageIcon, label: "Kilometrage", value: formatKm(car.mileage) },
-    { icon: RegistrationIcon, label: "Annee d'immatriculation", value: car.year },
     { icon: FuelIcon, label: "Carburant", value: car.fuel },
-    { icon: GearboxIcon, label: "Transmission", value: car.gearbox },
+    { icon: GearboxIcon, label: "Boite", value: car.gearbox },
     { icon: PowerIcon, label: "Puissance", value: car.powerCh ? `${car.powerCh} ch` : "-" },
+    { icon: LeafIcon, label: "Norme Euro", value: car.emissionClass || "-" },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-3 gap-x-3 gap-y-4 rounded-xl border border-line bg-white p-4 sm:gap-x-6 sm:p-5">
       {cells.map(({ icon: Icon, label, value }) => (
-        <div key={label} className="flex min-w-0 flex-col gap-1.5 rounded-xl bg-sage/10 p-3">
-          <Icon className="h-5 w-5 shrink-0 text-brand" />
+        <div
+          key={label}
+          className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3"
+        >
+          <Icon className="h-5 w-5 shrink-0 text-brand sm:h-6 sm:w-6" />
           <div className="flex min-w-0 flex-col">
-            <span className="text-[12px] text-subtle">{label}</span>
-            <strong className="break-words text-[14px] font-bold text-ink">{value}</strong>
+            <strong className="break-words text-[13px] font-bold leading-tight text-ink sm:text-[14px]">
+              {value}
+            </strong>
+            <span className="break-words text-[11px] text-subtle sm:text-[12px]">{label}</span>
           </div>
         </div>
       ))}

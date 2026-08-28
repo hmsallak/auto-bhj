@@ -47,8 +47,8 @@ export default function RendezVous() {
   ];
 
   return (
-    <section className="py-16" aria-label="Nous contacter" id="contact">
-      <div className="mx-auto max-w-6xl px-6">
+    <section className="py-14 sm:py-16 lg:py-20" aria-label="Nous contacter" id="contact">
+      <div className="mx-auto max-w-6xl px-6 md:px-10 xl:px-16">
         <Reveal>
           <SectionEyebrow>Une question, une voiture qui vous plait ?</SectionEyebrow>
           <h2 className="mt-2 text-2xl font-bold text-ink">Contactez-nous, on repond vite</h2>

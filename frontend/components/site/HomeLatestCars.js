@@ -20,7 +20,7 @@ export default function HomeLatestCars() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl px-6">
+    <div className="mx-auto max-w-7xl px-6 md:px-10 xl:px-16">
       <Reveal>
         <SectionEyebrow>Notre stock</SectionEyebrow>
         <h2 className="mt-2 text-2xl font-bold text-ink">Nos dernieres voitures arrivees</h2>
@@ -41,7 +41,7 @@ export default function HomeLatestCars() {
       <div className="mt-10 flex justify-center">
         <a
           href="/stock"
-          className="inline-flex min-h-[52px] items-center justify-center rounded-lg bg-brand px-8 text-[15px] font-semibold text-white transition-colors hover:bg-brand-dark"
+          className="inline-flex items-center justify-center rounded-full bg-cta px-10 py-4 text-[15px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-cta-dark"
         >
           Voir toutes nos voitures
         </a>

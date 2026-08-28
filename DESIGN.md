@@ -28,6 +28,7 @@ suite au retour client du 2026-08-25 :
 | **10 Accent** | `var(--signal)` `#0056B3` | `#ffffff` | hover `var(--signal-dim)` `#0A2540` | accents/focus |
 
 - **Bleu d'accent** : `var(--signal)` `#0056B3`, hover/actif `var(--signal-dim)` `#0A2540`. C'est la couleur reservee aux boutons, prix, liens actifs, focus et icones importantes.
+- **Boutons d'action** (2026-08-28) : teal `var(--color-cta)` `#2d6b76`, hover `var(--color-cta-dark)` `#245861` -- meme couleur que le header (`bg-[#2d6b76]`). C'est la couleur des CTA pleins (`bg-cta`) : header, sections home, formulaire fiche, barre mobile, pagination stock. Les icones trait, liens et accents restent en vert `var(--color-brand)` `#1a4d3e` (`text-brand`) -- ne pas confondre bouton (teal) et accent (vert).
 - **Exceptions** : le vert `#25d366` reste uniquement pour WhatsApp. Le back-office admin garde son theme operationnel separe.
 - **Cards et filtres** : utiliser `var(--carbon-raised)` `#E9ECEF` avec `border: 1px solid var(--carbon-line)`. Eviter les anciens overlays sombres ou les cards blanches dominantes.
 - **Rouge** : ne plus l'utiliser sur le site public comme accent d'action.
@@ -40,10 +41,11 @@ suite au retour client du 2026-08-25 :
 
 Deux polices, chargees via `next/font` dans `app/layout.js` :
 
-- **`var(--font-display)`** = Outfit -- pour tous les titres (`h1`-`h4`), `.brand`, `.eyebrow`, `.button`, boutons/CTA. Regle globale deja posee (`globals.css` ligne ~217) : ne pas la redeclarer par composant, elle s'applique automatiquement a tout `h1`-`h4`.
-- **`var(--font-template)`** = Plus Jakarta Sans -- texte courant (`body`), paragraphes, labels de formulaire.
+- **`var(--font-display)`** = Montserrat -- pour tous les titres (`h1`-`h4`), `.brand`, `.eyebrow`, `.button`, boutons/CTA. Regle globale deja posee (`globals.css` ligne ~217) : ne pas la redeclarer par composant, elle s'applique automatiquement a tout `h1`-`h4`.
+- **`var(--font-template)`** = Plus Jakarta Sans -- texte courant (`body`), paragraphes, labels de formulaire. Applique via `globals.css` `body { font-family: var(--font-template) }`. (2026-08-28 : l'override `Inter` qui trainait sur le wrapper du layout `(home)` a ete retire -- tout le site public utilise maintenant vraiment ce couple Montserrat / Plus Jakarta Sans, comme l'admin utilise Poppins de son cote.)
 
 Echelle observee sur la home (a garder comme reference, pas de nouvelle taille arbitraire) :
+- Regle globale `h1` / `h2` (`globals.css` ~1305) : `h1` = `clamp(22px, 7vw, 70px)`, `h2` = `clamp(22px, 4vw, 42px)`. Le plancher a ete abaisse a 22px le 2026-08-28 : avant, `h1` a 38px minimum faisait deborder le titre du Hero hors de l'ecran sur mobile (scroll horizontal / dezoom). `overflow-wrap: break-word` ajoute sur `h1`-`h3` en filet de securite, et `overflow-x-clip` sur le wrapper du layout `(home)`.
 - Grand titre de section : `clamp(28px, 3.6vw, 46px)` a `clamp(38px, 5vw, 76px)` selon l'importance de la section, `font-weight: 850`.
 - Eyebrow/kicker (petit mot au-dessus du titre) : 12-15px, `font-weight: 850-900`, `letter-spacing: 0.06em-0.14em`, `text-transform: uppercase`, couleur `var(--signal)`.
 - Texte de lede/intro : `clamp(16px, 1.35vw, 21px)`, couleur attenuee (`rgba(242,240,236,0.72)` sur sombre / `var(--paper-muted)` sur clair).
@@ -85,9 +87,27 @@ d'en creer une nouvelle a chaque section.
 
 ## 4. Boutons / CTA
 
-**Le bouton de reference** (etabli explicitement par l'utilisateur apres
-rejet du style precedent -- voir `.reasons-contact-button` /
-`.stock-catalog-more-button`) :
+**Bouton de reference (2026-08-28)** -- style "pilule majuscules", applique a
+tous les CTA pleins du site public :
+
+```
+inline-flex items-center justify-center rounded-full
+bg-cta hover:bg-cta-dark        /* #2d6b76 -> #245861 (le teal du header) */
+px-10 py-4                       /* CTA de section ; header + barre mobile gardent px-5 / px-3 + min-h-[46px] */
+text-[13-15px] font-semibold uppercase tracking-wider   /* letter-spacing 0.05em */
+text-white transition-colors
+```
+
+Pas de degrade, pas d'ombre en couches. La couleur (`bg-cta`) est la seule
+chose reprise du site -- le reste (pilule, majuscules, letter-spacing) vient
+du composant scroll-story du registre que l'utilisateur a valide.
+Exceptions : pagination du stock (petits carres numerotes) et le selecteur
+segmente de `QrLanding` gardent leur style propre. WhatsApp reste `#25d366`.
+
+<details><summary>Ancien bouton de reference (avant 2026-08-28)</summary>
+
+Etabli apres rejet du style precedent -- voir `.reasons-contact-button` /
+`.stock-catalog-more-button` :
 
 ```css
 display: inline-flex;
@@ -104,8 +124,9 @@ font-size: 15px;
 font-weight: 700;
 ```
 Hover : `background: var(--signal-dim)`. Pas de degrade, pas de glossy
-sheen, pas d'ombre en couches -- **simple, rouge plein, texte blanc**.
-C'est la regle a suivre pour tout nouveau bouton du site public.
+sheen, pas d'ombre en couches.
+
+</details>
 
 **Effet zoom en boucle optionnel** sur les CTA importants (pas tous les
 boutons) : `animation: ctaPulse 2.6s ease-in-out infinite;` (`scale(1)`
@@ -113,9 +134,21 @@ boutons) : `animation: ctaPulse 2.6s ease-in-out infinite;` (`scale(1)`
 
 ## 5. Structure de section / cards
 
-- Padding lateral standard d'une section : 24px minimum, jusqu'a
-  `max(24px, calc((100vw - 1180px) / 2))` sur tres grand ecran (variable
-  selon largeur de contenu cible de la section).
+- **Espacement des sections de la home (Tailwind, 2026-08-28)** : echelle
+  unique appliquee a toutes les sections + header + footer pour eviter les
+  sauts brutaux entre petit et grand ecran.
+  - Gouttiere laterale (sur le conteneur interne `mx-auto max-w-6xl/7xl`) :
+    `px-6 md:px-10 xl:px-16` (24 -> 40 -> 64px). Le `max-w-*` reste le
+    plafond du contenu ; `xl:px-16` sert surtout de plancher sur ecran
+    moyen/carre ou les sections touchaient les bords.
+  - Rythme vertical (sur la balise `<section>`) : `py-14 sm:py-16 lg:py-20`
+    (56 -> 64 -> 80px). Exceptions : Hero garde `py-20` constant ;
+    `JourneyScrollStory` a son rythme propre (panneau sticky `100svh`) et
+    ne suit pas cette regle.
+- Ancien systeme CSS (legacy `globals.css`, non-Tailwind) : padding lateral
+  `max(24px, calc((100vw - 1180px) / 2))` -- conserve pour les vieilles
+  classes `.section` / `.stock-catalog-hero` etc., a ne pas melanger avec
+  l'echelle Tailwind ci-dessus.
 - Rayon de coin card : `var(--radius-card)` (16px) -- standardise sur les
   4 familles de cards de la home (`.reasons-card`, `.about-bhj-feature`,
   `.stock-catalog-proof-item`, `.contact-simple-card`). Utiliser ce token

@@ -10,7 +10,7 @@ export default function HomeFooter() {
 
   return (
     <footer className="border-t border-white/10 bg-ink">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 py-14 sm:grid-cols-2 md:px-10 lg:grid-cols-4 xl:px-16">
         <div className="flex flex-col gap-3">
           <a href="/" className="w-fit">
             <Image src="/logo-auto-bhj-footer.png" alt="Auto BHJ" width={350} height={200} className="h-16 w-auto" />
@@ -76,7 +76,7 @@ export default function HomeFooter() {
         </div>
       </div>
 
-      <div className="border-t border-white/10 px-6 py-5">
+      <div className="border-t border-white/10 px-6 py-5 md:px-10 xl:px-16">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 text-[13px] text-white sm:flex-row sm:items-center sm:justify-between">
           <span>&copy; {year} Auto BHJ SRL. Tous droits réservés.</span>
           <span>TVA BE 0801.303.538</span>

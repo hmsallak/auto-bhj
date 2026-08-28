@@ -1,5 +1,5 @@
 import Hero from "../../components/site/Hero";
-import HowItWorks from "../../components/site/HowItWorks";
+import JourneyScrollStory from "../../components/site/JourneyScrollStory";
 import YoungDrivers from "../../components/site/YoungDrivers";
 import HomeLatestCars from "../../components/site/HomeLatestCars";
 import AboutUs from "../../components/site/AboutUs";
@@ -49,10 +49,10 @@ export default function HomePage() {
         }}
       />
       <Hero />
-      <section className="py-16" id="stock">
+      <section className="py-14 sm:py-16 lg:py-20" id="stock">
         <HomeLatestCars />
       </section>
-      <HowItWorks />
+      <JourneyScrollStory />
       <YoungDrivers />
       <AboutUs />
       <RendezVous />

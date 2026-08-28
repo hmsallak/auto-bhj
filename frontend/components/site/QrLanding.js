@@ -101,7 +101,7 @@ export default function QrLanding() {
               transition={{ duration: 0.4, ease: EASE, delay: prefersReducedMotion ? 0 : 0.08 * index }}
               className={`flex items-center gap-4 rounded-2xl border px-5 py-4 text-left shadow-sm transition-transform duration-150 hover:-translate-y-0.5 ${
                 link.primary
-                  ? "border-brand bg-brand text-white hover:bg-brand-dark"
+                  ? "border-cta bg-cta text-white hover:bg-cta-dark"
                   : "border-line bg-white text-ink hover:border-sage"
               }`}
             >

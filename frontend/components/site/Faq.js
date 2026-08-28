@@ -69,7 +69,7 @@ export default function Faq() {
             </p>
             <a
               href="tel:+32483208801"
-              className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 text-[14px] font-semibold text-white transition-colors hover:bg-brand-dark"
+              className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-cta px-4 text-[14px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-cta-dark"
             >
               <PhoneIcon className="h-4 w-4" />
               Nous contacter

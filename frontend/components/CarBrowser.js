@@ -386,9 +386,14 @@ export default function CarBrowser() {
               setFiltersOpen((value) => !value);
               setSortOpen(false);
             }}
-            className="flex h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-[14px] font-medium text-ink"
+            aria-expanded={filtersOpen}
+            className="flex h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-line bg-white px-4 text-[14px] font-medium text-ink"
           >
-            Filtre{activeFilterLabels.length > 0 ? ` (${activeFilterLabels.length})` : ""}
+            Plus de filtres{activeFilterLabels.length > 0 ? ` (${activeFilterLabels.length})` : ""}
+            <ChevronDownIcon
+              className={`h-4 w-4 transition-transform ${filtersOpen ? "rotate-180" : ""}`}
+              aria-hidden="true"
+            />
           </button>
           <button
             type="button"
@@ -461,9 +466,15 @@ export default function CarBrowser() {
           <button
             type="button"
             onClick={() => setFiltersOpen((value) => !value)}
-            className="cursor-pointer text-[14px] font-semibold text-brand underline"
+            aria-expanded={filtersOpen}
+            className="inline-flex cursor-pointer items-center gap-1.5 text-[14px] font-semibold text-brand"
           >
-            Tous les filtres{activeFilterLabels.length > 0 ? ` (${activeFilterLabels.length})` : ""}
+            {filtersOpen ? "Moins de filtres" : "Plus de filtres"}
+            {activeFilterLabels.length > 0 ? ` (${activeFilterLabels.length})` : ""}
+            <ChevronDownIcon
+              className={`h-4 w-4 transition-transform ${filtersOpen ? "rotate-180" : ""}`}
+              aria-hidden="true"
+            />
           </button>
 
           {activeFilterLabels.length > 0 && (
@@ -490,10 +501,11 @@ export default function CarBrowser() {
         </div>
 
         {filtersOpen && (
-          <div className="mt-3 flex flex-col gap-3 rounded-2xl border border-line bg-white p-4 lg:mt-4 lg:flex lg:flex-row lg:flex-wrap lg:p-5">
-            <div className="flex flex-col gap-3 lg:hidden">
+          <div className="mt-3 rounded-2xl border border-line bg-white p-4 lg:mt-4 lg:p-5">
+            {/* Tous les filtres, groupes, visibles d'un coup. */}
+            <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
               <FilterSelect
-                id="m-filter-brand"
+                id="pf-brand"
                 label="Marque"
                 value={filters.brand}
                 onChange={(value) => updateFilter("brand", value)}
@@ -501,15 +513,23 @@ export default function CarBrowser() {
                 defaultOptionLabel="Toutes les marques"
               />
               <FilterSelect
-                id="m-filter-gearbox"
-                label="Boite"
-                value={filters.gearbox}
-                onChange={(value) => updateFilter("gearbox", value)}
-                options={options.gearboxes}
+                id="pf-model"
+                label="Modele"
+                value={filters.model}
+                onChange={(value) => updateFilter("model", value)}
+                options={options.models}
+                defaultOptionLabel="Tous les modeles"
+              />
+              <FilterSelect
+                id="pf-body"
+                label="Carrosserie"
+                value={filters.bodyType}
+                onChange={(value) => updateFilter("bodyType", value)}
+                options={options.bodyTypes}
                 defaultOptionLabel="Toutes"
               />
               <FilterSelect
-                id="m-filter-fuel"
+                id="pf-fuel"
                 label="Carburant"
                 value={filters.fuel}
                 onChange={(value) => updateFilter("fuel", value)}
@@ -517,64 +537,15 @@ export default function CarBrowser() {
                 defaultOptionLabel="Tous"
               />
               <FilterSelect
-                id="m-filter-km"
-                label="Kilometrage max"
-                value={filters.mileageMax}
-                onChange={(value) => updateFilter("mileageMax", value)}
-                options={MILEAGE_LIMITS.map((limit) => ({ value: limit, label: `${Number(limit).toLocaleString("fr-BE")} km` }))}
-                defaultOptionLabel="Tous les km"
-              />
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-medium uppercase tracking-wide text-subtle">Budget min</span>
-                  <input
-                    type="number"
-                    min="0"
-                    inputMode="numeric"
-                    placeholder="Min"
-                    value={filters.priceMin}
-                    onChange={(event) => updateFilter("priceMin", event.target.value)}
-                    className="min-h-[44px] rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-medium uppercase tracking-wide text-subtle">Budget max</span>
-                  <input
-                    type="number"
-                    min="0"
-                    inputMode="numeric"
-                    placeholder="Max"
-                    value={filters.priceMax}
-                    onChange={(event) => updateFilter("priceMax", event.target.value)}
-                    className="min-h-[44px] rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="min-w-[150px] flex-1">
-              <FilterSelect
-                id="filter-model"
-                label="Modele"
-                value={filters.model}
-                onChange={(value) => updateFilter("model", value)}
-                options={options.models}
-                defaultOptionLabel="Tous les modeles"
-              />
-            </div>
-            <div className="min-w-[150px] flex-1">
-              <FilterSelect
-                id="filter-body"
-                label="Carrosserie"
-                value={filters.bodyType}
-                onChange={(value) => updateFilter("bodyType", value)}
-                options={options.bodyTypes}
+                id="pf-gearbox"
+                label="Boite de vitesse"
+                value={filters.gearbox}
+                onChange={(value) => updateFilter("gearbox", value)}
+                options={options.gearboxes}
                 defaultOptionLabel="Toutes"
               />
-            </div>
-            <div className="min-w-[150px] flex-1">
               <FilterSelect
-                id="filter-status"
+                id="pf-status"
                 label="Disponibilite"
                 value={filters.status}
                 onChange={(value) => updateFilter("status", value)}
@@ -585,25 +556,56 @@ export default function CarBrowser() {
                 ]}
                 defaultOptionLabel="Tous les statuts"
               />
-            </div>
-            <div className="min-w-[150px] flex-1">
               <FilterSelect
-                id="filter-year"
+                id="pf-year"
                 label="Annee minimum"
                 value={filters.yearMin}
                 onChange={(value) => updateFilter("yearMin", value)}
                 options={MARKET_YEARS.map((year) => ({ value: year, label: `${year} et plus` }))}
                 defaultOptionLabel="Toutes"
               />
+              <FilterSelect
+                id="pf-km"
+                label="Kilometrage max"
+                value={filters.mileageMax}
+                onChange={(value) => updateFilter("mileageMax", value)}
+                options={MILEAGE_LIMITS.map((limit) => ({ value: limit, label: `${Number(limit).toLocaleString("fr-BE")} km` }))}
+                defaultOptionLabel="Tous les km"
+              />
+              <div className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium uppercase tracking-wide text-subtle">Budget (EUR)</span>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    inputMode="numeric"
+                    placeholder="Min"
+                    aria-label="Budget minimum"
+                    value={filters.priceMin}
+                    onChange={(event) => updateFilter("priceMin", event.target.value)}
+                    className="min-h-[44px] w-full rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    inputMode="numeric"
+                    placeholder="Max"
+                    aria-label="Budget maximum"
+                    value={filters.priceMax}
+                    onChange={(event) => updateFilter("priceMax", event.target.value)}
+                    className="min-h-[44px] w-full rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  />
+                </div>
+              </div>
             </div>
 
             {activeFilterLabels.length > 0 && (
               <button
                 type="button"
                 onClick={resetFilters}
-                className="cursor-pointer self-start text-[13px] font-medium text-sage underline lg:hidden"
+                className="mt-4 cursor-pointer text-[13px] font-medium text-sage underline"
               >
-                Effacer filtre
+                Effacer les filtres
               </button>
             )}
           </div>
@@ -628,7 +630,7 @@ export default function CarBrowser() {
           {loading ? (
             <p className="py-10 text-center text-[15px] text-body">Chargement du stock...</p>
           ) : (
-            <HomeCarGrid cars={paginatedCars} />
+            <HomeCarGrid cars={paginatedCars} cols={3} />
           )}
 
           {!loading && pageCount > 1 && (
@@ -641,7 +643,7 @@ export default function CarBrowser() {
                   onClick={() => goToPage(page)}
                   className={`inline-flex h-10 min-w-[40px] cursor-pointer items-center justify-center rounded-lg px-3 text-[14px] font-semibold transition-colors ${
                     page === currentPage
-                      ? "bg-brand text-white"
+                      ? "bg-cta text-white"
                       : "border border-line bg-white text-ink hover:bg-surface"
                   }`}
                 >

@@ -23,31 +23,18 @@ const BENEFITS = [
 
 export default function YoungDrivers() {
   return (
-    <section className="relative overflow-hidden bg-white py-16">
-      <div
-        className="absolute inset-y-0 right-0 hidden w-[42%] lg:block"
-        style={{ clipPath: "polygon(18% 0%, 100% 0%, 100% 100%, 0% 100%)" }}
-      >
+    <section className="relative overflow-hidden bg-white py-14 sm:py-16 lg:py-20">
+      <div className="absolute inset-y-10 right-6 hidden w-[38%] max-w-[440px] overflow-hidden rounded-2xl lg:block xl:right-12 2xl:right-24">
         <Image
           src="/jeune-conducteur.png"
           alt="Jeune conducteur souriant appuye sur sa premiere voiture, plaque d'apprentissage L sur le toit"
           fill
-          sizes="42vw"
-          className="scale-125 object-cover object-[15%_38%]"
+          sizes="40vw"
+          className="object-cover object-[15%_38%]"
         />
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-6">
-        <div className="relative aspect-[16/10] mb-8 overflow-hidden rounded-2xl lg:hidden">
-          <Image
-            src="/jeune-conducteur.png"
-            alt="Jeune conducteur souriant appuye sur sa premiere voiture, plaque d'apprentissage L sur le toit"
-            fill
-            sizes="100vw"
-            className="object-cover"
-          />
-        </div>
-
+      <div className="relative mx-auto max-w-6xl px-6 md:px-10 xl:px-16">
         <div className="max-w-xl lg:pr-[6%]">
           <Reveal>
             <SectionEyebrow>Jeune conducteur</SectionEyebrow>
@@ -61,6 +48,18 @@ export default function YoungDrivers() {
             </p>
           </Reveal>
 
+          {/* Photo : mobile uniquement, entre le texte et les avantages
+              (sur desktop, c'est l'image en fond a droite qui joue ce role). */}
+          <div className="relative mt-6 aspect-[16/10] overflow-hidden rounded-2xl lg:hidden">
+            <Image
+              src="/jeune-conducteur.png"
+              alt="Jeune conducteur souriant appuye sur sa premiere voiture, plaque d'apprentissage L sur le toit"
+              fill
+              sizes="100vw"
+              className="object-cover"
+            />
+          </div>
+
           <div className="mt-8 flex flex-col gap-4">
             {BENEFITS.map(({ title, text, icon: Icon }, index) => (
               <Reveal key={title} delay={index * 100} className="flex items-center gap-3">
@@ -73,15 +72,15 @@ export default function YoungDrivers() {
             ))}
           </div>
 
-          <Reveal delay={300} className="mt-8 flex flex-wrap items-center gap-6">
+          <Reveal delay={300} className="mt-8 flex flex-wrap items-center justify-center gap-6 sm:justify-start">
             <a
               href="/stock?price_max=8000"
-              className="inline-flex min-h-[48px] items-center justify-center rounded-lg bg-brand px-6 text-[14px] font-semibold text-white transition-colors hover:bg-brand-dark"
+              className="hidden items-center justify-center rounded-full bg-cta px-10 py-4 text-[14px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-cta-dark sm:inline-flex"
             >
               Voir les voitures petit budget
             </a>
             <a href="/stock" className="text-[14px] font-semibold text-brand hover:underline">
-              Decouvrir notre stock
+              Decouvrir notre catalogue
             </a>
           </Reveal>
         </div>

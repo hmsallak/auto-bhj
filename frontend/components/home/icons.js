@@ -119,11 +119,41 @@ export function FuelIcon(props) {
   );
 }
 
+export function LeafIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+      <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+    </Svg>
+  );
+}
+
 export function CheckCircleIcon(props) {
   return (
     <Svg {...props}>
       <circle cx="12" cy="12" r="9" />
       <path d="M8 12l3 3 5-6" />
+    </Svg>
+  );
+}
+
+export function ShareIcon(props) {
+  return (
+    <Svg {...props}>
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
+    </Svg>
+  );
+}
+
+export function PrinterIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M6 9V3h12v6" />
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <rect x="6" y="14" width="12" height="8" rx="1" />
     </Svg>
   );
 }
