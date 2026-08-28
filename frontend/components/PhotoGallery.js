@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { statusLabel } from "../lib/format";
-import { CarIcon } from "./home/icons";
+import { CarIcon, CloseIcon } from "./home/icons";
 
 const THUMB_LIMIT = 4;
 
@@ -96,11 +96,11 @@ export default function PhotoGallery({ images, alt, status }) {
       >
         <button
           type="button"
-          className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-white/10 text-2xl text-white hover:bg-white/20"
+          className="absolute right-3 top-3 z-20 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-white text-ink shadow-lg ring-1 ring-black/10 transition hover:bg-white/90"
           aria-label="Fermer"
           onClick={() => setLightboxOpen(false)}
         >
-          <span aria-hidden="true">×</span>
+          <CloseIcon className="h-5 w-5" />
         </button>
 
         <button
@@ -110,7 +110,7 @@ export default function PhotoGallery({ images, alt, status }) {
           onClick={() => setLightboxOpen(false)}
         />
 
-        <div className="relative flex max-h-full max-w-5xl flex-col items-center gap-4">
+        <div className="relative flex max-h-full w-full max-w-5xl flex-col items-center gap-4">
           <Image
             src={active}
             alt={alt}
@@ -118,7 +118,7 @@ export default function PhotoGallery({ images, alt, status }) {
             height={1200}
             sizes="100vw"
             unoptimized
-            className="max-h-[75vh] w-auto rounded-xl object-contain"
+            className="max-h-[80vh] w-auto max-w-full rounded-xl object-contain"
           />
 
           {photos.length > 1 && (
