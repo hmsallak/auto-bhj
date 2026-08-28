@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { statusLabel } from "../lib/format";
+import { useT, useCarEnums } from "../lib/i18n";
 import { CarIcon, CloseIcon } from "./home/icons";
 
 const THUMB_LIMIT = 4;
@@ -14,6 +14,8 @@ const NAV_BUTTON =
   "inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/90 text-ink shadow-sm hover:bg-white";
 
 export default function PhotoGallery({ images, alt, status }) {
+  const t = useT();
+  const ce = useCarEnums();
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const reserved = status === "reserved";
@@ -97,7 +99,7 @@ export default function PhotoGallery({ images, alt, status }) {
         <button
           type="button"
           className="absolute right-3 top-3 z-20 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-white text-ink shadow-lg ring-1 ring-black/10 transition hover:bg-white/90"
-          aria-label="Fermer"
+          aria-label={t("gallery.close")}
           onClick={() => setLightboxOpen(false)}
         >
           <CloseIcon className="h-5 w-5" />
@@ -106,7 +108,7 @@ export default function PhotoGallery({ images, alt, status }) {
         <button
           type="button"
           className="absolute inset-0 cursor-default"
-          aria-label="Fermer"
+          aria-label={t("gallery.close")}
           onClick={() => setLightboxOpen(false)}
         />
 
@@ -125,7 +127,7 @@ export default function PhotoGallery({ images, alt, status }) {
             <button
               type="button"
               className={`${NAV_BUTTON} absolute left-2 top-1/2 -translate-y-1/2`}
-              aria-label="Photo precedente"
+              aria-label={t("gallery.prev")}
               onClick={showPrev}
             >
               <span aria-hidden="true">‹</span>
@@ -136,7 +138,7 @@ export default function PhotoGallery({ images, alt, status }) {
             <button
               type="button"
               className={`${NAV_BUTTON} absolute right-2 top-1/2 -translate-y-1/2`}
-              aria-label="Photo suivante"
+              aria-label={t("gallery.next")}
               onClick={showNext}
             >
               <span aria-hidden="true">›</span>
@@ -150,7 +152,7 @@ export default function PhotoGallery({ images, alt, status }) {
           )}
 
           {photos.length > 1 && (
-            <div className="flex max-w-full gap-2 overflow-x-auto" aria-label="Toutes les photos">
+            <div className="flex max-w-full gap-2 overflow-x-auto" aria-label={t("gallery.allPhotos")}>
               {photos.map((src, index) => (
                 <button
                   key={`${src}-${index}`}
@@ -158,13 +160,13 @@ export default function PhotoGallery({ images, alt, status }) {
                   className={`h-14 w-20 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 ${
                     index === activeIndex ? "border-sage" : "border-transparent opacity-70"
                   }`}
-                  aria-label={`Afficher la photo ${index + 1}`}
+                  aria-label={`${t("gallery.showPhoto")} ${index + 1}`}
                   aria-current={index === activeIndex ? "true" : undefined}
                   onClick={() => setActiveIndex(index)}
                 >
                   <Image
                     src={src}
-                    alt={`${alt} - photo ${index + 1}`}
+                    alt={`${alt} - ${t("gallery.photo")} ${index + 1}`}
                     width={120}
                     height={90}
                     sizes="96px"
@@ -197,27 +199,27 @@ export default function PhotoGallery({ images, alt, status }) {
             unoptimized
             onClick={!sold ? () => setLightboxOpen(true) : undefined}
             role={!sold ? "button" : undefined}
-            aria-label={!sold ? "Voir toutes les photos en plein ecran" : undefined}
+            aria-label={!sold ? t("gallery.openAria") : undefined}
             className={`h-full w-full object-cover ${!sold ? "cursor-pointer" : ""} ${reserved ? "opacity-90" : ""}`}
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-[15px] text-subtle">Pas de photo</div>
+          <div className="flex h-full items-center justify-center text-[15px] text-subtle">{t("gallery.noPhoto")}</div>
         )}
         {sold && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-ink/80 text-center text-[15px] font-semibold text-white">
-            <span>Vehicule vendu</span>
-            <span className="text-[13px] font-normal text-offwhite">Photos non disponibles</span>
+            <span>{t("gallery.sold")}</span>
+            <span className="text-[13px] font-normal text-offwhite">{t("gallery.soldPhotos")}</span>
           </div>
         )}
         <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-3 py-1 text-[13px] font-semibold text-white">
-          {statusLabel(status)}
+          {ce.status(status)}
         </span>
         {active && !sold && photos.length > 1 && (
           <>
             <button
               type="button"
               className={`${NAV_BUTTON} absolute left-3 top-1/2 -translate-y-1/2`}
-              aria-label="Photo precedente"
+              aria-label={t("gallery.prev")}
               onClick={showPrev}
             >
               <span aria-hidden="true">‹</span>
@@ -225,7 +227,7 @@ export default function PhotoGallery({ images, alt, status }) {
             <button
               type="button"
               className={`${NAV_BUTTON} absolute right-3 top-1/2 -translate-y-1/2`}
-              aria-label="Photo suivante"
+              aria-label={t("gallery.next")}
               onClick={showNext}
             >
               <span aria-hidden="true">›</span>
@@ -255,7 +257,7 @@ export default function PhotoGallery({ images, alt, status }) {
               >
                 <Image
                   src={src}
-                  alt={`${alt} - photo ${index + 1}`}
+                  alt={`${alt} - ${t("gallery.photo")} ${index + 1}`}
                   width={220}
                   height={165}
                   sizes="180px"

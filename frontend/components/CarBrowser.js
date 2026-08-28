@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import HomeCarGrid from "./home/HomeCarGrid";
 import { SearchIcon, ChevronDownIcon } from "./home/icons";
 import SectionEyebrow from "./home/SectionEyebrow";
+import { useT, useCarEnums } from "../lib/i18n";
 
 const DEFAULT_FILTERS = {
   brand: "",
@@ -36,24 +37,11 @@ const URL_KEYS = {
   sort: "sort",
 };
 
-const STATUS_LABELS = {
-  available: "Disponible",
-  reserved: "Reserve",
-  sold: "Vendu",
-};
-
 const MARKET_YEARS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012", "2011", "2010"];
 
 const MILEAGE_LIMITS = ["50000", "75000", "100000", "125000", "150000", "200000"];
 
-const SORT_LABELS = {
-  recommended: "Pertinence",
-  newest: "Plus recents",
-  price_asc: "Prix croissant",
-  price_desc: "Prix decroissant",
-  km_asc: "Kilometrage bas",
-  year_desc: "Annee recente",
-};
+const SORT_KEYS = ["recommended", "newest", "price_asc", "price_desc", "km_asc", "year_desc"];
 
 function numberValue(value) {
   const number = Number(value);
@@ -102,6 +90,7 @@ function PillSelect({ id, value, onChange, options, defaultOptionLabel }) {
 }
 
 function PricePopover({ minValue, maxValue, onMinChange, onMaxChange }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -119,7 +108,7 @@ function PricePopover({ minValue, maxValue, onMinChange, onMaxChange }) {
       ? `${minValue ? `${Number(minValue).toLocaleString("fr-BE")} EUR` : "0 EUR"} - ${
           maxValue ? `${Number(maxValue).toLocaleString("fr-BE")} EUR` : "..."
         }`
-      : "Prix";
+      : t("stock.price");
 
   return (
     <div className="relative" ref={ref}>
@@ -135,7 +124,7 @@ function PricePopover({ minValue, maxValue, onMinChange, onMaxChange }) {
       {open && (
         <div className="absolute left-0 top-[calc(100%+8px)] z-20 flex max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-2xl border border-line bg-white p-4 shadow-lg sm:flex-row">
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium uppercase tracking-wide text-subtle">Min</span>
+            <span className="text-xs font-medium uppercase tracking-wide text-subtle">{t("stock.min")}</span>
             <input
               type="number"
               min="0"
@@ -146,7 +135,7 @@ function PricePopover({ minValue, maxValue, onMinChange, onMaxChange }) {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium uppercase tracking-wide text-subtle">Max</span>
+            <span className="text-xs font-medium uppercase tracking-wide text-subtle">{t("stock.max")}</span>
             <input
               type="number"
               min="0"
@@ -163,6 +152,8 @@ function PricePopover({ minValue, maxValue, onMinChange, onMaxChange }) {
 }
 
 export default function CarBrowser() {
+  const t = useT();
+  const ce = useCarEnums();
   const [cars, setCars] = useState([]);
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -172,6 +163,11 @@ export default function CarBrowser() {
   const [loading, setLoading] = useState(true);
   const [urlReady, setUrlReady] = useState(false);
   const resultsRef = useRef(null);
+
+  const sortLabel = (key) => t(`stock.sort.${key}`);
+  // Traduit le libelle affiche des options (la valeur/cle de filtre reste brute).
+  const locOpts = (opts, fn) =>
+    fn ? opts.map((o) => ({ ...o, label: fn(o.label) })) : opts;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -296,17 +292,17 @@ export default function CarBrowser() {
   }, [cars, filters, query]);
 
   const activeFilterLabels = [
-    query.trim() ? `Recherche: ${query.trim()}` : null,
-    filters.brand ? `Marque: ${filters.brand}` : null,
-    filters.model ? `Modele: ${filters.model}` : null,
-    filters.bodyType ? `Carrosserie: ${filters.bodyType}` : null,
-    filters.status ? `Disponibilite: ${STATUS_LABELS[filters.status] || filters.status}` : null,
-    filters.priceMin ? `Min: ${filters.priceMin} EUR` : null,
-    filters.priceMax ? `Max: ${filters.priceMax} EUR` : null,
-    filters.mileageMax ? `Max: ${Number(filters.mileageMax).toLocaleString("fr-BE")} km` : null,
-    filters.yearMin ? `Depuis: ${filters.yearMin}` : null,
-    filters.fuel ? `Carburant: ${filters.fuel}` : null,
-    filters.gearbox ? `Boite: ${filters.gearbox}` : null,
+    query.trim() ? `${t("stock.chips.search")}: ${query.trim()}` : null,
+    filters.brand ? `${t("stock.chips.brand")}: ${filters.brand}` : null,
+    filters.model ? `${t("stock.chips.model")}: ${filters.model}` : null,
+    filters.bodyType ? `${t("stock.chips.body")}: ${ce.body(filters.bodyType)}` : null,
+    filters.status ? `${t("stock.chips.status")}: ${ce.status(filters.status)}` : null,
+    filters.priceMin ? `${t("stock.chips.min")}: ${filters.priceMin} EUR` : null,
+    filters.priceMax ? `${t("stock.chips.max")}: ${filters.priceMax} EUR` : null,
+    filters.mileageMax ? `${t("stock.chips.max")}: ${ce.km(Number(filters.mileageMax))}` : null,
+    filters.yearMin ? `${t("stock.chips.since")}: ${filters.yearMin}` : null,
+    filters.fuel ? `${t("stock.chips.fuel")}: ${ce.fuel(filters.fuel)}` : null,
+    filters.gearbox ? `${t("stock.chips.gearbox")}: ${ce.gearbox(filters.gearbox)}` : null,
   ].filter(Boolean);
 
   const pageCount = Math.max(1, Math.ceil(visibleCars.length / PAGE_SIZE));
@@ -354,24 +350,23 @@ export default function CarBrowser() {
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  const resultsCountLabel = `${visibleCars.length} ${visibleCars.length > 1 ? "resultats" : "resultat"}`;
+  const resultsCountLabel = `${visibleCars.length} ${
+    visibleCars.length > 1 ? t("stock.resultMany") : t("stock.resultOne")
+  }`;
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
       <div className="mb-8">
-        <SectionEyebrow>Catalogue</SectionEyebrow>
-        <h1 className="mt-2 text-3xl font-bold text-brand-dark sm:text-4xl">Trouvez la voiture ideale</h1>
-        <p className="mt-3 max-w-2xl text-[15px] text-body">
-          Des occasions soigneusement selectionnees, pretes a prendre la route, avec des prix clairs et un
-          accompagnement simple du premier contact a la remise des cles.
-        </p>
+        <SectionEyebrow>{t("stock.eyebrow")}</SectionEyebrow>
+        <h1 className="mt-2 text-3xl font-bold text-brand-dark sm:text-4xl">{t("stock.h1")}</h1>
+        <p className="mt-3 max-w-2xl text-[15px] text-body">{t("stock.intro")}</p>
       </div>
 
       <div className="relative mb-6">
         <SearchIcon className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-subtle" />
         <input
           type="search"
-          placeholder="Reference, marque, modele, carburant..."
+          placeholder={t("stock.searchPlaceholder")}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           className="min-h-[48px] w-full rounded-lg border border-line bg-white pl-4 pr-11 text-[15px] text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand"
@@ -389,7 +384,8 @@ export default function CarBrowser() {
             aria-expanded={filtersOpen}
             className="flex h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-line bg-white px-4 text-[14px] font-medium text-ink"
           >
-            Plus de filtres{activeFilterLabels.length > 0 ? ` (${activeFilterLabels.length})` : ""}
+            {t("stock.moreFilters")}
+            {activeFilterLabels.length > 0 ? ` (${activeFilterLabels.length})` : ""}
             <ChevronDownIcon
               className={`h-4 w-4 transition-transform ${filtersOpen ? "rotate-180" : ""}`}
               aria-hidden="true"
@@ -403,13 +399,13 @@ export default function CarBrowser() {
             }}
             className="flex h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border border-line bg-white px-4 text-[14px] font-medium text-ink"
           >
-            Trier: {SORT_LABELS[filters.sort]}
+            {t("stock.sortPrefix")}: {sortLabel(filters.sort)}
           </button>
         </div>
 
         {sortOpen && (
           <div className="mt-3 flex flex-col gap-1 rounded-2xl border border-line bg-white p-2 lg:hidden">
-            {Object.entries(SORT_LABELS).map(([value, label]) => (
+            {SORT_KEYS.map((value) => (
               <button
                 key={value}
                 type="button"
@@ -421,7 +417,7 @@ export default function CarBrowser() {
                   filters.sort === value ? "bg-brand-pastel text-brand" : "text-ink hover:bg-surface"
                 }`}
               >
-                {label}
+                {sortLabel(value)}
               </button>
             ))}
           </div>
@@ -433,28 +429,28 @@ export default function CarBrowser() {
             value={filters.brand}
             onChange={(value) => updateFilter("brand", value)}
             options={options.brands}
-            defaultOptionLabel="Marque"
+            defaultOptionLabel={t("stock.defaults.brandShort")}
           />
           <PillSelect
             id="filter-gearbox"
             value={filters.gearbox}
             onChange={(value) => updateFilter("gearbox", value)}
-            options={options.gearboxes}
-            defaultOptionLabel="Boite de vitesse"
+            options={locOpts(options.gearboxes, ce.gearbox)}
+            defaultOptionLabel={t("stock.defaults.gearboxShort")}
           />
           <PillSelect
             id="filter-fuel"
             value={filters.fuel}
             onChange={(value) => updateFilter("fuel", value)}
-            options={options.fuels}
-            defaultOptionLabel="Carburant"
+            options={locOpts(options.fuels, ce.fuel)}
+            defaultOptionLabel={t("stock.defaults.fuelShort")}
           />
           <PillSelect
             id="filter-km"
             value={filters.mileageMax}
             onChange={(value) => updateFilter("mileageMax", value)}
-            options={MILEAGE_LIMITS.map((limit) => ({ value: limit, label: `${Number(limit).toLocaleString("fr-BE")} km` }))}
-            defaultOptionLabel="Kilometres"
+            options={MILEAGE_LIMITS.map((limit) => ({ value: limit, label: ce.km(Number(limit)) }))}
+            defaultOptionLabel={t("stock.defaults.kmShort")}
           />
           <PricePopover
             minValue={filters.priceMin}
@@ -469,7 +465,7 @@ export default function CarBrowser() {
             aria-expanded={filtersOpen}
             className="inline-flex cursor-pointer items-center gap-1.5 text-[14px] font-semibold text-brand"
           >
-            {filtersOpen ? "Moins de filtres" : "Plus de filtres"}
+            {filtersOpen ? t("stock.lessFilters") : t("stock.moreFilters")}
             {activeFilterLabels.length > 0 ? ` (${activeFilterLabels.length})` : ""}
             <ChevronDownIcon
               className={`h-4 w-4 transition-transform ${filtersOpen ? "rotate-180" : ""}`}
@@ -483,7 +479,7 @@ export default function CarBrowser() {
               onClick={resetFilters}
               className="cursor-pointer text-[13px] font-medium text-sage underline"
             >
-              Effacer filtre
+              {t("stock.clearOne")}
             </button>
           )}
 
@@ -492,10 +488,11 @@ export default function CarBrowser() {
               id="filter-sort"
               value={filters.sort}
               onChange={(value) => updateFilter("sort", value)}
-              options={Object.entries(SORT_LABELS)
-                .filter(([value]) => value !== "recommended")
-                .map(([value, label]) => ({ value, label }))}
-              defaultOptionLabel={`Trier: ${SORT_LABELS.recommended}`}
+              options={SORT_KEYS.filter((v) => v !== "recommended").map((value) => ({
+                value,
+                label: sortLabel(value),
+              }))}
+              defaultOptionLabel={`${t("stock.sortPrefix")}: ${sortLabel("recommended")}`}
             />
           </div>
         </div>
@@ -506,81 +503,81 @@ export default function CarBrowser() {
             <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
               <FilterSelect
                 id="pf-brand"
-                label="Marque"
+                label={t("stock.labels.brand")}
                 value={filters.brand}
                 onChange={(value) => updateFilter("brand", value)}
                 options={options.brands}
-                defaultOptionLabel="Toutes les marques"
+                defaultOptionLabel={t("stock.defaults.brand")}
               />
               <FilterSelect
                 id="pf-model"
-                label="Modele"
+                label={t("stock.labels.model")}
                 value={filters.model}
                 onChange={(value) => updateFilter("model", value)}
                 options={options.models}
-                defaultOptionLabel="Tous les modeles"
+                defaultOptionLabel={t("stock.defaults.model")}
               />
               <FilterSelect
                 id="pf-body"
-                label="Carrosserie"
+                label={t("stock.labels.body")}
                 value={filters.bodyType}
                 onChange={(value) => updateFilter("bodyType", value)}
-                options={options.bodyTypes}
-                defaultOptionLabel="Toutes"
+                options={locOpts(options.bodyTypes, ce.body)}
+                defaultOptionLabel={t("stock.defaults.body")}
               />
               <FilterSelect
                 id="pf-fuel"
-                label="Carburant"
+                label={t("stock.labels.fuel")}
                 value={filters.fuel}
                 onChange={(value) => updateFilter("fuel", value)}
-                options={options.fuels}
-                defaultOptionLabel="Tous"
+                options={locOpts(options.fuels, ce.fuel)}
+                defaultOptionLabel={t("stock.defaults.fuel")}
               />
               <FilterSelect
                 id="pf-gearbox"
-                label="Boite de vitesse"
+                label={t("stock.labels.gearbox")}
                 value={filters.gearbox}
                 onChange={(value) => updateFilter("gearbox", value)}
-                options={options.gearboxes}
-                defaultOptionLabel="Toutes"
+                options={locOpts(options.gearboxes, ce.gearbox)}
+                defaultOptionLabel={t("stock.defaults.gearbox")}
               />
               <FilterSelect
                 id="pf-status"
-                label="Disponibilite"
+                label={t("stock.labels.status")}
                 value={filters.status}
                 onChange={(value) => updateFilter("status", value)}
                 options={[
-                  { value: "available", label: "Disponible", count: cars.filter((c) => c.status === "available").length },
-                  { value: "reserved", label: "Reserve", count: cars.filter((c) => c.status === "reserved").length },
-                  { value: "sold", label: "Vendu", count: cars.filter((c) => c.status === "sold").length },
+                  { value: "available", label: ce.status("available"), count: cars.filter((c) => c.status === "available").length },
+                  { value: "reserved", label: ce.status("reserved"), count: cars.filter((c) => c.status === "reserved").length },
+                  { value: "sold", label: ce.status("sold"), count: cars.filter((c) => c.status === "sold").length },
                 ]}
-                defaultOptionLabel="Tous les statuts"
+                defaultOptionLabel={t("stock.defaults.status")}
               />
               <FilterSelect
                 id="pf-year"
-                label="Annee minimum"
+                label={t("stock.labels.yearMin")}
                 value={filters.yearMin}
                 onChange={(value) => updateFilter("yearMin", value)}
-                options={MARKET_YEARS.map((year) => ({ value: year, label: `${year} et plus` }))}
-                defaultOptionLabel="Toutes"
+                options={MARKET_YEARS.map((year) => ({ value: year, label: `${year} ${t("stock.yearAndUp")}` }))}
+                defaultOptionLabel={t("stock.defaults.year")}
               />
               <FilterSelect
                 id="pf-km"
-                label="Kilometrage max"
+                label={t("stock.labels.kmMax")}
                 value={filters.mileageMax}
                 onChange={(value) => updateFilter("mileageMax", value)}
-                options={MILEAGE_LIMITS.map((limit) => ({ value: limit, label: `${Number(limit).toLocaleString("fr-BE")} km` }))}
-                defaultOptionLabel="Tous les km"
+                options={MILEAGE_LIMITS.map((limit) => ({ value: limit, label: ce.km(Number(limit)) }))}
+                defaultOptionLabel={t("stock.defaults.km")}
               />
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium uppercase tracking-wide text-subtle">Budget (EUR)</span>
+                <span className="text-xs font-medium uppercase tracking-wide text-subtle">{t("stock.budget")}</span>
                 <div className="flex gap-2">
                   <input
                     type="number"
                     min="0"
                     inputMode="numeric"
-                    placeholder="Min"
-                    aria-label="Budget minimum"
+                    placeholder={t("stock.min")}
+                    aria-label={t("stock.budgetMinAria")}
                     value={filters.priceMin}
                     onChange={(event) => updateFilter("priceMin", event.target.value)}
                     className="min-h-[44px] w-full rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
@@ -589,8 +586,8 @@ export default function CarBrowser() {
                     type="number"
                     min="0"
                     inputMode="numeric"
-                    placeholder="Max"
-                    aria-label="Budget maximum"
+                    placeholder={t("stock.max")}
+                    aria-label={t("stock.budgetMaxAria")}
                     value={filters.priceMax}
                     onChange={(event) => updateFilter("priceMax", event.target.value)}
                     className="min-h-[44px] w-full rounded-lg border border-line bg-white px-3 text-[14px] font-medium text-ink outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
@@ -605,7 +602,7 @@ export default function CarBrowser() {
                 onClick={resetFilters}
                 className="mt-4 cursor-pointer text-[13px] font-medium text-sage underline"
               >
-                Effacer les filtres
+                {t("stock.clearAll")}
               </button>
             )}
           </div>
@@ -618,7 +615,7 @@ export default function CarBrowser() {
           </div>
 
           {activeFilterLabels.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-2" aria-label="Filtres actifs">
+            <div className="mb-4 flex flex-wrap gap-2" aria-label={t("stock.activeFiltersAria")}>
               {activeFilterLabels.map((label) => (
                 <span key={label} className="rounded-full bg-brand-pastel px-3 py-1 text-[13px] font-medium text-brand">
                   {label}
@@ -628,13 +625,13 @@ export default function CarBrowser() {
           )}
 
           {loading ? (
-            <p className="py-10 text-center text-[15px] text-body">Chargement du stock...</p>
+            <p className="py-10 text-center text-[15px] text-body">{t("stock.loading")}</p>
           ) : (
             <HomeCarGrid cars={paginatedCars} cols={3} />
           )}
 
           {!loading && pageCount > 1 && (
-            <nav className="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination du stock">
+            <nav className="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label={t("stock.paginationAria")}>
               {Array.from({ length: pageCount }, (_, index) => index + 1).map((page) => (
                 <button
                   key={page}
@@ -656,7 +653,7 @@ export default function CarBrowser() {
                   onClick={() => goToPage(currentPage + 1)}
                   className="inline-flex h-10 cursor-pointer items-center justify-center rounded-lg border border-line bg-white px-4 text-[14px] font-semibold text-ink hover:bg-surface"
                 >
-                  Page suivante
+                  {t("stock.nextPage")}
                 </button>
               )}
             </nav>

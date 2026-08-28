@@ -2,6 +2,7 @@
 
 import { MailIcon, PhoneIcon } from "./home/icons";
 import { useSiteSettings } from "./SiteSettingsProvider";
+import { useT } from "../lib/i18n";
 
 function track(action, reference) {
   if (typeof window === "undefined") return;
@@ -13,11 +14,13 @@ function track(action, reference) {
   window.dataLayer?.push?.({ event: "autobhj_conversion", action, reference });
 }
 
-function mailtoHref(email, reference) {
-  const subject = reference ? `Vehicule ${reference}` : "Demande d'information";
+function mailtoHref(email, reference, t) {
+  const subject = reference
+    ? `${t("actions.mailSubject")} ${reference}`
+    : t("actions.mailSubjectGeneric");
   const body = reference
-    ? `Bonjour Auto BHJ, je suis interesse par le vehicule ${reference}.`
-    : "Bonjour Auto BHJ, je souhaite des informations sur une voiture.";
+    ? `${t("actions.mailBody")} ${reference}.`
+    : t("actions.mailBodyGeneric");
 
   return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
@@ -28,17 +31,18 @@ const BUTTON_BASE =
 export default function VehicleActions({ reference, variant = "detail" }) {
   const homeVariant = variant === "home";
   const { phone, phoneTel, email } = useSiteSettings();
+  const t = useT();
 
   return (
     <div className="flex flex-col gap-3">
       {!homeVariant && (
         <a
           className={`${BUTTON_BASE} border border-line bg-white text-ink hover:bg-surface`}
-          href={mailtoHref(email, reference)}
+          href={mailtoHref(email, reference, t)}
           onClick={() => track("contact", reference)}
         >
           <MailIcon className="h-[18px] w-[18px]" />
-          Contacter
+          {t("actions.contact")}
         </a>
       )}
       <a

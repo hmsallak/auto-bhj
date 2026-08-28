@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { formatKm } from "../lib/format";
+import { useT, useCarEnums } from "../lib/i18n";
 import {
   MileageIcon,
   FuelIcon,
@@ -16,13 +16,15 @@ import {
 } from "./home/icons";
 
 export function SpecHighlights({ car }) {
+  const t = useT();
+  const ce = useCarEnums();
   const cells = [
-    { icon: RegistrationIcon, label: "Annee", value: car.year },
-    { icon: MileageIcon, label: "Kilometrage", value: formatKm(car.mileage) },
-    { icon: FuelIcon, label: "Carburant", value: car.fuel },
-    { icon: GearboxIcon, label: "Boite", value: car.gearbox },
-    { icon: PowerIcon, label: "Puissance", value: car.powerCh ? `${car.powerCh} ch` : "-" },
-    { icon: LeafIcon, label: "Norme Euro", value: car.emissionClass || "-" },
+    { icon: RegistrationIcon, label: t("spec.year"), value: car.year },
+    { icon: MileageIcon, label: t("spec.mileage"), value: ce.km(car.mileage) },
+    { icon: FuelIcon, label: t("spec.fuel"), value: ce.fuel(car.fuel) },
+    { icon: GearboxIcon, label: t("spec.gearbox"), value: ce.gearbox(car.gearbox) },
+    { icon: PowerIcon, label: t("spec.power"), value: ce.power(car.powerCh) || "-" },
+    { icon: LeafIcon, label: t("spec.euro"), value: car.emissionClass || "-" },
   ];
 
   return (
@@ -87,49 +89,52 @@ function Block({ icon: Icon, title, open, onToggle, children }) {
 }
 
 export default function CarSpecSheet({ car }) {
+  const t = useT();
+  const ce = useCarEnums();
   // Only the first section is open on load; Equipements and Description
   // start collapsed. The user can still toggle any of them.
   const [generalOpen, setGeneralOpen] = useState(true);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
 
-  const power = car.powerKw && car.powerCh ? `${car.powerKw} kW (${car.powerCh} ch)` : null;
+  const power =
+    car.powerKw && car.powerCh ? `${car.powerKw} kW (${car.powerCh} ${ce.powerUnit})` : null;
 
   const sections = [
     {
-      title: "Identite & carrosserie",
+      title: t("spec.sections.identity"),
       rows: [
-        { label: "Marque", value: car.brand },
-        { label: "Modele", value: car.model, valueClassName: "text-sage" },
-        { label: "Type de carrosserie", value: car.bodyType },
-        { label: "Portes", value: car.doors },
-        { label: "Sieges", value: car.seats },
+        { label: t("spec.rows.brand"), value: car.brand },
+        { label: t("spec.rows.model"), value: car.model, valueClassName: "text-sage" },
+        { label: t("spec.rows.bodyType"), value: ce.body(car.bodyType) },
+        { label: t("spec.rows.doors"), value: car.doors },
+        { label: t("spec.rows.seats"), value: car.seats },
       ],
     },
     {
-      title: "Motorisation & performance",
+      title: t("spec.sections.engine"),
       rows: [
-        { label: "Carburant", value: car.fuel },
-        { label: "Boite de vitesses", value: car.gearbox },
-        { label: "Nombre de vitesses", value: car.gears },
-        { label: "Cylindres", value: car.cylinders },
-        { label: "Cylindree", value: car.engineCc ? `${car.engineCc} cm3` : null },
-        { label: "Puissance", value: power },
-        { label: "Consommation", value: car.consumption },
+        { label: t("spec.rows.fuel"), value: ce.fuel(car.fuel) },
+        { label: t("spec.rows.gearbox"), value: ce.gearbox(car.gearbox) },
+        { label: t("spec.rows.gears"), value: car.gears },
+        { label: t("spec.rows.cylinders"), value: car.cylinders },
+        { label: t("spec.rows.engineCc"), value: car.engineCc ? `${car.engineCc} cm3` : null },
+        { label: t("spec.rows.power"), value: power },
+        { label: t("spec.rows.consumption"), value: car.consumption },
       ],
     },
     {
-      title: "Exterieur & interieur",
+      title: t("spec.sections.inout"),
       rows: [
-        { label: "Couleur exterieure", value: car.exteriorColor },
-        { label: "Type de peinture", value: car.paintType },
-        { label: "Couleur interieure", value: car.interiorColor },
-        { label: "Materiau interieur", value: car.interiorMaterial },
+        { label: t("spec.rows.exteriorColor"), value: car.exteriorColor },
+        { label: t("spec.rows.paintType"), value: car.paintType },
+        { label: t("spec.rows.interiorColor"), value: car.interiorColor },
+        { label: t("spec.rows.interiorMaterial"), value: car.interiorMaterial },
       ],
     },
     {
-      title: "Historique",
-      rows: [{ label: "Proprietaires precedents", value: car.previousOwners }],
+      title: t("spec.sections.history"),
+      rows: [{ label: t("spec.rows.previousOwners"), value: car.previousOwners }],
     },
   ];
 
@@ -140,7 +145,7 @@ export default function CarSpecSheet({ car }) {
   return (
     <div className="flex flex-col divide-y divide-sage border-b border-sage">
       {hasAnyData && (
-        <Block icon={SlidersIcon} title="Caracteristiques techniques" open={generalOpen} onToggle={setGeneralOpen}>
+        <Block icon={SlidersIcon} title={t("spec.techTitle")} open={generalOpen} onToggle={setGeneralOpen}>
           <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
             {sections.map((section) => (
               <SpecSection key={section.title} title={section.title} rows={section.rows} />
@@ -150,7 +155,7 @@ export default function CarSpecSheet({ car }) {
       )}
 
       {car.equipment && (
-        <Block icon={CheckCircleIcon} title="Equipements" open={equipmentOpen} onToggle={setEquipmentOpen}>
+        <Block icon={CheckCircleIcon} title={t("spec.equipmentTitle")} open={equipmentOpen} onToggle={setEquipmentOpen}>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Object.entries(car.equipment).map(([category, items]) => (
               <div key={category}>
@@ -168,9 +173,9 @@ export default function CarSpecSheet({ car }) {
         </Block>
       )}
 
-      <Block icon={DocumentIcon} title="Description" open={infoOpen} onToggle={setInfoOpen}>
+      <Block icon={DocumentIcon} title={t("spec.descriptionTitle")} open={infoOpen} onToggle={setInfoOpen}>
         <p className="text-[15px] leading-relaxed text-body">
-          {car.description || "Contactez-nous pour plus d'informations."}
+          {car.description || t("spec.noDescription")}
         </p>
       </Block>
     </div>

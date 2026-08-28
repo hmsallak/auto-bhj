@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { MailIcon, PhoneIcon, WhatsAppIcon } from "./home/icons";
 import { useSiteSettings } from "./SiteSettingsProvider";
+import { useT } from "../lib/i18n";
 
 function track(action, reference) {
   if (typeof window === "undefined") return;
@@ -14,19 +15,21 @@ function track(action, reference) {
   window.dataLayer?.push?.({ event: "autobhj_conversion", action, reference });
 }
 
-function whatsappHref(number, reference) {
+function whatsappHref(number, reference, t) {
   const message = reference
-    ? `Bonjour Auto BHJ, je suis interesse par le vehicule ${reference}.`
-    : "Bonjour Auto BHJ, je souhaite des informations sur une voiture.";
+    ? `${t("bar.waMsg")} ${reference}.`
+    : t("bar.waMsgGeneric");
 
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
-function mailtoHref(email, reference) {
-  const subject = reference ? `Vehicule ${reference}` : "Demande d'information";
+function mailtoHref(email, reference, t) {
+  const subject = reference
+    ? `${t("actions.mailSubject")} ${reference}`
+    : t("actions.mailSubjectGeneric");
   const body = reference
-    ? `Bonjour Auto BHJ, je suis interesse par le vehicule ${reference}.`
-    : "Bonjour Auto BHJ, je souhaite des informations sur une voiture.";
+    ? `${t("actions.mailBody")} ${reference}.`
+    : t("actions.mailBodyGeneric");
 
   return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
@@ -38,6 +41,7 @@ const CELL =
 // tient ce role sur desktop).
 export default function VehicleStickyBar({ reference }) {
   const { phone, phoneTel, whatsapp, email } = useSiteSettings();
+  const t = useT();
   const [hiddenByFooter, setHiddenByFooter] = useState(false);
 
   // Une fois le footer a l'ecran, la barre s'efface en douceur pour ne pas
@@ -78,26 +82,26 @@ export default function VehicleStickyBar({ reference }) {
           onClick={() => track("call", reference)}
         >
           <PhoneIcon className="h-[18px] w-[18px]" />
-          Appeler
+          {t("bar.call")}
         </a>
         <div className="grid grid-cols-2 gap-2">
           <a
             className={`${CELL} border border-line bg-white text-ink hover:bg-surface`}
-            href={mailtoHref(email, reference)}
+            href={mailtoHref(email, reference, t)}
             onClick={() => track("contact", reference)}
           >
             <MailIcon className="h-[18px] w-[18px]" />
-            Contacter
+            {t("bar.contact")}
           </a>
           <a
             className={`${CELL} bg-[#25d366] text-white hover:bg-[#1fb958]`}
-            href={whatsappHref(whatsapp, reference)}
+            href={whatsappHref(whatsapp, reference, t)}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={
               reference
-                ? `Ecrire sur WhatsApp au sujet du vehicule ${reference}`
-                : "Ecrire sur WhatsApp a Auto BHJ"
+                ? `${t("bar.waAria")} ${reference}`
+                : t("bar.waAriaGeneric")
             }
             onClick={() => track("whatsapp", reference)}
           >

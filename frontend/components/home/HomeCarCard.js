@@ -1,26 +1,28 @@
-import { carPriceLabel, formatKm, carImage, statusLabel } from "../../lib/format";
+"use client";
+
+import { carPriceLabel, carImage } from "../../lib/format";
+import { useCarEnums } from "../../lib/i18n";
 
 export default function HomeCarCard({ car, priority, stock = false }) {
+  const ce = useCarEnums();
   const reserved = car.status === "reserved";
   const sold = car.status === "sold";
   const unavailable = reserved || sold;
   const price = carPriceLabel(car);
 
-  const version = [car.bodyType, car.powerCh ? `${car.powerCh} ch` : null]
-    .filter(Boolean)
-    .join(" · ");
+  const version = [ce.body(car.bodyType), ce.power(car.powerCh)].filter(Boolean).join(" · ");
   const specs = [
     car.year ? String(car.year) : null,
-    car.mileage ? formatKm(car.mileage) : null,
-    car.fuel || null,
-    car.gearbox || null,
+    car.mileage ? ce.km(car.mileage) : null,
+    ce.fuel(car.fuel) || null,
+    ce.gearbox(car.gearbox) || null,
   ].filter(Boolean);
   // Descriptif de la carte stock : annee, km, carburant, boite, norme Euro.
   const stockSpecs = [...specs, car.emissionClass || null].filter(Boolean);
 
   const statusBadge = unavailable && (
     <span className="absolute left-2 top-2 rounded-md bg-ink/85 px-2 py-0.5 text-[11px] font-semibold text-white sm:left-2.5 sm:top-2.5 sm:text-[12px]">
-      {statusLabel(car.status)}
+      {ce.status(car.status)}
     </span>
   );
 
@@ -69,7 +71,7 @@ export default function HomeCarCard({ car, priority, stock = false }) {
           </p>
 
           {sold && (
-            <p className="text-[13px] font-semibold text-subtle">{statusLabel(car.status)}</p>
+            <p className="text-[13px] font-semibold text-subtle">{ce.status(car.status)}</p>
           )}
         </div>
       </a>
@@ -125,7 +127,7 @@ export default function HomeCarCard({ car, priority, stock = false }) {
         </p>
 
         {sold && (
-          <p className="mt-1 text-[13px] font-semibold text-subtle">{statusLabel(car.status)}</p>
+          <p className="mt-1 text-[13px] font-semibold text-subtle">{ce.status(car.status)}</p>
         )}
       </div>
     </a>

@@ -1,40 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useT } from "../../lib/i18n";
 
 // Adaptation "Auto BHJ" du composant scroll-story du registre : image a droite
 // (les 4 photos du parcours), texte a gauche (les 4 etapes du site).
 // Pilote par le scroll de la PAGE (piste haute + panneau sticky) -- fonctionne
 // aussi bien embarque comme section que sur une page dediee.
-const STEPS = [
-  {
-    n: "01",
-    title: "Decouvrez le vehicule",
-    description:
-      "Consultez les informations du vehicule sur notre site puis contactez-nous pour organiser une visite.",
-    image: "/story-1-catalogue.png",
-  },
-  {
-    n: "02",
-    title: "Visitez & essayez",
-    description:
-      "Examinez tranquillement le vehicule et effectuez un essai, sans pression commerciale.",
-    image: "/comment-2-visite.jpg",
-  },
-  {
-    n: "03",
-    title: "Controle technique",
-    description:
-      "Le vehicule suit les formalites necessaires et passe au controle technique avant la vente.",
-    image: "/comment-3-controle.png",
-  },
-  {
-    n: "04",
-    title: "Votre voiture est prete",
-    description:
-      "Documents prepares, remise des cles : il ne reste plus qu'a prendre la route.",
-    image: "/comment-4-cles.png",
-  },
+// Les textes des etapes vivent dans le dictionnaire i18n (journey.steps[]).
+const STEP_IMAGES = [
+  "/story-1-catalogue.png",
+  "/comment-2-visite.jpg",
+  "/comment-3-controle.png",
+  "/comment-4-cles.png",
 ];
 
 const GRID_PATTERN = {
@@ -45,8 +23,15 @@ const GRID_PATTERN = {
 };
 
 export default function JourneyScrollStory() {
+  const t = useT();
   const [activeIndex, setActiveIndex] = useState(0);
   const sectionRef = useRef(null);
+
+  const STEPS = STEP_IMAGES.map((image, i) => ({
+    image,
+    title: t(`journey.steps.${i}.title`),
+    description: t(`journey.steps.${i}.description`),
+  }));
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -58,7 +43,10 @@ export default function JourneyScrollStory() {
       const scrolled = -section.getBoundingClientRect().top;
       const p = scrolled / total;
       setActiveIndex(
-        Math.min(STEPS.length - 1, Math.max(0, Math.floor(p * STEPS.length)))
+        Math.min(
+          STEP_IMAGES.length - 1,
+          Math.max(0, Math.floor(p * STEP_IMAGES.length))
+        )
       );
     };
 
@@ -74,43 +62,43 @@ export default function JourneyScrollStory() {
   const goTo = (i) => {
     const section = sectionRef.current;
     if (!section) return;
-    const step = (section.offsetHeight - window.innerHeight) / STEPS.length;
+    const step = (section.offsetHeight - window.innerHeight) / STEP_IMAGES.length;
     const top = section.getBoundingClientRect().top + window.scrollY;
     window.scrollTo({ top: top + step * i + step * 0.5, behavior: "smooth" });
   };
 
   return (
     <section ref={sectionRef} className="bg-offwhite text-ink" aria-labelledby="journey-title">
-      {/* Piste de scroll : ~0,6 ecran par etape (avant : 1 ecran plein = trop long). */}
-      <div style={{ height: `${100 + STEPS.length * 55}vh` }}>
+      {/* Piste de scroll : ~0,5 ecran par etape (avant : 1 ecran plein = trop long). */}
+      <div style={{ height: `${100 + STEP_IMAGES.length * 46}vh` }}>
         {/* Colle SOUS le header du site (h-72) : sinon il recouvre le titre. */}
         <div className="sticky top-[72px] flex h-[calc(100svh-72px)] w-full flex-col overflow-hidden bg-offwhite">
           {/* Titre fixe : reste en haut du panneau pendant tout le scroll. */}
           <div className="mx-auto w-full max-w-6xl shrink-0 px-8 pt-5 md:px-14 md:pt-7">
             <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-brand">
-              Le parcours
+              {t("journey.eyebrow")}
             </p>
             <h2
               id="journey-title"
               className="mt-1 font-extrabold text-ink"
               style={{ fontSize: "clamp(20px, 3vw, 34px)", lineHeight: 1.2, maxWidth: "none" }}
             >
-              Comment ca se passe ?
+              {t("journey.title")}
             </h2>
           </div>
 
           <div className="mx-auto grid min-h-0 w-full max-w-6xl flex-1 grid-cols-1 md:grid-cols-2">
-            {/* Gauche : texte. Mobile -> pile compacte calee en haut (pagination,
-                photo, texte) + bouton pousse en bas (mt-auto). Desktop -> groupe
-                centre, la photo passe dans la colonne de droite. */}
-            <div className="flex h-full flex-col justify-start px-6 py-4 md:justify-center md:border-r md:border-line md:px-14 md:py-6">
+            {/* Gauche : texte. Mobile -> pile compacte centree (pagination, photo,
+                texte, bouton), pour ne pas laisser un grand vide sous le bouton.
+                Desktop -> groupe centre, la photo passe dans la colonne de droite. */}
+            <div className="flex h-full flex-col justify-center px-6 py-4 md:border-r md:border-line md:px-14 md:py-6">
               <div className="mb-3 flex gap-2 md:mb-4">
                 {STEPS.map((s, i) => (
                   <button
-                    key={s.n}
+                    key={i}
                     type="button"
                     onClick={() => goTo(i)}
-                    aria-label={`Etape ${i + 1}`}
+                    aria-label={`${t("journey.stepAria")} ${i + 1}`}
                     className={`h-1 rounded-full transition-all duration-500 ease-in-out ${
                       i === activeIndex ? "w-10 bg-cta" : "w-5 bg-ink/15"
                     }`}
@@ -118,11 +106,13 @@ export default function JourneyScrollStory() {
                 ))}
               </div>
 
-              {/* Photo : mobile uniquement, juste sous la pagination (fondu). */}
-              <div className="relative mb-4 aspect-[16/10] w-full overflow-hidden rounded-xl border border-line bg-ink md:hidden">
+              {/* Photo : mobile uniquement, juste sous la pagination (fondu).
+                  Sans cadre ni fond : l'etape 1 est en portrait -> les cotes se
+                  fondent dans la section au lieu de bandes noires. */}
+              <div className="relative mb-4 aspect-[16/10] w-full overflow-hidden rounded-xl md:hidden">
                 {STEPS.map((s, i) => (
                   <img
-                    key={s.n}
+                    key={i}
                     src={s.image}
                     alt={s.title}
                     className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${
@@ -135,7 +125,7 @@ export default function JourneyScrollStory() {
               <div className="relative h-[124px] sm:h-[150px] md:h-[176px]">
                 {STEPS.map((s, i) => (
                   <div
-                    key={s.n}
+                    key={i}
                     className={`absolute inset-0 transition-all duration-700 ease-in-out ${
                       i === activeIndex
                         ? "translate-y-0 opacity-100"
@@ -167,7 +157,7 @@ export default function JourneyScrollStory() {
                   href="/stock"
                   className="inline-block rounded-full bg-cta px-7 py-3 text-[13px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-cta-dark md:px-10 md:py-4"
                 >
-                  Voir nos vehicules →
+                  {t("journey.cta")}
                 </a>
               </div>
             </div>
@@ -183,7 +173,7 @@ export default function JourneyScrollStory() {
                   style={{ transform: `translateY(-${activeIndex * 100}%)` }}
                 >
                   {STEPS.map((s, i) => (
-                    <div key={s.n} className="flex h-full w-full items-center justify-center">
+                    <div key={i} className="flex h-full w-full items-center justify-center">
                       {i === 0 ? (
                         <img
                           src={s.image}

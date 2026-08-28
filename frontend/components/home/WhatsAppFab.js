@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { WhatsAppIcon } from "./icons";
 import { useSiteSettings } from "../SiteSettingsProvider";
+import { useT } from "../../lib/i18n";
 
 export default function WhatsAppFab() {
   const { whatsapp } = useSiteSettings();
+  const t = useT();
   const pathname = usePathname();
   const whatsappHref = `https://wa.me/${whatsapp}?text=${encodeURIComponent(
-    "Bonjour Auto BHJ, je souhaite des informations sur une voiture."
+    t("bar.waMsgGeneric")
   )}`;
   const [hiddenByFooter, setHiddenByFooter] = useState(false);
 
@@ -47,7 +49,7 @@ export default function WhatsAppFab() {
       href={whatsappHref}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Ecrire sur WhatsApp a Auto BHJ"
+      aria-label={t("bar.waAriaGeneric")}
       aria-hidden={hiddenByFooter}
       tabIndex={hiddenByFooter ? -1 : 0}
       className={`fixed bottom-5 right-5 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25d366] text-white shadow-lg transition-[opacity,transform,background-color] duration-200 hover:bg-[#1fb958] lg:hidden ${

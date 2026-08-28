@@ -1,6 +1,11 @@
+"use client";
+
 import Image from "next/image";
+import { useT } from "../../lib/i18n";
 
 export default function Hero() {
+  const t = useT();
+
   return (
     <section
       className="relative flex min-h-[420px] items-center justify-center overflow-hidden px-6 py-20 sm:min-h-[480px] md:px-10 xl:px-16"
@@ -18,14 +23,11 @@ export default function Hero() {
 
       <div className="relative mx-auto max-w-3xl text-center">
         <h1 className="text-4xl font-bold leading-tight tracking-tight text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.45),0_4px_24px_rgba(0,0,0,0.5)]">
-          Votre voiture d&apos;occasion
+          {t("hero.title1")}
           <br />
-          au juste prix
+          {t("hero.title2")}
         </h1>
-        <p className="mt-4 text-[15px] font-normal text-offwhite">
-          Des véhicules fiables et révisés pour les jeunes conducteurs, les familles et tous ceux
-          qui cherchent une voiture pratique sans dépasser leur budget.
-        </p>
+        <p className="mt-4 text-[15px] font-normal text-offwhite">{t("hero.subtitle")}</p>
       </div>
     </section>
   );

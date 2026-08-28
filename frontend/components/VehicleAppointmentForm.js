@@ -1,27 +1,23 @@
 "use client";
 
 import { useState } from "react";
-
-const DEFAULT_MESSAGE = `Bonjour,
-
-Votre vehicule m'interesse. Je souhaiterais convenir d'un rendez-vous pour le voir ; merci de m'indiquer vos disponibilites.
-
-Cordialement,`;
+import { useT } from "../lib/i18n";
 
 const FIELD =
   "w-full rounded-lg border border-line bg-white px-3 py-2 text-[13.5px] text-ink placeholder:text-subtle focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 
 export default function VehicleAppointmentForm({ reference, carLabel }) {
+  const t = useT();
   const [status, setStatus] = useState("idle"); // idle | sending | sent | error
   const [error, setError] = useState("");
-  const [form, setForm] = useState({
+  const [form, setForm] = useState(() => ({
     name: "",
     email: "",
     phone: "",
-    message: DEFAULT_MESSAGE,
+    message: t("apptForm.defaultMessage"),
     consent: false,
     company: "", // honeypot
-  });
+  }));
 
   function update(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -33,7 +29,7 @@ export default function VehicleAppointmentForm({ reference, carLabel }) {
     event.preventDefault();
     if (status === "sending" || sent) return;
     if (!form.consent) {
-      setError("Merci de cocher la case d'acceptation.");
+      setError(t("apptForm.errConsent"));
       return;
     }
     setStatus("sending");
@@ -49,18 +45,18 @@ export default function VehicleAppointmentForm({ reference, carLabel }) {
           phone: form.phone,
           carReference: reference,
           company: form.company,
-          message: `Vehicule : ${carLabel} - ref. ${reference}\n\n${form.message}`,
+          message: `${t("apptForm.vehiclePrefix")} : ${carLabel} - ref. ${reference}\n\n${form.message}`,
         }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || "Envoi impossible. Reessayez dans un instant.");
+        setError(data.error || t("apptForm.errSend"));
         setStatus("error");
         return;
       }
       setStatus("sent");
     } catch {
-      setError("Envoi impossible. Verifiez votre connexion.");
+      setError(t("apptForm.errNetwork"));
       setStatus("error");
     }
   }
@@ -69,18 +65,18 @@ export default function VehicleAppointmentForm({ reference, carLabel }) {
     <form
       onSubmit={handleSubmit}
       className="rounded-xl border border-line bg-white p-4 sm:p-5"
-      aria-label="Nous contacter au sujet de ce vehicule"
+      aria-label={t("apptForm.aria")}
     >
       <h2
         className="whitespace-nowrap text-ink"
         style={{ fontSize: "16px", fontWeight: 700, lineHeight: 1.3 }}
       >
-        Nous contacter
+        {t("apptForm.title")}
       </h2>
 
       <div className="mt-3 flex flex-col gap-2.5">
         <label className="flex flex-col gap-1">
-          <span className="text-[13px] font-medium text-body">Votre message</span>
+          <span className="text-[13px] font-medium text-body">{t("apptForm.yourMessage")}</span>
           <textarea
             className={`${FIELD} min-h-[84px] resize-y`}
             rows={4}
@@ -92,7 +88,7 @@ export default function VehicleAppointmentForm({ reference, carLabel }) {
 
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           <label className="flex flex-col gap-1">
-            <span className="text-[13px] font-medium text-body">Nom</span>
+            <span className="text-[13px] font-medium text-body">{t("apptForm.name")}</span>
             <input
               className={FIELD}
               type="text"
@@ -103,7 +99,7 @@ export default function VehicleAppointmentForm({ reference, carLabel }) {
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-[13px] font-medium text-body">Email</span>
+            <span className="text-[13px] font-medium text-body">{t("apptForm.email")}</span>
             <input
               className={FIELD}
               type="email"
@@ -114,7 +110,7 @@ export default function VehicleAppointmentForm({ reference, carLabel }) {
             />
           </label>
           <label className="flex flex-col gap-1 sm:col-span-2">
-            <span className="text-[13px] font-medium text-body">Telephone</span>
+            <span className="text-[13px] font-medium text-body">{t("apptForm.phone")}</span>
             <input
               className={FIELD}
               type="tel"
@@ -148,9 +144,7 @@ export default function VehicleAppointmentForm({ reference, carLabel }) {
             required
           />
           <label htmlFor="appointment-consent">
-            J'accepte qu'Auto BHJ utilise mes coordonnees pour repondre a ma demande. Elles ne sont
-            pas communiquees a des tiers et je peux en demander la suppression a tout moment. En
-            savoir plus :{" "}
+            {t("apptForm.consentPre")}
             <a
               href="/politique-confidentialite"
               target="_blank"
@@ -158,7 +152,7 @@ export default function VehicleAppointmentForm({ reference, carLabel }) {
               onClick={(event) => event.stopPropagation()}
               className="font-medium text-brand underline underline-offset-2 hover:text-brand-dark"
             >
-              politique de confidentialite
+              {t("apptForm.consentLink")}
             </a>
             .
           </label>
@@ -166,9 +160,7 @@ export default function VehicleAppointmentForm({ reference, carLabel }) {
 
         {error && <p className="text-[13px] font-medium text-red-600">{error}</p>}
         {sent && (
-          <p className="text-[13px] font-medium text-brand">
-            Merci, nous vous recontactons rapidement.
-          </p>
+          <p className="text-[13px] font-medium text-brand">{t("apptForm.success")}</p>
         )}
 
         <button
@@ -180,7 +172,7 @@ export default function VehicleAppointmentForm({ reference, carLabel }) {
               : "bg-cta-dark hover:bg-cta disabled:opacity-60"
           }`}
         >
-          {sent ? "Envoye !" : status === "sending" ? "Envoi..." : "Envoyer la demande"}
+          {sent ? t("apptForm.sent") : status === "sending" ? t("apptForm.sending") : t("apptForm.submit")}
         </button>
       </div>
     </form>

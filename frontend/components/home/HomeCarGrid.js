@@ -1,4 +1,7 @@
+"use client";
+
 import HomeCarCard from "./HomeCarCard";
+import { useT } from "../../lib/i18n";
 
 // - cols=4 : apercu de la home (grille 1 / 2 / 4 colonnes).
 // - cols=3 : page stock. Une carte par ligne sur mobile (photo a gauche,
@@ -10,12 +13,10 @@ const GRID_BY_COLS = {
 };
 
 export default function HomeCarGrid({ cars, cols = 4 }) {
+  const t = useT();
+
   if (!cars.length) {
-    return (
-      <p className="py-10 text-center text-[15px] text-body">
-        Aucune voiture disponible pour le moment.
-      </p>
-    );
+    return <p className="py-10 text-center text-[15px] text-body">{t("grid.empty")}</p>;
   }
 
   return (

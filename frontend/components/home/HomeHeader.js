@@ -3,18 +3,21 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import OfficialIcon from "../OfficialIcon";
+import LangToggle from "../LangToggle";
 import { MenuIcon, CloseIcon } from "./icons";
 import { useSiteSettings } from "../SiteSettingsProvider";
+import { useT } from "../../lib/i18n";
 
 const LINKS = [
-  { href: "/", label: "Accueil" },
-  { href: "/stock", label: "Nos véhicules" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/#contact", label: "Contact" },
+  { href: "/", key: "home" },
+  { href: "/stock", key: "stock" },
+  { href: "/faq", key: "faq" },
+  { href: "/#contact", key: "contact" },
 ];
 
 export default function HomeHeader() {
   const { phone, phoneTel } = useSiteSettings();
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -52,9 +55,10 @@ export default function HomeHeader() {
               href={link.href}
               className="text-[15px] font-medium text-white transition-colors hover:text-ink"
             >
-              {link.label}
+              {t(`nav.${link.key}`)}
             </a>
           ))}
+          <LangToggle />
           <a
             href={`tel:${phoneTel}`}
             className="inline-flex min-h-[44px] items-center gap-2 whitespace-nowrap rounded-full bg-cta px-5 text-[14px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-cta-dark"
@@ -64,15 +68,18 @@ export default function HomeHeader() {
           </a>
         </nav>
 
-        <button
-          type="button"
-          className="inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-lg text-white hover:bg-white/10 md:hidden"
-          aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
-          aria-expanded={open}
-          onClick={() => setOpen((value) => !value)}
-        >
-          {open ? <CloseIcon width="30" height="30" /> : <MenuIcon width="30" height="30" />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <LangToggle />
+          <button
+            type="button"
+            className="inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-lg text-white hover:bg-white/10"
+            aria-label={open ? t("nav.closeMenu") : t("nav.openMenu")}
+            aria-expanded={open}
+            onClick={() => setOpen((value) => !value)}
+          >
+            {open ? <CloseIcon width="30" height="30" /> : <MenuIcon width="30" height="30" />}
+          </button>
+        </div>
       </div>
 
       {open ? (
@@ -85,7 +92,7 @@ export default function HomeHeader() {
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-3 text-[15px] font-medium text-white hover:bg-white/10 hover:text-ink"
               >
-                {link.label}
+                {t(`nav.${link.key}`)}
               </a>
             ))}
             <a
