@@ -558,7 +558,7 @@ function run() {
   // presente (meme marque + modele + kilometrage). Ne touche jamais aux
   // voitures absentes de cette liste.
   const findDup = db.prepare(
-    `SELECT c.id, c.reference,
+    `SELECT c.id, c.reference, c.status,
             (SELECT COUNT(*) FROM car_images WHERE car_id = c.id) AS imgs
      FROM cars c
      WHERE lower(c.brand) = lower(?) AND lower(c.model) = lower(?) AND c.mileage = ?`
@@ -573,9 +573,11 @@ function run() {
     const existing = findDup.all(vehicle.brand, vehicle.model, vehicle.mileage);
     const incomingHasPhotos = (vehicle.images || []).length > 0;
 
-    // Une fiche deja en base avec des photos et rien de neuf a apporter cote
-    // photos -> on la garde telle quelle (on ne veut pas perdre ses images).
-    const protectedRow = existing.find((row) => row.imgs > 0 && !incomingHasPhotos);
+    // On ne remplace jamais : une fiche marquee "vendu", ni une fiche qui a
+    // deja des photos quand l'import n'en apporte pas de nouvelles.
+    const protectedRow = existing.find(
+      (row) => row.status === "sold" || (row.imgs > 0 && !incomingHasPhotos)
+    );
     if (protectedRow) {
       skipped += 1;
       console.log(

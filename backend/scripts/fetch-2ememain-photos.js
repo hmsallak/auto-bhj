@@ -96,8 +96,11 @@ async function run() {
   const db = getDb();
   fs.mkdirSync(uploadsDir, { recursive: true });
 
+  // On ne re-photographie jamais une voiture marquee "vendu" (ses photos ne
+  // sont plus affichees, et sur la prod le Golf Plus vendu a le meme
+  // kilometrage qu'une annonce 2ememain encore active).
   const findCar = db.prepare(
-    "SELECT id, reference FROM cars WHERE lower(brand) = lower(?) AND lower(model) = lower(?) AND mileage = ? ORDER BY id DESC LIMIT 1"
+    "SELECT id, reference FROM cars WHERE lower(brand) = lower(?) AND lower(model) = lower(?) AND mileage = ? AND status != 'sold' ORDER BY id DESC LIMIT 1"
   );
   const clearImages = db.prepare("DELETE FROM car_images WHERE car_id = ?");
   const insertImage = db.prepare("INSERT INTO car_images (car_id, url, position) VALUES (?, ?, ?)");
