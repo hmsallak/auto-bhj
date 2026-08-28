@@ -1,8 +1,9 @@
 import LegalPage from "../../../components/site/LegalPage";
 
 export const metadata = {
-  title: "Politique de confidentialite - Auto BHJ",
-  description: "Traitement des donnees personnelles collectees par Auto BHJ.",
+  title: "Politique de confidentialite",
+  description: "Traitement des donnees personnelles collectees par Auto BHJ et vos droits (RGPD).",
+  alternates: { canonical: "/politique-confidentialite" },
 };
 
 const content = {

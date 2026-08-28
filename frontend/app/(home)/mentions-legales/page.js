@@ -1,8 +1,9 @@
 import LegalPage from "../../../components/site/LegalPage";
 
 export const metadata = {
-  title: "Mentions legales - Auto BHJ",
-  description: "Informations legales et coordonnees officielles de Auto BHJ.",
+  title: "Mentions legales",
+  description: "Informations legales et coordonnees officielles de Auto BHJ SRL.",
+  alternates: { canonical: "/mentions-legales" },
 };
 
 const content = {

@@ -1,8 +1,9 @@
 import LegalPage from "../../../components/site/LegalPage";
 
 export const metadata = {
-  title: "Politique cookies - Auto BHJ",
-  description: "Informations sur les cookies et technologies similaires du site Auto BHJ.",
+  title: "Politique cookies",
+  description: "Informations sur les cookies et technologies similaires utilises par le site Auto BHJ.",
+  alternates: { canonical: "/politique-cookies" },
 };
 
 const content = {

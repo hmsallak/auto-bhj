@@ -1,8 +1,9 @@
 import LegalPage from "../../../components/site/LegalPage";
 
 export const metadata = {
-  title: "Conditions generales - Auto BHJ",
-  description: "Conditions generales applicables aux demandes et ventes de vehicules Auto BHJ.",
+  title: "Conditions generales",
+  description: "Conditions generales applicables aux demandes et aux ventes de vehicules Auto BHJ.",
+  alternates: { canonical: "/conditions-generales" },
 };
 
 const content = {
