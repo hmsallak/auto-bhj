@@ -4,6 +4,7 @@ import Image from "next/image";
 import { PinIcon, PhoneIcon, MailIcon } from "./icons";
 import { useSiteSettings } from "../SiteSettingsProvider";
 import { useT } from "../../lib/i18n";
+import { OPEN_SETTINGS_EVENT } from "../../lib/consent";
 
 export default function HomeFooter() {
   const year = new Date().getFullYear();
@@ -72,6 +73,13 @@ export default function HomeFooter() {
           >
             {t("footer.terms")}
           </a>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event(OPEN_SETTINGS_EVENT))}
+            className="w-fit text-left text-[15px] text-white transition-colors hover:text-brand-accent"
+          >
+            {t("cookie.manage")}
+          </button>
           <span className="text-[15px] text-white">Auto BHJ SRL - TVA BE 0801.303.538</span>
         </div>
       </div>

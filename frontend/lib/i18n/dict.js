@@ -350,6 +350,26 @@ export const DICT = {
       ],
     },
     legal: { updated: "Derniere mise a jour :" },
+    cookie: {
+      title: "Cookies",
+      text: "Nous utilisons des cookies necessaires au fonctionnement du site et, avec votre accord, des cookies de mesure d'audience ou de marketing.",
+      more: "En savoir plus",
+      acceptAll: "Tout accepter",
+      rejectAll: "Tout refuser",
+      customize: "Personnaliser",
+      save: "Enregistrer mes choix",
+      alwaysOn: "Toujours actif",
+      manage: "Gerer les cookies",
+      necessary: "Necessaires",
+      necessaryDesc:
+        "Indispensables au fonctionnement du site (langue, session). Toujours actifs.",
+      analytics: "Mesure d'audience",
+      analyticsDesc:
+        "Statistiques de visite anonymisees pour ameliorer le site. Aucun outil de ce type n'est actif aujourd'hui.",
+      marketing: "Marketing",
+      marketingDesc:
+        "Personnalisation et publicite. Aucun outil de ce type n'est actif aujourd'hui.",
+    },
   },
 
   nl: {
@@ -694,6 +714,26 @@ export const DICT = {
       ],
     },
     legal: { updated: "Laatste update:" },
+    cookie: {
+      title: "Cookies",
+      text: "We gebruiken cookies die nodig zijn voor de werking van de site en, met uw toestemming, cookies voor bezoekmeting of marketing.",
+      more: "Meer info",
+      acceptAll: "Alles aanvaarden",
+      rejectAll: "Alles weigeren",
+      customize: "Aanpassen",
+      save: "Mijn keuzes bewaren",
+      alwaysOn: "Altijd actief",
+      manage: "Cookies beheren",
+      necessary: "Noodzakelijk",
+      necessaryDesc:
+        "Onmisbaar voor de werking van de site (taal, sessie). Altijd actief.",
+      analytics: "Bezoekmeting",
+      analyticsDesc:
+        "Geanonimiseerde bezoekstatistieken om de site te verbeteren. Op dit moment is geen enkel dergelijk hulpmiddel actief.",
+      marketing: "Marketing",
+      marketingDesc:
+        "Personalisatie en reclame. Op dit moment is geen enkel dergelijk hulpmiddel actief.",
+    },
   },
 };
 

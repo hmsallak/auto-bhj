@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import HomeHeader from "../../components/home/HomeHeader";
 import HomeFooter from "../../components/home/HomeFooter";
 import WhatsAppFab from "../../components/home/WhatsAppFab";
+import CookieBanner from "../../components/CookieBanner";
 import { SiteSettingsProvider } from "../../components/SiteSettingsProvider";
 import { LanguageProvider } from "../../lib/i18n";
 import { DEFAULT_LANG, LANG_COOKIE, LANGS } from "../../lib/i18n/dict";
@@ -28,6 +29,7 @@ export default async function HomeLayout({ children }) {
           <main>{children}</main>
           <HomeFooter />
           <WhatsAppFab />
+          <CookieBanner />
         </div>
       </LanguageProvider>
     </SiteSettingsProvider>
