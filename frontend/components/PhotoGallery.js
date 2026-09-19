@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useT, useCarEnums } from "../lib/i18n";
+import { onImageError } from "../lib/format";
 import { CarIcon, CloseIcon } from "./home/icons";
 
 const THUMB_LIMIT = 4;
@@ -120,6 +121,7 @@ export default function PhotoGallery({ images, alt, status }) {
             height={1200}
             sizes="100vw"
             unoptimized
+            onError={onImageError}
             className="max-h-[80vh] w-auto max-w-full rounded-xl object-contain"
           />
 
@@ -171,6 +173,7 @@ export default function PhotoGallery({ images, alt, status }) {
                     height={90}
                     sizes="96px"
                     unoptimized
+                    onError={onImageError}
                     className="h-full w-full object-cover"
                   />
                 </button>
@@ -197,6 +200,7 @@ export default function PhotoGallery({ images, alt, status }) {
             sizes="(max-width: 820px) 100vw, 56vw"
             priority
             unoptimized
+            onError={onImageError}
             onClick={!sold ? () => setLightboxOpen(true) : undefined}
             role={!sold ? "button" : undefined}
             aria-label={!sold ? t("gallery.openAria") : undefined}
@@ -262,6 +266,7 @@ export default function PhotoGallery({ images, alt, status }) {
                   height={165}
                   sizes="180px"
                   unoptimized
+                  onError={onImageError}
                   className="h-full w-full object-cover"
                 />
                 {isLastVisible && (

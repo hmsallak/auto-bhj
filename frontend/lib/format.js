@@ -28,9 +28,19 @@ export function statusLabel(status) {
   return STATUS_LABELS[status] || STATUS_LABELS.available;
 }
 
+export const PLACEHOLDER_IMAGE =
+  "https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=900&q=80";
+
 export function carImage(car) {
-  return (
-    car.imageUrl ||
-    "https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=900&q=80"
-  );
+  return car.imageUrl || PLACEHOLDER_IMAGE;
+}
+
+// Pour <img onError={onImageError}> : bascule sur l'image de secours si une
+// URL externe (ex. photo hebergee ailleurs) devient injoignable, au lieu de
+// laisser l'icone d'image cassee.
+export function onImageError(event) {
+  const img = event.currentTarget;
+  if (img.src === PLACEHOLDER_IMAGE) return;
+  img.onerror = null;
+  img.src = PLACEHOLDER_IMAGE;
 }

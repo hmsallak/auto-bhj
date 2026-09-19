@@ -3856,7 +3856,10 @@ main,
 }
 
 .wizard-panel:not(.wizard-panel-hidden) {
-  animation: wizardPanelIn 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* fill-mode "none" (par defaut) : le transform de l'animation d'entree ne
+     reste pas applique une fois finie. Un transform permanent sur ce parent
+     rendait les bulles de validation natives des champs invisibles. */
+  animation: wizardPanelIn 320ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .wizard-nav {

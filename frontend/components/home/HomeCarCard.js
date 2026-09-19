@@ -1,6 +1,6 @@
 "use client";
 
-import { carPriceLabel, carImage } from "../../lib/format";
+import { carPriceLabel, carImage, onImageError } from "../../lib/format";
 import { useCarEnums } from "../../lib/i18n";
 
 export default function HomeCarCard({ car, priority, stock = false }) {
@@ -41,6 +41,7 @@ export default function HomeCarCard({ car, priority, stock = false }) {
             width={640}
             height={480}
             loading={priority ? "eager" : "lazy"}
+            onError={onImageError}
             fetchPriority={priority ? "high" : "auto"}
             className={`h-full w-full object-cover lg:aspect-[4/3] lg:h-auto ${
               unavailable ? "opacity-70" : ""
@@ -93,6 +94,7 @@ export default function HomeCarCard({ car, priority, stock = false }) {
           width={640}
           height={480}
           loading={priority ? "eager" : "lazy"}
+          onError={onImageError}
           fetchPriority={priority ? "high" : "auto"}
           className={`h-full w-full object-cover sm:aspect-[4/3] sm:h-auto ${
             unavailable ? "opacity-70" : ""

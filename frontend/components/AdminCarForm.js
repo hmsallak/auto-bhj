@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion, useDragControls } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon, TrashIcon, UploadCloudIcon } from "./site/icons";
 import CarSpecSheet, { SpecHighlights } from "./CarSpecSheet";
-import { carPriceLabel, statusLabel } from "../lib/format";
+import { carPriceLabel, statusLabel, onImageError } from "../lib/format";
 
 const EASE = [0.16, 1, 0.3, 1];
 const PHOTO_LONG_PRESS_MS = 500;
@@ -50,6 +50,17 @@ const STEPS = [
 const REVIEW_STEP = STEPS.length - 1;
 
 const BASIC_REQUIRED = ["brand", "model", "year", "mileage", "price", "fuel", "gearbox", "status"];
+
+const BASIC_FIELD_LABELS = {
+  brand: "Marque",
+  model: "Modele",
+  year: "Annee",
+  mileage: "Kilometrage",
+  price: "Prix",
+  fuel: "Carburant",
+  gearbox: "Boite",
+  status: "Statut",
+};
 
 // Fixed checklist instead of free text: covers what the previously imported
 // listings actually used (so editing an older car keeps its checkboxes
@@ -240,7 +251,7 @@ function PhotoThumb({
         onDragStateChange(null, null);
       }}
     >
-      <img src={photo.previewUrl} alt="" draggable={false} />
+      <img src={photo.previewUrl} alt="" draggable={false} onError={onImageError} />
       <span className="photo-thumb-position">{index + 1}</span>
       {index === 0 && <span className="photo-thumb-cover">Couverture</span>}
       <div className="photo-thumb-actions">
@@ -269,6 +280,7 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
   const [draggedPhotoKey, setDraggedPhotoKey] = useState(null);
   const [dropTargetKey, setDropTargetKey] = useState(null);
   const [statusValue, setStatusValue] = useState(editingCar?.status || "available");
+  const [basicsError, setBasicsError] = useState("");
   const dragCounter = useRef(0);
   const prefersReducedMotion = useReducedMotion();
 
@@ -290,6 +302,7 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
     setStatusValue(values.status || "available");
     setStepIndex(0);
     setReview(null);
+    setBasicsError("");
   }, [editingCar]);
 
   function toggleEquipmentItem(item) {
@@ -392,14 +405,30 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
     const form = formRef.current;
     if (!form) return true;
 
+    const missingLabels = [];
+    let firstMissingEl = null;
+
     for (const name of BASIC_REQUIRED) {
+      if (name === "price" && statusValue === "sold") continue; // prix masque si vendu
       const el = form.elements[name];
       if (el && !String(el.value || "").trim()) {
-        el.reportValidity();
-        el.focus();
-        return false;
+        missingLabels.push(BASIC_FIELD_LABELS[name] || name);
+        if (!firstMissingEl) firstMissingEl = el;
       }
     }
+
+    if (missingLabels.length) {
+      // On n'utilise pas reportValidity() seul : sa bulle native peut rester
+      // invisible dans ce formulaire anime (le panel garde un transform CSS
+      // apres son animation d'entree), ce qui donnait l'impression que
+      // "Suivant" ne faisait rien. Un message toujours visible en plus.
+      setBasicsError(`Champs manquants : ${missingLabels.join(", ")}.`);
+      firstMissingEl?.scrollIntoView({ behavior: "smooth", block: "center" });
+      firstMissingEl?.focus();
+      return false;
+    }
+
+    setBasicsError("");
     return true;
   }
 
@@ -832,7 +861,7 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
                   <div className="photo-grid">
                     {photos.map((photo, index) => (
                       <div className="photo-thumb" key={photo.key}>
-                        <img src={photo.previewUrl} alt="" />
+                        <img src={photo.previewUrl} alt="" onError={onImageError} />
                         {index === 0 && <span className="photo-thumb-cover">Couverture</span>}
                       </div>
                     ))}
@@ -866,6 +895,12 @@ export default function AdminCarForm({ editingCar, onSubmit, onCancel }) {
             </div>
           )}
         </div>
+
+        {basicsError && (
+          <p role="alert" className="hint-text" style={{ color: "#c0392b", fontWeight: 600 }}>
+            {basicsError}
+          </p>
+        )}
 
         <div className="wizard-nav">
           <div className="wizard-nav-side">
