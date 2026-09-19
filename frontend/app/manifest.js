@@ -9,9 +9,6 @@ export default function manifest() {
     background_color: "#F8F9FA",
     theme_color: "#2d6b76",
     lang: "fr-BE",
-    icons: [
-      { src: "/logo-static.png", sizes: "any", type: "image/png" },
-      { src: "/logo-auto-bhj.png", sizes: "512x512", type: "image/png" },
-    ],
+    icons: [{ src: "/favicon-autobhj.png", sizes: "any", type: "image/png" }],
   };
 }

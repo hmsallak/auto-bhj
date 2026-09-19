@@ -59,9 +59,9 @@ export const metadata = {
     },
   },
   icons: {
-    icon: "/logo-static.png",
-    shortcut: "/logo-static.png",
-    apple: "/logo-static.png",
+    icon: "/favicon-autobhj.png",
+    shortcut: "/favicon-autobhj.png",
+    apple: "/favicon-autobhj.png",
   },
   openGraph: {
     type: "website",
