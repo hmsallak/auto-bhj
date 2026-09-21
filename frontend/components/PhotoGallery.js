@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useT, useCarEnums } from "../lib/i18n";
-import { imageErrorHandler } from "../lib/format";
+import { imageErrorHandler, PLACEHOLDER_IMAGE } from "../lib/format";
 import { CarIcon, CloseIcon } from "./home/icons";
 
 const THUMB_LIMIT = 4;
@@ -207,7 +207,11 @@ export default function PhotoGallery({ images, alt, status }) {
             className={`h-full w-full object-cover ${!sold ? "cursor-pointer" : ""} ${reserved ? "opacity-90" : ""}`}
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-[15px] text-subtle">{t("gallery.noPhoto")}</div>
+          <img
+            src={PLACEHOLDER_IMAGE}
+            alt={t("gallery.noPhoto")}
+            className="h-full w-full object-cover"
+          />
         )}
         {sold && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-ink/80 text-center text-[15px] font-semibold text-white">

@@ -28,8 +28,9 @@ export function statusLabel(status) {
   return STATUS_LABELS[status] || STATUS_LABELS.available;
 }
 
-export const PLACEHOLDER_IMAGE =
-  "https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=900&q=80";
+// Pas de photo du tout, ou photo externe injoignable : visuel de marque
+// "Photos en attente" au lieu d'une photo generique sans rapport.
+export const PLACEHOLDER_IMAGE = "/photos-en-attente.png";
 
 // Vehicule vendu + photo injoignable (ex. photo hebergee ailleurs et retiree) :
 // mieux vaut ce visuel "Vendue !" que la photo generique d'une autre voiture.
