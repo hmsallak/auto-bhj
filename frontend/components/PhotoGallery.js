@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useT, useCarEnums } from "../lib/i18n";
-import { imageErrorHandler, PLACEHOLDER_IMAGE } from "../lib/format";
+import { imageErrorHandler, PLACEHOLDER_IMAGE, SOLD_PLACEHOLDER_IMAGE } from "../lib/format";
 import { CarIcon, CloseIcon } from "./home/icons";
 
 const THUMB_LIMIT = 4;
@@ -191,7 +191,15 @@ export default function PhotoGallery({ images, alt, status }) {
         onTouchStart={active && !sold ? handleTouchStart : undefined}
         onTouchEnd={active && !sold ? handleTouchEnd : undefined}
       >
-        {active ? (
+        {sold ? (
+          // Vehicule vendu : une seule image (le visuel "Vendue !"), jamais
+          // les vraies photos ni de bandeau redondant par-dessus.
+          <img
+            src={SOLD_PLACEHOLDER_IMAGE}
+            alt={t("gallery.sold")}
+            className="h-full w-full object-cover"
+          />
+        ) : active ? (
           <Image
             src={active}
             alt={alt}
@@ -201,10 +209,10 @@ export default function PhotoGallery({ images, alt, status }) {
             priority
             unoptimized
             onError={imageErrorHandler(status)}
-            onClick={!sold ? () => setLightboxOpen(true) : undefined}
-            role={!sold ? "button" : undefined}
-            aria-label={!sold ? t("gallery.openAria") : undefined}
-            className={`h-full w-full object-cover ${!sold ? "cursor-pointer" : ""} ${reserved ? "opacity-90" : ""}`}
+            onClick={() => setLightboxOpen(true)}
+            role="button"
+            aria-label={t("gallery.openAria")}
+            className={`h-full w-full cursor-pointer object-cover ${reserved ? "opacity-90" : ""}`}
           />
         ) : (
           <img
@@ -212,12 +220,6 @@ export default function PhotoGallery({ images, alt, status }) {
             alt={t("gallery.noPhoto")}
             className="h-full w-full object-cover"
           />
-        )}
-        {sold && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-ink/80 text-center text-[15px] font-semibold text-white">
-            <span>{t("gallery.sold")}</span>
-            <span className="text-[13px] font-normal text-offwhite">{t("gallery.soldPhotos")}</span>
-          </div>
         )}
         <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-3 py-1 text-[13px] font-semibold text-white">
           {ce.status(status)}
@@ -247,7 +249,7 @@ export default function PhotoGallery({ images, alt, status }) {
         )}
       </div>
 
-      {visibleThumbs.length > 1 && (
+      {!sold && visibleThumbs.length > 1 && (
         <div className="grid grid-cols-4 gap-2">
           {visibleThumbs.map((src, index) => {
             const isLastVisible = index === THUMB_LIMIT - 1 && hasMore;
