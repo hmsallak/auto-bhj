@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "be.autobhj.admin",
+      "sha256_cert_fingerprints": ["56:BA:F2:C6:C6:97:DE:0D:99:A0:1C:25:6B:1B:C8:C0:1D:A2:84:08:FE:E2:56:98:80:56:5D:5A:13:A5:C7:B6"]
+    }
+  }
+]
