@@ -42,6 +42,10 @@ export const DICT = {
       title: "Comment ca se passe ?",
       cta: "Voir nos vehicules →",
       stepAria: "Etape",
+      prev: "Etape precedente",
+      next: "Etape suivante",
+      pause: "Mettre le defilement en pause",
+      play: "Relancer le defilement",
       steps: [
         {
           title: "Decouvrez le vehicule",
@@ -364,8 +368,8 @@ export const DICT = {
       addTitle: "Ajouter à mon agenda",
       google: "Google Agenda",
       ics: "Apple / Outlook",
-      contactTitle: "Un empêchement ?",
-      contactText: "Prévenez-nous pour déplacer ou annuler votre rendez-vous.",
+      contactTitle: "Annuler ou déplacer le rendez-vous",
+      contactText: "Merci de nous contacter par téléphone.",
     },
     cookie: {
       title: "Cookies",
@@ -423,6 +427,10 @@ export const DICT = {
       title: "Hoe verloopt het?",
       cta: "Bekijk onze wagens →",
       stepAria: "Stap",
+      prev: "Vorige stap",
+      next: "Volgende stap",
+      pause: "Automatisch afspelen pauzeren",
+      play: "Automatisch afspelen hervatten",
       steps: [
         {
           title: "Ontdek de wagen",
@@ -745,8 +753,8 @@ export const DICT = {
       addTitle: "Toevoegen aan mijn agenda",
       google: "Google Agenda",
       ics: "Apple / Outlook",
-      contactTitle: "Verhinderd?",
-      contactText: "Laat het ons weten om uw afspraak te verplaatsen of te annuleren.",
+      contactTitle: "Afspraak annuleren of verplaatsen",
+      contactText: "Gelieve ons telefonisch te contacteren.",
     },
     cookie: {
       title: "Cookies",

@@ -16583,3 +16583,19 @@ a.message-car:focus-visible {
     display: none;
   }
 }
+
+/* "Comment ca se passe" carousel: progress of the current step. */
+@keyframes journey-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.journey-progress {
+  animation-name: journey-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}

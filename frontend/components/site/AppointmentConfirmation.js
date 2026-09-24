@@ -2,7 +2,7 @@
 
 import { useLang, useT } from "../../lib/i18n";
 import { useSiteSettings } from "../SiteSettingsProvider";
-import { CalendarIcon, CarIcon, MailIcon, PhoneIcon, PinIcon } from "../home/icons";
+import { CalendarIcon, CarIcon, PhoneIcon, PinIcon } from "../home/icons";
 
 // Wall-clock "YYYY-MM-DDTHH:MM" built from its parts, so server (UTC) and
 // browser render the same day and time - no timezone shift, no hydration diff.
@@ -16,7 +16,7 @@ function localDate(startsAt) {
 export default function AppointmentConfirmation({ appointment, car, garage, googleUrl }) {
   const t = useT();
   const { lang } = useLang();
-  const { phone, phoneTel, email } = useSiteSettings();
+  const { phone, phoneTel } = useSiteSettings();
   const locale = lang === "nl" ? "nl-BE" : "fr-BE";
 
   const when = localDate(appointment.startsAt);
@@ -121,21 +121,20 @@ export default function AppointmentConfirmation({ appointment, car, garage, goog
         </div>
       )}
 
-      {/* Contact. */}
-      <div className="mt-8 rounded-2xl border border-line bg-white p-6">
-        <h2 className="text-[15px] font-bold text-ink">{t("rdv.contactTitle")}</h2>
-        <p className="mt-1 text-[14px] leading-relaxed text-body">{t("rdv.contactText")}</p>
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:gap-6">
-          <a href={`tel:${phoneTel}`} className="inline-flex min-h-[44px] items-center gap-2 font-semibold text-brand hover:text-brand-dark">
+      {/* Read-only page: changes go through a phone call to the garage. */}
+      {!past && (
+        <div className="mt-8 rounded-2xl border border-line bg-white p-6">
+          <h2 className="text-[15px] font-bold text-ink">{t("rdv.contactTitle")}</h2>
+          <p className="mt-1 text-[14px] leading-relaxed text-body">{t("rdv.contactText")}</p>
+          <a
+            href={`tel:${phoneTel}`}
+            className="mt-4 inline-flex min-h-[48px] items-center gap-2 rounded-xl border border-brand px-5 font-semibold text-brand transition-colors hover:bg-brand-pastel focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          >
             <PhoneIcon className="h-5 w-5" aria-hidden="true" />
             {phone}
           </a>
-          <a href={`mailto:${email}`} className="inline-flex min-h-[44px] items-center gap-2 font-semibold text-brand hover:text-brand-dark">
-            <MailIcon className="h-5 w-5" aria-hidden="true" />
-            {email}
-          </a>
         </div>
-      </div>
+      )}
     </section>
   );
 }

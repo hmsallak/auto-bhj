@@ -81,6 +81,14 @@ function renderHtml({ kind, appointment, car, settings, pageUrl }) {
     ? ""
     : `<p style="margin:10px 0 0;font-size:13px;line-height:1.5;color:#5c5c55;">Le fichier joint <strong>rendez-vous-auto-bhj.ics</strong> ajoute le rendez-vous a votre agenda (Apple, Outlook). Pour Google Agenda, utilisez le bouton de la page de votre rendez-vous.</p>`;
 
+  // Changes only by phone: the customer never edits the appointment online.
+  const phoneOnlyNote = cancelled
+    ? ""
+    : `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0 0;"><tr><td style="padding:14px 16px;border-radius:10px;background:#e3efe9;font-size:14px;line-height:1.5;color:#1c1c1a;">` +
+      `<strong>Annuler ou deplacer le rendez-vous ?</strong><br>Merci de nous contacter par telephone au ` +
+      `<a href="tel:${escapeHtml(settings.phoneTel)}" style="color:#1a4d3e;font-weight:700;">${escapeHtml(settings.phone)}</a>.` +
+      `</td></tr></table>`;
+
   return (
     `<!doctype html><html lang="fr"><body style="margin:0;padding:0;background:#eef1f0;">` +
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef1f0;padding:28px 12px;"><tr><td align="center">` +
@@ -93,8 +101,9 @@ function renderHtml({ kind, appointment, car, settings, pageUrl }) {
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">${rows}</table>` +
     actions +
     agendaNote +
+    phoneOnlyNote +
     `</td></tr>` +
-    `<tr><td style="padding:16px 28px;background:#f6f8f7;border-top:1px solid #e5ebe8;"><p style="margin:0;font-size:12px;line-height:1.5;color:#7b8783;">Une question ? Repondez simplement a cet e-mail ou appelez-nous au ${escapeHtml(settings.phone)}.<br>${escapeHtml(GARAGE.name)} &middot; ${escapeHtml(GARAGE.address)}</p></td></tr>` +
+    `<tr><td style="padding:16px 28px;background:#f6f8f7;border-top:1px solid #e5ebe8;"><p style="margin:0;font-size:12px;line-height:1.5;color:#7b8783;">Une question ? Appelez-nous au ${escapeHtml(settings.phone)}.<br>${escapeHtml(GARAGE.name)} &middot; ${escapeHtml(GARAGE.address)}</p></td></tr>` +
     `</table></td></tr></table></body></html>`
   );
 }
@@ -114,6 +123,10 @@ function renderText({ kind, appointment, car, settings, pageUrl }) {
     `E-mail : ${settings.email}`,
     kind === "cancelled" ? null : "",
     kind === "cancelled" ? null : `Votre rendez-vous (et ajout a l'agenda) : ${pageUrl}`,
+    kind === "cancelled" ? null : "",
+    kind === "cancelled"
+      ? null
+      : `Annuler ou deplacer le rendez-vous ? Merci de nous contacter par telephone au ${settings.phone}.`,
     "",
     "Auto BHJ",
   ]
