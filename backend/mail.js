@@ -55,14 +55,18 @@ function renderEmail({ heading, lines = [], button, footnote }) {
   );
 }
 
-async function sendMail({ to, subject, html, text }) {
+// attachments: [{ filename, content (string or Buffer) }]; replyTo lets the
+// customer answer the garage directly instead of the no-reply sender.
+async function sendMail({ to, subject, html, text, attachments = [], replyTo }) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.MAIL_FROM;
 
   if (!apiKey || !from) {
     console.warn(
       `[mail] RESEND_API_KEY / MAIL_FROM not set - email NOT sent.\n` +
-        `  To: ${to}\n  Subject: ${subject}\n  Body:\n${text || html}`
+        `  To: ${to}\n  Subject: ${subject}\n` +
+        (attachments.length ? `  Attachments: ${attachments.map((file) => file.filename).join(", ")}\n` : "") +
+        `  Body:\n${text || html}`
     );
     return { sent: false };
   }
@@ -73,7 +77,22 @@ async function sendMail({ to, subject, html, text }) {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from, to, subject, html, text }),
+    body: JSON.stringify({
+      from,
+      to,
+      subject,
+      html,
+      text,
+      ...(replyTo ? { reply_to: replyTo } : {}),
+      ...(attachments.length
+        ? {
+            attachments: attachments.map((file) => ({
+              filename: file.filename,
+              content: Buffer.from(file.content).toString("base64"),
+            })),
+          }
+        : {}),
+    }),
   });
 
   if (!response.ok) {
@@ -84,4 +103,4 @@ async function sendMail({ to, subject, html, text }) {
   return { sent: true };
 }
 
-module.exports = { sendMail, renderEmail };
+module.exports = { sendMail, renderEmail, escapeHtml };

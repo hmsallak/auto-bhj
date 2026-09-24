@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const { DatabaseSync } = require("node:sqlite");
@@ -33,6 +34,7 @@ const CARS_COLUMNS = {
   interior_material: "TEXT",
   equipment: "TEXT",
   previous_owners: "TEXT",
+  sold_at: "TEXT",
 };
 
 const ADMIN_USERS_COLUMNS = {
@@ -42,6 +44,10 @@ const ADMIN_USERS_COLUMNS = {
   role: "TEXT NOT NULL DEFAULT 'member'",
   permissions: "TEXT NOT NULL DEFAULT '[]'",
   status: "TEXT NOT NULL DEFAULT 'active'",
+};
+
+const APPOINTMENTS_COLUMNS = {
+  token: "TEXT",
 };
 
 const SESSIONS_COLUMNS = {
@@ -152,6 +158,21 @@ function ensureOwnerExists(database) {
   database.prepare("UPDATE admin_users SET role = 'owner' WHERE id = ?").run(oldest.id);
 }
 
+// Cars sold before sold_at existed get their last update as a best guess:
+// for a sold car that is usually the edit that marked it sold.
+function backfillSoldAt(database) {
+  database.exec("UPDATE cars SET sold_at = updated_at WHERE status = 'sold' AND sold_at IS NULL;");
+}
+
+// Appointments created before the public confirmation page existed get
+// their token here, so every appointment has a working link.
+function backfillAppointmentTokens(database) {
+  const rows = database.prepare("SELECT id FROM appointments WHERE token IS NULL").all();
+  const update = database.prepare("UPDATE appointments SET token = ? WHERE id = ?");
+  for (const row of rows) update.run(crypto.randomBytes(16).toString("hex"), row.id);
+  database.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_appointments_token ON appointments (token);");
+}
+
 // Break-glass reset: if ADMIN_PASSWORD_OVERRIDE is set (>= 8 chars), the owner
 // account's password is forced to that value - once, here at DB init (process
 // start / redeploy), never per request. Set the variable in Railway, redeploy,
@@ -219,10 +240,15 @@ function getDb() {
   // instead of waiting its turn.
   db.exec("PRAGMA busy_timeout = 5000;");
   db.exec(schema);
-  migrateColumns(db, "cars", CARS_COLUMNS);
+  // Rebuild first: its hardcoded column list would otherwise drop any column
+  // migrateColumns had just added.
   migrateCarsStatusCheck(db);
+  migrateColumns(db, "cars", CARS_COLUMNS);
+  backfillSoldAt(db);
   migrateColumns(db, "admin_users", ADMIN_USERS_COLUMNS);
   migrateColumns(db, "sessions", SESSIONS_COLUMNS);
+  migrateColumns(db, "appointments", APPOINTMENTS_COLUMNS);
+  backfillAppointmentTokens(db);
   ensureOwnerExists(db);
   applyAdminPasswordOverride(db);
   purgeStaleRows(db);

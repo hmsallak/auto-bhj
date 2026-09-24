@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS cars (
   interior_material TEXT,
   equipment TEXT,
   previous_owners TEXT,
+  -- Set when the status becomes 'sold', cleared if it goes back on sale.
+  sold_at TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -138,3 +140,24 @@ CREATE TABLE IF NOT EXISTS site_settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
+
+-- Appointments planned from a customer request. Contact details are copied
+-- in, so the appointment survives the message being deleted. starts_at is
+-- local Brussels wall-clock time "YYYY-MM-DDTHH:MM" (no timezone): it is
+-- entered and read by people in the same place, never converted.
+CREATE TABLE IF NOT EXISTS appointments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  message_id INTEGER REFERENCES contact_messages(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  car_reference TEXT,
+  starts_at TEXT NOT NULL,
+  note TEXT,
+  -- Unguessable id for the customer's public confirmation page / .ics.
+  token TEXT,
+  created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_appointments_starts ON appointments (starts_at);

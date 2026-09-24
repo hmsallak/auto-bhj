@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { CloseIcon } from "../home/icons";
 import AdminUserMenu from "./AdminUserMenu";
-import { OverviewIcon, StockIcon, MessagesIcon, UsersIcon, SettingsIcon } from "./icons";
+import { OverviewIcon, StockIcon, MessagesIcon, CalendarIcon, UsersIcon, SettingsIcon } from "./icons";
 
 // "profile" (the account settings page) is reachable only from the
 // top-right account menu, not the sidebar.
@@ -9,6 +9,7 @@ export const TABS = [
   { id: "overview", label: "Tableau de bord", Icon: OverviewIcon },
   { id: "stock", label: "Vehicules", Icon: StockIcon, permission: "stock_read" },
   { id: "messages", label: "Demandes", Icon: MessagesIcon, permission: "messages_read" },
+  { id: "appointments", label: "Mes rendez-vous", Icon: CalendarIcon, permission: "messages_read" },
   { id: "users", label: "Equipe", Icon: UsersIcon, ownerOnly: true },
   { id: "settings", label: "Parametres site", Icon: SettingsIcon, ownerOnly: true },
 ];
@@ -29,6 +30,7 @@ export default function AdminSidebar({
   user,
   stockCount,
   unreadCount,
+  upcomingCount = 0,
   pendingUserCount = 0,
 }) {
   const visibleTabs = TABS.filter((tab) => canSeeTab(tab, user));
@@ -70,6 +72,9 @@ export default function AdminSidebar({
             {id === "stock" && <span className="dash-nav-badge">{stockCount}</span>}
             {id === "messages" && unreadCount > 0 && (
               <span className="dash-nav-badge unread">{unreadCount}</span>
+            )}
+            {id === "appointments" && upcomingCount > 0 && (
+              <span className="dash-nav-badge">{upcomingCount}</span>
             )}
             {id === "users" && pendingUserCount > 0 && (
               <span className="dash-nav-badge unread">{pendingUserCount}</span>

@@ -14,6 +14,25 @@ export function carPriceLabel(car) {
   return formatPrice(car.price);
 }
 
+// Same rule as derivePhone() in backend/models/siteSettings.js, for numbers
+// typed by customers: "0470 12 34 56" / "0032 470..." / "+32 470..." ->
+// "+32470123456". Returns null when there are too few digits to dial.
+export function phoneLinks(raw) {
+  const text = String(raw || "").trim();
+  let digits = text.replace(/\D/g, "");
+  if (digits.length < 8) return null;
+
+  if (text.startsWith("+")) {
+    // already international
+  } else if (digits.startsWith("00")) {
+    digits = digits.slice(2);
+  } else if (digits.startsWith("0")) {
+    digits = `32${digits.slice(1)}`;
+  }
+
+  return { tel: `tel:+${digits}`, whatsapp: `https://wa.me/${digits}` };
+}
+
 export function formatKm(value) {
   return `${new Intl.NumberFormat("fr-BE").format(value)} km`;
 }

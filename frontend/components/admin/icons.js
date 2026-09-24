@@ -18,6 +18,10 @@ export function MessagesIcon() {
   return <AdminNavIcon file="email.svg" />;
 }
 
+export function CalendarIcon() {
+  return <AdminNavIcon file="calendrier.svg" />;
+}
+
 export function UsersIcon() {
   return <AdminNavIcon file="famille.svg" />;
 }

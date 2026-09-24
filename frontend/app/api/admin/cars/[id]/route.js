@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { updateCar, deleteCar } from "../../../../../../backend/models/cars";
+import { updateCar, updateCarStatus, deleteCar } from "../../../../../../backend/models/cars";
 import { findByUsername } from "../../../../../../backend/models/adminUsers";
 import { verifyPassword } from "../../../../../../backend/auth/passwords";
 import { requirePermission, authError } from "../../../../../lib/adminAuth";
@@ -33,6 +33,25 @@ async function handleUpdate(request, { params }) {
 
 export const POST = apiRoute(handleUpdate);
 export const PUT = apiRoute(handleUpdate);
+
+// Quick status change from the stock list: { status } only.
+export const PATCH = apiRoute(async function handleStatus(request, { params }) {
+  const user = await requirePermission("stock_write");
+  if (!user) {
+    const { status, error } = await authError();
+    return NextResponse.json({ error }, { status });
+  }
+
+  const payload = await request.json().catch(() => ({}));
+  const { id: rawId } = await params;
+  const result = updateCarStatus(Number(rawId), String(payload.status || ""), user.username);
+  if (result.error) {
+    const status = result.error === "Vehicule introuvable." ? 404 : 400;
+    return NextResponse.json({ error: result.error }, { status });
+  }
+
+  return NextResponse.json(result.car);
+});
 
 export const DELETE = apiRoute(async function handleDelete(request, { params }) {
   const user = await requirePermission("stock_delete");

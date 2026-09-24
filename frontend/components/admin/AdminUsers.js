@@ -7,9 +7,13 @@ import { USER_PERMISSIONS } from "./userPermissions";
 const ACTION_LABELS = {
   car_created: "Voiture ajoutee",
   car_updated: "Voiture modifiee",
+  car_status_changed: "Statut modifie",
   car_deleted: "Voiture supprimee",
   message_received: "Message recu",
   message_deleted: "Message supprime",
+  appointment_created: "Rendez-vous planifie",
+  appointment_updated: "Rendez-vous modifie",
+  appointment_deleted: "Rendez-vous annule",
   user_created: "Membre cree",
   user_permissions_updated: "Permissions modifiees",
   user_approved: "Demande approuvee",

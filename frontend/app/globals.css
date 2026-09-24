@@ -10799,6 +10799,8 @@ main > .legal-shell,
   --admin-accent-hover: #123a2e;
   --admin-danger: #5c5c55;
   --admin-danger-hover: #1c1c1a;
+  /* True red, reserved for irreversible actions like "Supprimer". */
+  --admin-destructive: #b91c1c;
   --admin-text: #123a2e;
   --admin-muted: #5c5c55;
   --admin-dim: #96968c;
@@ -11598,26 +11600,36 @@ main > .legal-shell,
   text-align: center;
 }
 
+/* Bare icon, no circle: the 38px box only keeps a comfortable hit area. */
 .admin-action-toggle {
   width: 38px;
   height: 38px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--admin-border);
-  border-radius: 999px;
-  background: var(--admin-card-2);
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
   color: var(--admin-text);
   cursor: pointer;
-  transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    transform 120ms ease;
+  transition: transform 120ms ease;
 }
 
+/* Full colour at rest; hover/open is signalled by a slight lift instead. */
 .admin-action-toggle:hover,
 .admin-action-toggle[aria-expanded="true"] {
-  border-color: rgba(26, 77, 62, 0.4);
-  background: rgba(26, 77, 62, 0.12);
+  transform: scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-action-toggle {
+    transition: none;
+  }
+}
+
+.admin-action-toggle:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
 }
 
 .admin-action-toggle:active {
@@ -11625,8 +11637,8 @@ main > .legal-shell,
 }
 
 .admin-action-toggle img {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
 }
 
 .admin-action-dropdown {
@@ -11661,8 +11673,13 @@ main > .legal-shell,
   background: var(--admin-hover);
 }
 
+/* Must match its sibling items: the later bare `button.danger-text` rule
+   would otherwise reset the font size, weight and padding. */
 .admin-action-dropdown .danger-text {
-  color: var(--admin-danger);
+  padding: 0 10px;
+  color: var(--admin-destructive);
+  font-size: 13px;
+  font-weight: 400;
 }
 
 /* Bare danger button (outside the action dropdown): text-only, no box. */
@@ -11682,8 +11699,8 @@ button.danger-text:disabled {
 }
 
 .admin-action-dropdown .danger-text:hover {
-  background: rgba(92, 92, 85, 0.1);
-  color: var(--admin-danger);
+  background: rgba(185, 28, 28, 0.08);
+  color: var(--admin-destructive);
 }
 
 .admin-confirm-overlay {
@@ -11693,27 +11710,26 @@ button.danger-text:disabled {
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(28, 28, 26, 0.38);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  /* Light scrim, no blur: just enough to catch an outside click. */
+  background: rgba(28, 28, 26, 0.12);
 }
 
 .admin-confirm-dialog {
-  width: min(430px, 100%);
+  width: min(340px, 100%);
   display: grid;
-  gap: 18px;
-  padding: 22px;
-  border: 1px solid var(--admin-border);
-  border-radius: 14px;
+  gap: 14px;
+  padding: 18px;
+  border: 0;
+  border-radius: 12px;
   background: #ffffff;
-  box-shadow: 0 26px 70px rgba(28, 28, 26, 0.16);
+  box-shadow: 0 8px 24px rgba(28, 28, 26, 0.14);
 }
 
 .admin-confirm-dialog h3 {
-  margin: 4px 0 0;
+  margin: 0;
   color: var(--admin-text);
-  font-size: 22px;
-  line-height: 1.1;
+  font-size: 17px;
+  line-height: 1.2;
 }
 
 .admin-confirm-dialog p:not(.eyebrow) {
@@ -14435,7 +14451,9 @@ button.danger-text:disabled {
     display: none;
   }
 
-  .admin-actions {
+  /* Only the car rows swap their actions for .admin-mobile-card-actions;
+     other lists (e.g. messages) keep theirs. */
+  .admin-item .admin-actions {
     display: none;
   }
 
@@ -14696,8 +14714,8 @@ button.danger-text:disabled {
   }
 
   .admin-mobile-action-toggle img {
-    width: 19px;
-    height: 19px;
+    width: 22px;
+    height: 22px;
   }
 
   .admin-mobile-action-dropdown {
@@ -14732,7 +14750,7 @@ button.danger-text:disabled {
   }
 
   .admin-mobile-action-dropdown .danger-text {
-    color: var(--admin-danger);
+    color: var(--admin-destructive);
   }
 }
 
@@ -15121,6 +15139,1389 @@ button.danger-text:disabled {
 
 .dashboard .recent-vehicle b {
   font-size: 13px;
+}
+
+.dash-todo-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash-todo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 9px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--admin-border);
+  background: transparent;
+  color: var(--admin-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.dash-todo:hover {
+  background: var(--admin-hover);
+}
+
+.dash-todo:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: -2px;
+}
+
+.dash-todo-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dash-todo-text strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dash-todo-text span {
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+.dash-todo-chevron {
+  flex-shrink: 0;
+  color: var(--admin-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-todo {
+    transition: none;
+  }
+}
+
+/* Dashboard zones: one title per zone, light subsections inside. */
+.dash-zone-title {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.dash-subsection + .dash-subsection {
+  margin-top: 14px;
+}
+
+.dash-subsection-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+}
+
+.dash-subsection-head h3 {
+  margin: 0;
+  color: var(--admin-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dash-link {
+  min-height: 32px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--admin-accent);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dash-link:hover {
+  background: var(--admin-hover);
+}
+
+.dash-link:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+/* Appointment row: day + time column, then who, then chevron. */
+.dash-agenda {
+  justify-content: flex-start;
+}
+
+.dash-agenda .dash-todo-chevron {
+  margin-left: auto;
+}
+
+.dash-agenda-when {
+  display: grid;
+  flex-shrink: 0;
+  width: 78px;
+  gap: 1px;
+}
+
+.dash-agenda-when span {
+  color: var(--admin-accent);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.dash-agenda-when strong {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-todo-text strong,
+.dash-todo-text span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kpi-meta.warning {
+  color: var(--admin-warning);
+  font-weight: 600;
+}
+
+/* ---- Appointments ---- */
+.message-plan {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.message-appointment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(115, 165, 141, 0.14);
+  color: var(--admin-text);
+  font-size: 13px;
+}
+
+.message-appointment.past {
+  background: transparent;
+  color: var(--admin-muted);
+}
+
+/* Calendar dialog: centred on every screen size (the generic confirm
+   becomes a bottom sheet on mobile; the calendar should not). */
+.admin-confirm-overlay.appointment-overlay {
+  align-items: center;
+  justify-items: center;
+  padding: 16px;
+}
+
+.admin-confirm-dialog.appointment-picker {
+  width: min(330px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.picker-month {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.picker-month strong {
+  font-size: 14px;
+  text-transform: capitalize;
+}
+
+.picker-month button {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-text);
+  cursor: pointer;
+}
+
+.picker-month button:hover:not(:disabled) {
+  background: var(--admin-hover);
+}
+
+.picker-month button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.picker-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.picker-weekday {
+  padding: 4px 0;
+  color: var(--admin-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.picker-day {
+  position: relative;
+  height: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.picker-day:hover:not(:disabled) {
+  background: var(--admin-hover);
+}
+
+.picker-day:disabled {
+  color: var(--admin-muted);
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Small dot: this day already has an appointment. */
+.picker-day.booked::after {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-sage, #73a58d);
+  content: "";
+  transform: translateX(-50%);
+}
+
+.picker-day.selected,
+.picker-times button.selected {
+  background: var(--admin-accent);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.picker-day.selected::after {
+  background: #ffffff;
+}
+
+.picker-times {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.picker-times button {
+  min-height: 40px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.picker-times button:hover:not(:disabled):not(.selected) {
+  background: var(--admin-hover);
+}
+
+.picker-times button:disabled {
+  color: var(--admin-muted);
+  text-decoration: line-through;
+  opacity: 0.45;
+  cursor: default;
+}
+
+.picker-times button.selected {
+  border-color: var(--admin-accent);
+}
+
+/* Slot booked by another appointment: red, clearly not just "past". */
+.picker-times button.taken:disabled {
+  border-color: rgba(185, 28, 28, 0.35);
+  background: rgba(185, 28, 28, 0.1);
+  color: var(--admin-destructive);
+  text-decoration: none;
+  opacity: 1;
+}
+
+/* Reserved / sold car warning shown before picking a date. */
+.picker-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(180, 83, 9, 0.1);
+  color: var(--admin-warning);
+}
+
+.picker-warning.sold {
+  background: rgba(185, 28, 28, 0.08);
+  color: var(--admin-destructive);
+}
+
+.picker-warning svg {
+  flex-shrink: 0;
+}
+
+.picker-warning strong {
+  display: block;
+  font-size: 14px;
+}
+
+/* Beats the generic ".admin-confirm-dialog p:not(.eyebrow)" muted style. */
+.admin-confirm-dialog .picker-warning p {
+  margin: 4px 0 0;
+  color: var(--admin-text);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.picker-day:focus-visible,
+.picker-times button:focus-visible,
+.picker-month button:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+/* Manual appointment, step 1: who the customer is. */
+.picker-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.picker-fields label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+/* Phone and model take the full width. */
+.picker-fields label:nth-child(n + 3) {
+  grid-column: 1 / -1;
+}
+
+.picker-fields input,
+.picker-fields select {
+  width: 100%;
+  min-height: 44px;
+}
+
+/* Step 2 header: the chosen day, tap to go back to the calendar. */
+.picker-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  justify-self: start;
+  min-height: 40px;
+  margin-left: -6px;
+  padding: 0 10px 0 2px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-accent);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+.picker-back:hover {
+  background: var(--admin-hover);
+}
+
+.picker-back:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.picker-note {
+  display: grid;
+  gap: 4px;
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+.picker-note input {
+  min-height: 40px;
+}
+
+/* "Mes rendez-vous" tab. */
+/* Name in the list opens the appointment record. */
+.appointment-name {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.appointment-name:hover {
+  color: var(--admin-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.appointment-name:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+/* Appointment record. */
+.appointment-detail-head h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.appointment-detail-head h2:focus {
+  outline: none;
+}
+
+.appointment-detail-when {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 0;
+  color: var(--admin-accent);
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.appointment-detail-when.past {
+  color: var(--admin-muted);
+}
+
+.appointment-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 20px;
+  margin: 16px 0 0;
+}
+
+.appointment-fields div {
+  min-width: 0;
+}
+
+.appointment-fields dt {
+  color: var(--admin-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.appointment-fields dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--admin-text);
+  font-size: 14px;
+}
+
+.appointment-fields a {
+  color: var(--admin-accent);
+  font-weight: 600;
+}
+
+.appointment-request {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--color-sage, #73a58d);
+  background: var(--admin-card);
+}
+
+.appointment-request span {
+  color: var(--admin-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.appointment-request p {
+  margin: 4px 0 0;
+  color: var(--admin-text);
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.appointment-detail .admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.appointment-detail .danger {
+  padding: 0 12px;
+  color: var(--admin-destructive);
+}
+
+.appointment-detail .danger:hover {
+  border-color: var(--admin-destructive);
+  background: var(--admin-destructive);
+  color: #ffffff;
+}
+
+@media (max-width: 520px) {
+  .appointment-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .appointment-detail .admin-actions button {
+    min-height: 44px;
+  }
+}
+
+/* Accordion sections (Aujourd'hui, Demain, Cette semaine, Plus tard, Passes). */
+.appointment-section {
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.appointment-section summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 4px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.appointment-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.appointment-section summary:hover {
+  background: var(--admin-hover);
+}
+
+.appointment-section summary:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: -2px;
+}
+
+.appointment-section-label {
+  color: var(--admin-accent);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.appointment-section-count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(26, 77, 62, 0.1);
+  color: var(--admin-text);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.appointment-section-chevron {
+  margin-left: auto;
+  color: var(--admin-muted);
+  transition: transform 180ms ease;
+}
+
+.appointment-section[open] .appointment-section-chevron {
+  transform: rotate(180deg);
+}
+
+.appointment-section ul {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.appointment-section .appointment-row:last-child {
+  border-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appointment-section-chevron {
+    transition: none;
+  }
+}
+
+.appointment-row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.appointment-time {
+  display: grid;
+  padding-top: 1px;
+  color: var(--admin-text);
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* "sam. 26" above the time, in "Cette semaine" / "Plus tard" / passes. */
+.appointment-day-tag {
+  color: var(--admin-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.appointment-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.appointment-main strong {
+  font-size: 14px;
+}
+
+.appointment-car {
+  color: var(--admin-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.appointment-note {
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+.appointment-main .message-contact-actions {
+  margin: 4px 0 0 -10px;
+}
+
+.appointment-cancel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.appointment-cancel .danger {
+  padding: 0 10px;
+  color: var(--admin-destructive);
+  font-size: 12px;
+}
+
+/* Green pencil, bare icon like in the stock list. */
+.appointment-edit,
+.message-appointment-edit {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.message-appointment-edit {
+  margin: -6px -6px -6px auto;
+}
+
+.appointment-edit:hover,
+.message-appointment-edit:hover {
+  transform: scale(1.1);
+}
+
+.appointment-edit:focus-visible,
+.message-appointment-edit:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appointment-edit,
+  .message-appointment-edit {
+    transition: none;
+  }
+}
+
+.appointment-cancel-toggle {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-muted);
+  cursor: pointer;
+}
+
+.appointment-cancel-toggle:hover {
+  background: rgba(185, 28, 28, 0.08);
+  color: var(--admin-destructive);
+}
+
+.appointment-cancel-toggle:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.appointment-past {
+  margin-top: 16px;
+}
+
+.appointment-past .appointment-section-label {
+  color: var(--admin-muted);
+}
+
+.appointment-past .appointment-row {
+  opacity: 0.7;
+}
+
+@media (max-width: 720px) {
+  .picker-times {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .picker-day,
+  .picker-times button {
+    min-height: 44px;
+  }
+
+  .appointment-row {
+    grid-template-columns: 46px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+}
+
+/* Messages inbox: one compact preview row per request. */
+.message-unread-count {
+  color: var(--admin-muted);
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+.message-inbox {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message-preview {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 6px;
+  border: 0;
+  border-bottom: 1px solid var(--admin-border);
+  background: transparent;
+  color: var(--admin-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.message-preview:hover {
+  background: var(--admin-hover);
+}
+
+.message-preview:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: -2px;
+}
+
+.message-preview-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+}
+
+.message-preview.unread .message-preview-dot {
+  background: var(--admin-accent);
+}
+
+.message-preview-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.message-preview-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.message-preview-top strong {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.message-preview.unread .message-preview-top strong {
+  font-weight: 700;
+}
+
+.message-preview-top .recent-time {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.message-preview-car {
+  color: var(--admin-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Two-line excerpt; the full text is one tap away. */
+.message-preview-text {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--admin-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Opened request. */
+.message-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  margin: -6px 0 6px -8px;
+  padding: 0 10px 0 4px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-accent);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.message-back:hover {
+  background: var(--admin-hover);
+}
+
+.message-back:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.message-detail-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.message-detail-head h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.message-detail-head h2:focus {
+  outline: none;
+}
+
+.message-detail-body {
+  max-width: 68ch;
+  margin: 14px 0 0;
+  color: var(--admin-text);
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.message-detail .admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message-preview {
+    transition: none;
+  }
+}
+
+/* The car a request is about: compact row linking to its public page. */
+.message-car {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 0;
+  padding: 6px;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  color: var(--admin-text);
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+a.message-car:hover {
+  background: var(--admin-hover);
+}
+
+a.message-car:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.message-car img {
+  width: 56px;
+  height: 42px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.message-car-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.message-car-text strong {
+  overflow: hidden;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.message-car-text span {
+  color: var(--admin-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.message-car-missing {
+  display: block;
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message-car {
+    transition: none;
+  }
+}
+
+.message-contact-actions {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 4px;
+}
+
+/* Icon only, no circle - the 44px box is the touch target. */
+.message-contact-link {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  opacity: 0.8;
+  transition: opacity 150ms ease, background-color 150ms ease;
+}
+
+.message-contact-link:hover {
+  opacity: 1;
+  background: var(--admin-hover);
+}
+
+.message-contact-link:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message-contact-link {
+    transition: none;
+  }
+}
+
+/* Single sort button: toggles newest/oldest, the arrow flips with it. */
+.stock-sort-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.stock-sort-toggle:hover {
+  background: var(--admin-hover);
+}
+
+.stock-sort-toggle:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.stock-sort-toggle svg {
+  transition: transform 180ms ease;
+}
+
+.stock-sort-toggle svg.is-flipped {
+  transform: scaleY(-1);
+}
+
+@media (max-width: 760px) {
+  /* Search field + compact sort button on one line. */
+  .stock-filters {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .stock-sort-toggle {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stock-sort-toggle svg {
+    transition: none;
+  }
+}
+
+/* Stock status tabs: one row, scrolls sideways on narrow screens. */
+.stock-status-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 12px 0 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.stock-status-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.stock-status-tabs button {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.stock-status-tabs button:hover {
+  color: var(--admin-text);
+}
+
+.stock-status-tabs button[aria-pressed="true"] {
+  border-color: transparent;
+  background: rgba(26, 77, 62, 0.14);
+  color: var(--admin-text);
+  font-weight: 600;
+}
+
+.stock-status-tabs button:focus-visible,
+.stock-special-filter button:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.stock-status-count {
+  color: var(--admin-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stock-special-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 8px;
+  padding: 0 4px 0 12px;
+  border-radius: 8px;
+  background: rgba(180, 83, 9, 0.1);
+  color: var(--admin-text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.stock-special-filter button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--admin-muted);
+  cursor: pointer;
+}
+
+.stock-special-filter button:hover {
+  color: var(--admin-text);
+}
+
+@media (max-width: 720px) {
+  .stock-status-tabs button {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stock-status-tabs button {
+    transition: none;
+  }
+}
+
+/* Quick status change inside the stock row menus (desktop + mobile). */
+.admin-action-status {
+  display: grid;
+  margin: 4px 0;
+  padding: 4px 0;
+  border-top: 1px solid var(--admin-border);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-action-status button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-action-status button.is-current {
+  font-weight: 600;
+  cursor: default;
+}
+
+.admin-status-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  color: var(--admin-muted);
+}
+
+.admin-status-dot.available {
+  color: var(--admin-accent);
+}
+
+.admin-status-dot.reserved {
+  color: var(--admin-warning);
+}
+
+.admin-action-status .is-current .admin-status-dot {
+  background: currentColor;
+}
+
+.admin-action-note {
+  margin: 4px 0;
+  padding: 8px 10px;
+  border-top: 1px solid var(--admin-border);
+  border-bottom: 1px solid var(--admin-border);
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+.message-detail .danger {
+  color: var(--admin-destructive);
+}
+
+.message-detail .danger:hover {
+  border-color: var(--admin-destructive);
+  background: var(--admin-destructive);
+  color: #ffffff;
+}
+
+@media (max-width: 720px) {
+  .message-detail .admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .message-detail .admin-actions button {
+    min-height: 44px;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Stock age donut + legend. */
+.age-donut-layout {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+}
+
+.age-donut {
+  width: 140px;
+  height: 140px;
+}
+
+.age-donut circle {
+  transition: opacity 150ms ease;
+}
+
+.age-donut circle:hover {
+  opacity: 0.8;
+}
+
+.age-donut-total {
+  fill: var(--admin-text);
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.age-donut-caption {
+  fill: var(--admin-muted);
+  font-size: 10px;
+}
+
+.age-legend {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.age-legend li {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  grid-template-areas:
+    "swatch label count"
+    ". value value";
+  align-items: center;
+  column-gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--admin-border);
+  font-variant-numeric: tabular-nums;
+}
+
+.age-legend li:last-child {
+  border-bottom: 0;
+}
+
+.age-swatch {
+  grid-area: swatch;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.age-legend-label {
+  grid-area: label;
+  color: var(--admin-text);
+  font-size: 13px;
+}
+
+.age-legend strong {
+  grid-area: count;
+  color: var(--admin-text);
+  font-size: 14px;
+}
+
+.age-legend-value {
+  grid-area: value;
+  color: var(--admin-muted);
+  font-size: 11px;
+}
+
+.age-legend li.is-empty .age-legend-label,
+.age-legend li.is-empty strong {
+  color: var(--admin-muted);
+}
+
+@media (max-width: 420px) {
+  .age-donut-layout {
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .age-donut {
+    width: 110px;
+    height: 110px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .age-donut circle {
+    transition: none;
+  }
 }
 
 @media (max-width: 900px) {

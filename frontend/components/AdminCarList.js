@@ -4,8 +4,23 @@ import { carPriceLabel, statusLabel, carImage } from "../lib/format";
 import { useState } from "react";
 import OfficialIcon from "./OfficialIcon";
 
-export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, canDelete = true }) {
+const STATUS_OPTIONS = [
+  ["available", "Disponible"],
+  ["reserved", "Reservee"],
+  ["sold", "Vendue"],
+];
+
+export default function AdminCarList({
+  cars,
+  onEdit,
+  onDelete,
+  onStatusChange,
+  canEdit = true,
+  canDelete = true,
+}) {
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [soldTarget, setSoldTarget] = useState(null);
+  const [markingSold, setMarkingSold] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [password, setPassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
@@ -30,6 +45,51 @@ export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, c
     } finally {
       setDeleting(false);
     }
+  }
+
+  function chooseStatus(car, status) {
+    setOpenMenuId(null);
+    if (status === car.status) return;
+    // Selling wipes the price for good: confirm first.
+    if (status === "sold") {
+      setSoldTarget(car);
+      return;
+    }
+    onStatusChange(car, status);
+  }
+
+  async function handleConfirmSold(event) {
+    event.preventDefault();
+    if (!soldTarget) return;
+    setMarkingSold(true);
+    await onStatusChange(soldTarget, "sold");
+    setMarkingSold(false);
+    setSoldTarget(null);
+  }
+
+  function renderStatusItems(car) {
+    if (!canEdit || !onStatusChange) return null;
+
+    if (car.status === "sold") {
+      return <p className="admin-action-note">Vendue. Pour la remettre en vente : Modifier.</p>;
+    }
+
+    return (
+      <div className="admin-action-status" role="group" aria-label="Changer le statut">
+        {STATUS_OPTIONS.map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            className={car.status === value ? "is-current" : ""}
+            aria-pressed={car.status === value}
+            onClick={() => chooseStatus(car, value)}
+          >
+            <span className={`admin-status-dot ${value}`} aria-hidden="true" />
+            {label}
+          </button>
+        ))}
+      </div>
+    );
   }
 
   function requestDelete(car) {
@@ -81,7 +141,7 @@ export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, c
                     aria-expanded={openMenuId === car.id}
                     onClick={() => setOpenMenuId(openMenuId === car.id ? null : car.id)}
                   >
-                    <OfficialIcon name="more" width={18} height={18} />
+                    <OfficialIcon name="edit" width={22} height={22} />
                   </button>
                   {openMenuId === car.id && (
                     <div className="admin-action-dropdown">
@@ -96,6 +156,7 @@ export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, c
                           Modifier
                         </button>
                       )}
+                      {renderStatusItems(car)}
                       {canDelete && (
                         <button className="danger-text" type="button" onClick={() => requestDelete(car)}>
                           Supprimer
@@ -118,7 +179,7 @@ export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, c
                     aria-expanded={openMenuId === car.id}
                     onClick={() => setOpenMenuId(openMenuId === car.id ? null : car.id)}
                   >
-                    <OfficialIcon name="more" width={16} height={16} />
+                    <OfficialIcon name="edit" width={22} height={22} />
                   </button>
                   {openMenuId === car.id && (
                     <div className="admin-mobile-action-dropdown">
@@ -133,6 +194,7 @@ export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, c
                           Modifier
                         </button>
                       )}
+                      {renderStatusItems(car)}
                       {canDelete && (
                         <button className="danger-text" type="button" onClick={() => requestDelete(car)}>
                           Supprimer
@@ -190,6 +252,39 @@ export default function AdminCarList({ cars, onEdit, onDelete, canEdit = true, c
               </button>
               <button className="danger" type="submit" disabled={deleting}>
                 {deleting ? "Suppression..." : "Confirmer"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {soldTarget && (
+        <div
+          className="admin-confirm-overlay"
+          role="presentation"
+          onClick={(event) => event.target === event.currentTarget && setSoldTarget(null)}
+          onKeyDown={(event) => event.key === "Escape" && setSoldTarget(null)}
+        >
+          <form
+            className="admin-confirm-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sold-confirm-title"
+            onSubmit={handleConfirmSold}
+          >
+            <div>
+              <h3 id="sold-confirm-title">Marquer comme vendue ?</h3>
+              <p>
+                {soldTarget.brand} {soldTarget.model} - {soldTarget.reference}
+              </p>
+            </div>
+            <div className="admin-confirm-actions">
+              {/* Focus on "Annuler": a stray Enter must not sell the car. */}
+              <button className="button neutral small" type="button" onClick={() => setSoldTarget(null)} autoFocus>
+                Annuler
+              </button>
+              <button className="button primary small" type="submit" disabled={markingSold}>
+                {markingSold ? "..." : "Oui, vendue"}
               </button>
             </div>
           </form>

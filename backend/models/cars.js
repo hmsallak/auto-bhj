@@ -59,6 +59,7 @@ function rowToCar(row, images = []) {
     description: row.description || "",
     status: row.status,
     equipment: row.equipment ? JSON.parse(row.equipment) : null,
+    soldAt: row.sold_at || null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -204,9 +205,9 @@ function createCar(payload, actor) {
     const insert = db.prepare(
       `INSERT INTO cars
         (reference, brand, model, year, mileage, price, fuel, gearbox, image_url, description, status,
-         ${detailColumns.join(", ")}, equipment, created_at, updated_at)
+         ${detailColumns.join(", ")}, equipment, sold_at, created_at, updated_at)
        VALUES ('', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-         ${detailColumns.map(() => "?").join(", ")}, ?, ?, ?)`
+         ${detailColumns.map(() => "?").join(", ")}, ?, ?, ?, ?)`
     );
 
     const info = insert.run(
@@ -222,6 +223,7 @@ function createCar(payload, actor) {
       car.status,
       ...DETAIL_FIELDS.map(([jsKey]) => car[jsKey]),
       car.equipment,
+      car.status === "sold" ? now : null,
       now,
       now
     );
@@ -252,13 +254,15 @@ function updateCar(id, payload, actor) {
   withTransaction((db) => {
     const now = new Date().toISOString();
     const detailColumns = DETAIL_FIELDS.map(([, column]) => column);
+    // Keep the original sale date when an already-sold car is re-edited.
+    const soldAt = car.status === "sold" ? existing.soldAt || now : null;
 
     db.prepare(
       `UPDATE cars SET
          brand = ?, model = ?, year = ?, mileage = ?, price = ?, fuel = ?, gearbox = ?,
          image_url = ?, description = ?, status = ?,
          ${detailColumns.map((column) => `${column} = ?`).join(", ")},
-         equipment = ?, updated_at = ?
+         equipment = ?, sold_at = ?, updated_at = ?
        WHERE id = ?`
     ).run(
       car.brand,
@@ -273,6 +277,7 @@ function updateCar(id, payload, actor) {
       car.status,
       ...DETAIL_FIELDS.map(([jsKey]) => car[jsKey]),
       car.equipment,
+      soldAt,
       now,
       id
     );
@@ -284,6 +289,40 @@ function updateCar(id, payload, actor) {
 
   const updated = getCarById(id);
   activityLog.log(actor, "car_updated", `${updated.reference} (${updated.brand} ${updated.model})`);
+
+  return { car: updated };
+}
+
+const STATUS_LABELS = { available: "Disponible", reserved: "Reservee", sold: "Vendue" };
+
+// Status-only change for the quick menu: touches nothing else, so it can't
+// clobber fields the way a full-form round trip could.
+function updateCarStatus(id, status, actor) {
+  const existing = getCarById(id);
+  if (!existing) return { error: "Vehicule introuvable." };
+  if (!STATUS_LABELS[status]) return { error: "Statut invalide." };
+  if (existing.status === status) return { car: existing };
+
+  // A sold car's price was wiped, so it can't go back on sale without one.
+  if (existing.status === "sold") {
+    return { error: "Pour remettre en vente, ouvrez Modifier pour fixer un prix." };
+  }
+
+  const now = new Date().toISOString();
+  getDb()
+    .prepare(
+      `UPDATE cars SET status = ?, sold_at = ?,
+         price = CASE WHEN ? = 'sold' THEN 0 ELSE price END, updated_at = ?
+       WHERE id = ?`
+    )
+    .run(status, status === "sold" ? now : null, status, now, id);
+
+  const updated = getCarById(id);
+  activityLog.log(
+    actor,
+    "car_status_changed",
+    `${updated.reference} (${updated.brand} ${updated.model}) -> ${STATUS_LABELS[status]}`
+  );
 
   return { car: updated };
 }
@@ -307,5 +346,6 @@ module.exports = {
   getCarById,
   createCar,
   updateCar,
+  updateCarStatus,
   deleteCar,
 };

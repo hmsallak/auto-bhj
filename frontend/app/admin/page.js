@@ -6,18 +6,23 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 import AdminOverview from "../../components/admin/AdminOverview";
 import AdminStock from "../../components/admin/AdminStock";
 import AdminMessages from "../../components/admin/AdminMessages";
+import AdminAppointments from "../../components/admin/AdminAppointments";
 import AdminUsers from "../../components/admin/AdminUsers";
 import AdminUserForm from "../../components/admin/AdminUserForm";
 import AdminProfile from "../../components/admin/AdminProfile";
 import AdminSiteSettings from "../../components/admin/AdminSiteSettings";
 import AdminCarForm from "../../components/AdminCarForm";
 import { MenuIcon } from "../../components/home/icons";
+import { statusLabel } from "../../lib/format";
+import { STOCK_FILTER_ALL } from "../../lib/stock";
+import { isPastAppointment } from "../../lib/appointments";
 
 const TAB_TITLES = {
   overview: "Tableau de bord",
   stock: "Vehicules",
   form: "Ajouter / Modifier une voiture",
   messages: "Messages",
+  appointments: "Mes rendez-vous",
   users: "Equipe",
   userForm: "Creer / Modifier un membre",
   profile: "Parametres du compte",
@@ -29,6 +34,7 @@ const TAB_SUBTITLES = {
   stock: "Suivez, filtrez et mettez a jour les vehicules publies.",
   form: "Renseignez les informations de l'annonce sans perdre le fil.",
   messages: "Centralisez les demandes recues depuis le site.",
+  appointments: "Les rendez-vous planifies avec vos clients.",
   users: "Gerez les acces de l'equipe Auto BHJ.",
   userForm: "Configurez les informations et les autorisations du membre.",
   profile: "Consultez votre compte et gerez votre session.",
@@ -66,10 +72,13 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [cars, setCars] = useState([]);
   const [editingCar, setEditingCar] = useState(null);
+  const [stockFilter, setStockFilter] = useState(STOCK_FILTER_ALL);
   const [carMessage, setCarMessage] = useState("");
   const [carMessageError, setCarMessageError] = useState(false);
   const [carCreatedPopup, setCarCreatedPopup] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [openAppointmentId, setOpenAppointmentId] = useState(null);
   const [users, setUsers] = useState([]);
   const [activity, setActivity] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
@@ -89,6 +98,10 @@ export default function AdminPage() {
     setMessages(await api("/api/admin/messages"));
   }
 
+  async function loadAppointments() {
+    setAppointments(await api("/api/admin/appointments"));
+  }
+
   async function loadUsers() {
     setUsers(await api("/api/admin/users"));
   }
@@ -101,7 +114,7 @@ export default function AdminPage() {
     const isOwner = currentUser?.role === "owner";
     const tasks = [loadCars()];
     if (isOwner || currentUser?.permissions?.includes("messages_read")) {
-      tasks.push(loadMessages());
+      tasks.push(loadMessages(), loadAppointments());
     }
     if (isOwner) {
       tasks.push(loadUsers(), loadActivity());
@@ -150,6 +163,9 @@ export default function AdminPage() {
   function selectAdminTab(tab) {
     setActiveTab(tab);
     setMobileMenuOpen(false);
+    // The sidebar always opens the full list; filtered views come from "A traiter".
+    if (tab === "stock") setStockFilter(STOCK_FILTER_ALL);
+    if (tab === "appointments") setOpenAppointmentId(null);
     if (tab === "form") setEditingCar(null);
     if (tab !== "userForm") setEditingUser(null);
     setCarMessage("");
@@ -225,6 +241,23 @@ export default function AdminPage() {
     await loadCars();
   }
 
+  async function handleStatusChange(car, status) {
+    setCarMessage("");
+    setCarMessageError(false);
+    try {
+      await api(`/api/admin/cars/${car.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      await loadCars();
+      setCarMessage(`${car.brand} ${car.model} ${car.reference} passee en ${statusLabel(status)}.`);
+    } catch (error) {
+      setCarMessage(error.message);
+      setCarMessageError(true);
+    }
+  }
+
   function handleEdit(car) {
     if (!hasPermission(user, "stock_write")) return;
     setEditingCar(car);
@@ -269,6 +302,62 @@ export default function AdminPage() {
       body: JSON.stringify({ isRead: !msg.isRead }),
     });
     await loadMessages();
+  }
+
+  // Feedback after an appointment change: did the customer get an e-mail?
+  function reportAppointmentMail(result, email, sentText) {
+    const status = result?.mailStatus;
+    if (status === "sent") {
+      setCarMessage(`${sentText} envoye a ${email}.`);
+      setCarMessageError(false);
+    } else if (status === "logged") {
+      setCarMessage("Rendez-vous enregistre. E-mail non envoye : l'envoi n'est pas configure (RESEND_API_KEY).");
+      setCarMessageError(false);
+    } else if (status === "failed") {
+      setCarMessage(`Rendez-vous enregistre, mais l'e-mail a ${email} n'a pas pu partir.`);
+      setCarMessageError(true);
+    } else {
+      setCarMessage(
+        email ? "Rendez-vous enregistre." : "Rendez-vous enregistre (pas d'e-mail client : aucune confirmation envoyee)."
+      );
+      setCarMessageError(false);
+    }
+  }
+
+  async function handleSchedule(msg, startsAt, note) {
+    const result = await api("/api/admin/appointments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messageId: msg.id, startsAt, note }),
+    });
+    await loadAppointments();
+    reportAppointmentMail(result, msg.email, "E-mail de confirmation");
+  }
+
+  async function handleCreateManualAppointment(startsAt, note, customer) {
+    const result = await api("/api/admin/appointments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ startsAt, note, customer }),
+    });
+    await loadAppointments();
+    reportAppointmentMail(result, customer.email, "E-mail de confirmation");
+  }
+
+  async function handleUpdateAppointment(item, startsAt, note) {
+    const result = await api(`/api/admin/appointments/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ startsAt, note }),
+    });
+    await loadAppointments();
+    reportAppointmentMail(result, item.email, "E-mail de modification");
+  }
+
+  async function handleCancelAppointment(item) {
+    const result = await api(`/api/admin/appointments/${item.id}`, { method: "DELETE" });
+    await loadAppointments();
+    reportAppointmentMail(result, item.email, "E-mail d'annulation");
   }
 
   async function handleDeleteMessage(msg) {
@@ -339,6 +428,7 @@ export default function AdminPage() {
   }
 
   const unreadCount = messages.filter((msg) => !msg.isRead).length;
+  const upcomingCount = appointments.filter((item) => !isPastAppointment(item.startsAt)).length;
   const pendingUserCount = users.filter((u) => u.status === "pending_approval").length;
 
   return (
@@ -352,6 +442,7 @@ export default function AdminPage() {
         user={user}
         stockCount={cars.length}
         unreadCount={unreadCount}
+        upcomingCount={upcomingCount}
         pendingUserCount={pendingUserCount}
       />
       <button
@@ -390,9 +481,22 @@ export default function AdminPage() {
             <AdminOverview
               cars={cars}
               messages={messages}
-              activity={activity}
               onGoToForm={() => setActiveTab("form")}
-              onGoToStock={() => setActiveTab("stock")}
+              onGoToStock={(filter) => {
+                setStockFilter(filter || STOCK_FILTER_ALL);
+                setActiveTab("stock");
+              }}
+              onGoToMessages={() => setActiveTab("messages")}
+              appointments={appointments}
+              onGoToAppointments={() => {
+                setOpenAppointmentId(null);
+                setActiveTab("appointments");
+              }}
+              onOpenAppointment={(item) => {
+                setOpenAppointmentId(item.id);
+                setActiveTab("appointments");
+              }}
+              canReadMessages={hasPermission(user, "messages_read")}
               canCreateCar={hasPermission(user, "stock_create")}
             />
           )}
@@ -402,6 +506,9 @@ export default function AdminPage() {
               cars={cars}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onStatusChange={handleStatusChange}
+              filter={stockFilter}
+              onFilterChange={setStockFilter}
               canEdit={hasPermission(user, "stock_write")}
               canDelete={hasPermission(user, "stock_delete")}
               canCreate={hasPermission(user, "stock_create")}
@@ -426,9 +533,26 @@ export default function AdminPage() {
           {activeTab === "messages" && (
             <AdminMessages
               messages={messages}
+              cars={cars}
+              appointments={appointments}
+              onSchedule={handleSchedule}
+              onUpdateAppointment={handleUpdateAppointment}
               onToggleRead={handleToggleMessageRead}
               onDelete={handleDeleteMessage}
               canDelete={hasPermission(user, "messages_delete")}
+            />
+          )}
+
+          {activeTab === "appointments" && (
+            <AdminAppointments
+              appointments={appointments}
+              cars={cars}
+              messages={messages}
+              openId={openAppointmentId}
+              onOpenChange={setOpenAppointmentId}
+              onCreate={handleCreateManualAppointment}
+              onUpdate={handleUpdateAppointment}
+              onCancel={handleCancelAppointment}
             />
           )}
 

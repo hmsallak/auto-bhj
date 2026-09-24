@@ -1,3 +1,70 @@
+import { useEffect, useRef, useState } from "react";
+import OfficialIcon from "../OfficialIcon";
+import AppointmentPicker from "./AppointmentPicker";
+import { formatAppointment, isPastAppointment } from "../../lib/appointments";
+import { carImage, carPriceLabel, imageErrorHandler, phoneLinks, statusLabel } from "../../lib/format";
+
+// The car the customer asked about, so it can be answered without looking
+// the reference up. A deleted car falls back to the bare reference.
+export function RequestedCar({ reference, car }) {
+  if (!car) {
+    return (
+      <p className="message-car message-car-missing">
+        {reference} <span>- annonce supprimee</span>
+      </p>
+    );
+  }
+
+  const price = carPriceLabel(car);
+
+  return (
+    <a className="message-car" href={`/cars/${car.reference}`} target="_blank" rel="noopener noreferrer">
+      <img src={carImage(car)} alt="" onError={imageErrorHandler(car.status)} />
+      <span className="message-car-text">
+        <strong>
+          {car.brand} {car.model}
+        </strong>
+        <span>
+          {car.reference}
+          {price && ` - ${price}`}
+        </span>
+      </span>
+      <span className={`status ${car.status}`}>{statusLabel(car.status)}</span>
+    </a>
+  );
+}
+
+function replyText(msg) {
+  const about = msg.carReference ? ` concernant le vehicule ${msg.carReference}` : "";
+  return `Bonjour ${msg.name},\n\nMerci pour votre demande${about}.\n\n`;
+}
+
+export function ContactActions({ msg }) {
+  const phone = phoneLinks(msg.phone);
+  const text = replyText(msg);
+  const subject = `Votre demande Auto BHJ${msg.carReference ? ` - ${msg.carReference}` : ""}`;
+
+  return (
+    <div className="message-contact-actions">
+      {phone && (
+        <a className="message-contact-link" href={phone.tel} aria-label={`Appeler ${msg.name}`} title="Appeler">
+          <OfficialIcon name="phone" width={20} height={20} />
+        </a>
+      )}
+      {msg.email && (
+        <a
+          className="message-contact-link"
+          href={`mailto:${msg.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`}
+          aria-label={`Envoyer un e-mail a ${msg.name}`}
+          title="E-mail"
+        >
+          <OfficialIcon name="email" width={20} height={20} />
+        </a>
+      )}
+    </div>
+  );
+}
+
 function relativeTime(iso) {
   const diffMs = Date.now() - new Date(iso).getTime();
   const minutes = Math.round(diffMs / 60000);
@@ -9,47 +76,180 @@ function relativeTime(iso) {
   return `il y a ${days} j`;
 }
 
-export default function AdminMessages({ messages, onToggleRead, onDelete, canDelete = true }) {
+export default function AdminMessages({
+  messages,
+  cars = [],
+  appointments = [],
+  onToggleRead,
+  onDelete,
+  onSchedule,
+  onUpdateAppointment,
+  canDelete = true,
+}) {
+  const carsByReference = new Map(cars.map((car) => [car.reference, car]));
+  const [openId, setOpenId] = useState(null);
+  const [planning, setPlanning] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState(null);
+  const headingRef = useRef(null);
+  // Derived from the live list: once the open message is deleted, we fall
+  // back to the inbox on our own.
+  const openMessage = messages.find((msg) => msg.id === openId) || null;
+
+  useEffect(() => {
+    if (openMessage) headingRef.current?.focus();
+  }, [openMessage?.id]);
+
+  function openRequest(msg) {
+    setOpenId(msg.id);
+    window.scrollTo({ top: 0 });
+    // Opening a request is reading it.
+    if (!msg.isRead) onToggleRead(msg);
+  }
+
+  if (openMessage) {
+    const msg = openMessage;
+    const messageAppointments = appointments.filter((item) => item.messageId === msg.id);
+    return (
+      <div className="panel dash-panel message-detail">
+        <button className="message-back" type="button" onClick={() => setOpenId(null)}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Tous les messages
+        </button>
+
+        <header className="message-detail-head">
+          <h2 ref={headingRef} tabIndex={-1}>
+            {msg.name}
+          </h2>
+          <span className="recent-time">{relativeTime(msg.createdAt)}</span>
+        </header>
+        <p className="message-contact">
+          {msg.email}
+          {msg.phone && ` - ${msg.phone}`}
+        </p>
+        <p className="message-detail-body">{msg.message}</p>
+        {msg.carReference && (
+          <RequestedCar reference={msg.carReference} car={carsByReference.get(msg.carReference)} />
+        )}
+        <ContactActions msg={msg} />
+
+        {messageAppointments.map((item) => (
+          <p className={`message-appointment ${isPastAppointment(item.startsAt) ? "past" : ""}`} key={item.id}>
+            <img src="/icons/calendrier.svg" alt="" width={18} height={18} aria-hidden="true" />
+            <span>
+              Rendez-vous le <strong>{formatAppointment(item.startsAt)}</strong>
+              {item.note && ` - ${item.note}`}
+            </span>
+            {onUpdateAppointment && (
+              <button
+                className="message-appointment-edit"
+                type="button"
+                aria-label="Modifier le rendez-vous"
+                title="Modifier le rendez-vous"
+                onClick={() => setEditingAppointment(item)}
+              >
+                <img src="/icons/modifier.svg" alt="" width={18} height={18} aria-hidden="true" />
+              </button>
+            )}
+          </p>
+        ))}
+
+        <div className="admin-actions">
+          {onSchedule && (
+            <button className="button primary small message-plan" type="button" onClick={() => setPlanning(true)}>
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path
+                  d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Planifier
+            </button>
+          )}
+          <button className="button neutral small" type="button" onClick={() => onToggleRead(msg)}>
+            {msg.isRead ? "Marquer non lu" : "Marquer lu"}
+          </button>
+          {canDelete && (
+            <button className="danger" type="button" onClick={() => onDelete(msg)}>
+              Supprimer
+            </button>
+          )}
+        </div>
+
+        {planning && (
+          <AppointmentPicker
+            customerName={msg.name}
+            appointments={appointments}
+            car={carsByReference.get(msg.carReference)}
+            onCancel={() => setPlanning(false)}
+            onConfirm={async (startsAt, note) => {
+              await onSchedule(msg, startsAt, note);
+              setPlanning(false);
+            }}
+          />
+        )}
+
+        {editingAppointment && (
+          <AppointmentPicker
+            customerName={msg.name}
+            appointments={appointments}
+            initial={editingAppointment}
+            onCancel={() => setEditingAppointment(null)}
+            onConfirm={async (startsAt, note) => {
+              await onUpdateAppointment(editingAppointment, startsAt, note);
+              setEditingAppointment(null);
+            }}
+          />
+        )}
+      </div>
+    );
+  }
+
+  const unread = messages.filter((msg) => !msg.isRead).length;
+
   return (
     <div className="panel dash-panel">
       <div className="dash-panel-head">
-        <h2>Messages recus ({messages.length})</h2>
+        <h2>
+          Messages recus ({messages.length}){unread > 0 && <span className="message-unread-count"> - {unread} non lu{unread > 1 ? "s" : ""}</span>}
+        </h2>
       </div>
 
       {messages.length ? (
-        <div className="messages-list">
-          {messages.map((msg) => (
-            <article className={`message-item ${msg.isRead ? "" : "unread"}`} key={msg.id}>
-              <header>
-                <div>
-                  <strong>{msg.name}</strong>
-                  {msg.carReference && <span className="message-ref">{msg.carReference}</span>}
-                  {!msg.isRead && <span className="message-new-dot" aria-label="Non lu" />}
-                </div>
-                <span className="recent-time">{relativeTime(msg.createdAt)}</span>
-              </header>
-              <p className="message-contact">
-                {msg.email}
-                {msg.phone && ` - ${msg.phone}`}
-              </p>
-              <p className="message-body">{msg.message}</p>
-              <div className="admin-actions">
+        <ul className="message-inbox">
+          {messages.map((msg) => {
+            const car = carsByReference.get(msg.carReference);
+            return (
+              <li key={msg.id}>
                 <button
-                  className="button neutral small"
+                  className={`message-preview ${msg.isRead ? "" : "unread"}`}
                   type="button"
-                  onClick={() => onToggleRead(msg)}
+                  onClick={() => openRequest(msg)}
                 >
-                  {msg.isRead ? "Marquer non lu" : "Marquer lu"}
+                  <span className="message-preview-dot" aria-hidden="true" />
+                  <span className="message-preview-main">
+                    <span className="message-preview-top">
+                      <strong>{msg.name}</strong>
+                      <span className="recent-time">{relativeTime(msg.createdAt)}</span>
+                    </span>
+                    {msg.carReference && (
+                      <span className="message-preview-car">
+                        {car ? `${car.brand} ${car.model}` : msg.carReference}
+                      </span>
+                    )}
+                    <span className="message-preview-text">{msg.message}</span>
+                  </span>
+                  {!msg.isRead && <span className="visually-hidden">Non lu</span>}
                 </button>
-                {canDelete && (
-                  <button className="danger" type="button" onClick={() => onDelete(msg)}>
-                    Supprimer
-                  </button>
-                )}
-              </div>
-            </article>
-          ))}
-        </div>
+              </li>
+            );
+          })}
+        </ul>
       ) : (
         <p className="empty">Aucun message pour le moment.</p>
       )}
