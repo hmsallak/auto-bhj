@@ -16599,3 +16599,107 @@ a.message-car:focus-visible {
   animation-timing-function: linear;
   animation-fill-mode: both;
 }
+
+/* Admin notifications bell (top bar) + its small panel. */
+.dash-topbar {
+  position: relative;
+}
+
+.admin-notif {
+  position: relative;
+}
+
+.admin-notif-toggle {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--admin-muted);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.admin-notif-toggle:hover {
+  background: var(--admin-hover);
+  color: var(--admin-text);
+}
+
+.admin-notif-toggle.is-on {
+  color: var(--admin-accent);
+}
+
+.admin-notif-toggle:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.admin-notif-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  width: min(300px, calc(100vw - 24px));
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(28, 28, 26, 0.14);
+  text-align: left;
+}
+
+.admin-notif-panel strong {
+  color: var(--admin-text);
+  font-size: 14px;
+}
+
+.admin-notif-panel p {
+  margin: 0;
+  color: var(--admin-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.admin-notif-panel .admin-notif-hint {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(180, 83, 9, 0.1);
+  color: var(--admin-text);
+}
+
+.admin-notif-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-notif-panel .admin-notif-info {
+  color: var(--admin-accent);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  /* Bell pinned top-right, facing the menu button, whatever the bar layout. */
+  .dash-topbar-actions:has(> .admin-notif:only-child) {
+    position: absolute;
+    top: 14px;
+    right: 12px;
+    display: block;
+    width: auto;
+  }
+
+  .admin-notif-actions .button {
+    width: auto;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-notif-toggle {
+    transition: none;
+  }
+}

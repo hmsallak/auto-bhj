@@ -58,6 +58,9 @@ export const metadata = {
       "max-snippet": -1,
     },
   },
+  // Static file (not app/manifest.js) so the admin layout can swap in its
+  // own app manifest: file-based metadata would override it everywhere.
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/favicon-autobhj.png",
     shortcut: "/favicon-autobhj.png",

@@ -7,6 +7,7 @@ import AdminOverview from "../../components/admin/AdminOverview";
 import AdminStock from "../../components/admin/AdminStock";
 import AdminMessages from "../../components/admin/AdminMessages";
 import AdminAppointments from "../../components/admin/AdminAppointments";
+import AdminNotifications from "../../components/admin/AdminNotifications";
 import AdminUsers from "../../components/admin/AdminUsers";
 import AdminUserForm from "../../components/admin/AdminUserForm";
 import AdminProfile from "../../components/admin/AdminProfile";
@@ -469,7 +470,9 @@ export default function AdminPage() {
               <p>{TAB_SUBTITLES[activeTab]}</p>
             </div>
           </div>
-          <div className="dash-topbar-actions" />
+          <div className="dash-topbar-actions">
+            <AdminNotifications />
+          </div>
         </header>
 
         <div className="dash-content">

@@ -161,3 +161,18 @@ CREATE TABLE IF NOT EXISTS appointments (
 );
 
 CREATE INDEX IF NOT EXISTS idx_appointments_starts ON appointments (starts_at);
+
+-- Web push subscriptions: one row per device/browser that turned on admin
+-- notifications. Removed automatically when the push service says the
+-- subscription is gone (404/410).
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL,
+  endpoint TEXT NOT NULL UNIQUE,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  user_agent TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user ON push_subscriptions (username);

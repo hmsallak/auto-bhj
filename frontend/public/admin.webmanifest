@@ -1,0 +1,18 @@
+{
+  "id": "/admin",
+  "name": "Auto BHJ - Administration",
+  "short_name": "BHJ Admin",
+  "description": "Gestion du stock, des demandes et des rendez-vous Auto BHJ.",
+  "lang": "fr-BE",
+  "start_url": "/admin",
+  "scope": "/admin",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f7f2",
+  "theme_color": "#1a4d3e",
+  "icons": [
+    { "src": "/admin-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/admin-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/admin-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
