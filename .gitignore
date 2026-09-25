@@ -12,3 +12,9 @@ backend/data/*.db-wal
 backend/data/*.db-shm
 .env
 .env.local
+android-twa/android.keystore
+android-twa/local.properties
+android-twa/.gradle/
+android-twa/build/
+android-twa/app/build/
+android-twa/release/

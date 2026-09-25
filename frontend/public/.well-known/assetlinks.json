@@ -4,7 +4,10 @@
     "target": {
       "namespace": "android_app",
       "package_name": "be.autobhj.admin",
-      "sha256_cert_fingerprints": ["56:BA:F2:C6:C6:97:DE:0D:99:A0:1C:25:6B:1B:C8:C0:1D:A2:84:08:FE:E2:56:98:80:56:5D:5A:13:A5:C7:B6"]
+      "sha256_cert_fingerprints": [
+        "56:BA:F2:C6:C6:97:DE:0D:99:A0:1C:25:6B:1B:C8:C0:1D:A2:84:08:FE:E2:56:98:80:56:5D:5A:13:A5:C7:B6",
+        "02:59:B9:E7:F7:04:24:30:CE:9E:DB:AF:AD:BD:5F:AA:1C:D6:6A:57:23:C2:BC:16:27:1E:D3:54:61:46:F1:80"
+      ]
     }
   }
 ]
