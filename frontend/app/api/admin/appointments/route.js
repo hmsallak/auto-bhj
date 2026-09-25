@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { listAppointments, createAppointment } from "../../../../../backend/models/appointments";
-import { requirePermission, authError } from "../../../../lib/adminAuth";
+import { requirePermission, requireAnyPermission, authError } from "../../../../lib/adminAuth";
+import { APPOINTMENT_VIEW_PERMISSIONS } from "../../../../../backend/models/adminUsers";
 import { apiRoute } from "../../../../lib/apiRoute";
 import { resolveBaseUrl } from "../../../../lib/appUrl";
 import { notifyAppointment } from "../../../../../backend/appointmentMail";
 
-// Appointments come out of customer requests, so they share the
-// messages_read permission rather than adding a new one.
+// Viewing: either appointment right. Creating: "Planifier RDV".
 export const GET = apiRoute(async function handleList() {
-  if (!(await requirePermission("messages_read"))) {
+  if (!(await requireAnyPermission(APPOINTMENT_VIEW_PERMISSIONS))) {
     const { status, error } = await authError();
     return NextResponse.json({ error }, { status });
   }
@@ -17,7 +17,7 @@ export const GET = apiRoute(async function handleList() {
 });
 
 export const POST = apiRoute(async function handleCreate(request) {
-  const user = await requirePermission("messages_read");
+  const user = await requirePermission("appointments_create");
   if (!user) {
     const { status, error } = await authError();
     return NextResponse.json({ error }, { status });

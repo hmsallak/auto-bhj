@@ -7,6 +7,7 @@ import { findByUsername } from "../../../../../backend/models/adminUsers";
 import { verifyPassword } from "../../../../../backend/auth/passwords";
 import { requireOwner, authError } from "../../../../lib/adminAuth";
 import { apiRoute } from "../../../../lib/apiRoute";
+import activityLog from "../../../../../backend/models/activityLog";
 
 export const GET = apiRoute(async function handleGet() {
   const user = await requireOwner();
@@ -37,5 +38,6 @@ export const PATCH = apiRoute(async function handleUpdate(request) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
 
+  activityLog.log(user.username, "site_settings_updated", `${result.settings.phone} - ${result.settings.email}`);
   return NextResponse.json(result.settings);
 });

@@ -56,6 +56,8 @@ CREATE TABLE IF NOT EXISTS admin_users (
   email TEXT,
   role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('owner', 'member')),
   permissions TEXT NOT NULL DEFAULT '[]',
+  -- JSON {type: bool} of push notification choices; NULL = defaults.
+  notification_prefs TEXT,
   -- 'active' can sign in. Self-signups walk pending_email -> pending_approval
   -- -> active; a rejected request is 'rejected'.
   status TEXT NOT NULL DEFAULT 'active',
@@ -156,6 +158,8 @@ CREATE TABLE IF NOT EXISTS appointments (
   note TEXT,
   -- Unguessable id for the customer's public confirmation page / .ics.
   token TEXT,
+  -- Set once the 1-hour push reminder went out; cleared on reschedule.
+  reminder_sent_at TEXT,
   created_by TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
@@ -176,3 +180,10 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
 );
 
 CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user ON push_subscriptions (username);
+
+-- One row per scheduled notification already sent (e.g. "digest:2026-09-25"),
+-- so a restart or a second tick never sends it twice.
+CREATE TABLE IF NOT EXISTS notification_log (
+  key TEXT PRIMARY KEY,
+  sent_at TEXT NOT NULL
+);

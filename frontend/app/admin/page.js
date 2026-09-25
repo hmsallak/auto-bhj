@@ -7,7 +7,7 @@ import AdminOverview from "../../components/admin/AdminOverview";
 import AdminStock from "../../components/admin/AdminStock";
 import AdminMessages from "../../components/admin/AdminMessages";
 import AdminAppointments from "../../components/admin/AdminAppointments";
-import AdminNotifications from "../../components/admin/AdminNotifications";
+import AdminAppSettings from "../../components/admin/AdminAppSettings";
 import AdminUsers from "../../components/admin/AdminUsers";
 import AdminUserForm from "../../components/admin/AdminUserForm";
 import AdminProfile from "../../components/admin/AdminProfile";
@@ -17,6 +17,7 @@ import { MenuIcon } from "../../components/home/icons";
 import { statusLabel } from "../../lib/format";
 import { STOCK_FILTER_ALL } from "../../lib/stock";
 import { isPastAppointment } from "../../lib/appointments";
+import { APPOINTMENT_VIEW_PERMISSIONS } from "../../components/admin/userPermissions";
 
 const TAB_TITLES = {
   overview: "Tableau de bord",
@@ -24,10 +25,10 @@ const TAB_TITLES = {
   form: "Ajouter / Modifier une voiture",
   messages: "Messages",
   appointments: "Mes rendez-vous",
-  users: "Equipe",
-  userForm: "Creer / Modifier un membre",
+  app: "Parametres",
+  users: "Utilisateurs",
+  userForm: "Creer / Modifier un utilisateur",
   profile: "Parametres du compte",
-  settings: "Parametres site",
 };
 
 const TAB_SUBTITLES = {
@@ -36,15 +37,19 @@ const TAB_SUBTITLES = {
   form: "Renseignez les informations de l'annonce sans perdre le fil.",
   messages: "Centralisez les demandes recues depuis le site.",
   appointments: "Les rendez-vous planifies avec vos clients.",
-  users: "Gerez les acces de l'equipe Auto BHJ.",
-  userForm: "Configurez les informations et les autorisations du membre.",
+  app: "Vos notifications et les mises a jour de l'application.",
+  users: "Les comptes qui ont acces a l'administration.",
+  userForm: "Configurez les informations et les droits de l'utilisateur.",
   profile: "Consultez votre compte et gerez votre session.",
-  settings: "Coordonnees publiques affichees sur le site.",
 };
 
 function hasPermission(user, permission) {
   if (user?.role === "owner") return true;
   return Boolean(user?.permissions?.includes(permission));
+}
+
+function canViewAppointments(user) {
+  return APPOINTMENT_VIEW_PERMISSIONS.some((key) => hasPermission(user, key));
 }
 
 export default function AdminPage() {
@@ -80,6 +85,7 @@ export default function AdminPage() {
   const [messages, setMessages] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [openAppointmentId, setOpenAppointmentId] = useState(null);
+  const [messageToOpen, setMessageToOpen] = useState(null);
   const [users, setUsers] = useState([]);
   const [activity, setActivity] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
@@ -107,15 +113,37 @@ export default function AdminPage() {
     setUsers(await api("/api/admin/users"));
   }
 
+  async function handleClearJournal(journal) {
+    const result = await api(`/api/admin/activity?journal=${encodeURIComponent(journal)}`, { method: "DELETE" });
+    await loadActivity();
+    return result;
+  }
+
   async function loadActivity() {
     setActivity(await api("/api/admin/activity"));
+  }
+
+  // Push notifications open /admin?tab=...&message=ID / &appointment=ID.
+  function openDeepLink() {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    if (!tab) return;
+    if (["overview", "stock", "messages", "appointments", "app", "users"].includes(tab)) setActiveTab(tab);
+    const messageId = Number(params.get("message"));
+    if (messageId) setMessageToOpen(messageId);
+    const appointmentId = Number(params.get("appointment"));
+    if (appointmentId) setOpenAppointmentId(appointmentId);
+    window.history.replaceState(null, "", "/admin");
   }
 
   async function loadForRole(currentUser) {
     const isOwner = currentUser?.role === "owner";
     const tasks = [loadCars()];
     if (isOwner || currentUser?.permissions?.includes("messages_read")) {
-      tasks.push(loadMessages(), loadAppointments());
+      tasks.push(loadMessages());
+    }
+    if (canViewAppointments(currentUser)) {
+      tasks.push(loadAppointments());
     }
     if (isOwner) {
       tasks.push(loadUsers(), loadActivity());
@@ -140,6 +168,7 @@ export default function AdminPage() {
         setUser(currentUser);
         if (currentUser) {
           await loadForRole(currentUser);
+          openDeepLink();
         }
       })
       .finally(() => setChecking(false));
@@ -167,6 +196,7 @@ export default function AdminPage() {
     // The sidebar always opens the full list; filtered views come from "A traiter".
     if (tab === "stock") setStockFilter(STOCK_FILTER_ALL);
     if (tab === "appointments") setOpenAppointmentId(null);
+    if (tab === "messages") setMessageToOpen(null);
     if (tab === "form") setEditingCar(null);
     if (tab !== "userForm") setEditingUser(null);
     setCarMessage("");
@@ -470,9 +500,7 @@ export default function AdminPage() {
               <p>{TAB_SUBTITLES[activeTab]}</p>
             </div>
           </div>
-          <div className="dash-topbar-actions">
-            <AdminNotifications />
-          </div>
+          <div className="dash-topbar-actions" />
         </header>
 
         <div className="dash-content">
@@ -491,6 +519,7 @@ export default function AdminPage() {
               }}
               onGoToMessages={() => setActiveTab("messages")}
               appointments={appointments}
+              canViewAppointments={canViewAppointments(user)}
               onGoToAppointments={() => {
                 setOpenAppointmentId(null);
                 setActiveTab("appointments");
@@ -538,12 +567,26 @@ export default function AdminPage() {
               messages={messages}
               cars={cars}
               appointments={appointments}
-              onSchedule={handleSchedule}
-              onUpdateAppointment={handleUpdateAppointment}
+              onSchedule={hasPermission(user, "appointments_create") ? handleSchedule : undefined}
+              onUpdateAppointment={hasPermission(user, "appointments_create") ? handleUpdateAppointment : undefined}
+              requestedOpenId={messageToOpen}
               onToggleRead={handleToggleMessageRead}
               onDelete={handleDeleteMessage}
               canDelete={hasPermission(user, "messages_delete")}
             />
+          )}
+
+          {activeTab === "app" && (
+            <AdminAppSettings
+              user={user}
+              onChangePassword={handleChangePassword}
+              onUpdateEmail={handleUpdateEmail}
+            >
+              {/* Site contact details: owner only, now part of Parametres. */}
+              {user?.role === "owner" && (
+                <AdminSiteSettings onLoad={loadSiteSettings} onSave={saveSiteSettings} />
+              )}
+            </AdminAppSettings>
           )}
 
           {activeTab === "appointments" && (
@@ -553,9 +596,9 @@ export default function AdminPage() {
               messages={messages}
               openId={openAppointmentId}
               onOpenChange={setOpenAppointmentId}
-              onCreate={handleCreateManualAppointment}
-              onUpdate={handleUpdateAppointment}
-              onCancel={handleCancelAppointment}
+              onCreate={hasPermission(user, "appointments_create") ? handleCreateManualAppointment : undefined}
+              onUpdate={hasPermission(user, "appointments_create") ? handleUpdateAppointment : undefined}
+              onCancel={hasPermission(user, "appointments_cancel") ? handleCancelAppointment : undefined}
             />
           )}
 
@@ -563,6 +606,7 @@ export default function AdminPage() {
             <AdminUsers
               users={users}
               activity={activity}
+              onClearJournal={handleClearJournal}
               onUpdatePermissions={handleUpdatePermissions}
               onApproveUser={handleApproveUser}
               onRejectUser={handleRejectUser}
@@ -598,9 +642,6 @@ export default function AdminPage() {
             />
           )}
 
-          {activeTab === "settings" && user?.role === "owner" && (
-            <AdminSiteSettings onLoad={loadSiteSettings} onSave={saveSiteSettings} />
-          )}
         </div>
       </div>
 

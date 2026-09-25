@@ -87,6 +87,7 @@ export default function AdminOverview({
   onGoToMessages,
   canReadMessages = false,
   appointments = [],
+  canViewAppointments = false,
   onGoToAppointments,
   onOpenAppointment,
 }) {
@@ -174,7 +175,7 @@ export default function AdminOverview({
             Aujourd'hui
           </h2>
 
-          {canReadMessages && (
+          {canViewAppointments && (
             <div className="dash-subsection">
               <div className="dash-subsection-head">
                 <h3>Prochains rendez-vous</h3>

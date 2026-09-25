@@ -40,6 +40,18 @@ const nextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  // Dev only: the SQLite files (autobhj.db-wal/-shm) and uploads in
+  // backend/data change on almost every request. Watched, they made webpack
+  // rebuild non-stop and Fast Refresh reload the admin in a loop.
+  webpack(config, { dev }) {
+    if (dev) {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: /[\\/](node_modules|\.git|\.next)[\\/]|[\\/]backend[\\/]data[\\/]/,
+      };
+    }
+    return config;
+  },
 };
 
 module.exports = nextConfig;

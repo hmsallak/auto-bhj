@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { confirmEmailToken } from "../../../../../backend/auth/accountSignup";
 import { getOwnerEmails } from "../../../../../backend/models/adminUsers";
 import { sendMail, renderEmail } from "../../../../../backend/mail";
+import { notify } from "../../../../../backend/notifications";
 import { apiRoute } from "../../../../lib/apiRoute";
 
 async function resolveBaseUrl(request) {
@@ -26,6 +27,13 @@ export const POST = apiRoute(async function handleVerifyEmail(request) {
 
   // Notify the owner(s) only on the real step to pending_approval.
   if (result.transitioned) {
+    notify("access", {
+      title: "Nouvelle demande d'acces",
+      body: `${result.email} attend ton approbation.`,
+      url: "/admin?tab=users",
+      tag: "access-request",
+    }).catch(() => {});
+
     const owners = getOwnerEmails();
     if (owners.length) {
       const base = await resolveBaseUrl(request);

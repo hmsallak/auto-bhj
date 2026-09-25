@@ -10,11 +10,14 @@ export default function AdminSiteSettings({ onLoad, onSave }) {
   const [submitting, setSubmitting] = useState(false);
   const [formKey, setFormKey] = useState(0);
 
+  // Load once when the section opens: the parent re-creates onLoad on every
+  // render, which would otherwise re-fetch each time the admin page updates.
   useEffect(() => {
     onLoad()
       .then(setSettings)
       .catch((error) => setLoadError(error.message));
-  }, [onLoad]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!toast) return;

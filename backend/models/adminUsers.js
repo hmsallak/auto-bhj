@@ -9,11 +9,17 @@ const VALID_PERMISSIONS = [
   "stock_delete",
   "messages_read",
   "messages_delete",
+  "appointments_create",
+  "appointments_cancel",
 ];
+
+// Seeing the appointments (tab, dashboard, reminders) needs either of these.
+const APPOINTMENT_VIEW_PERMISSIONS = ["appointments_create", "appointments_cancel"];
 
 const LEGACY_PERMISSION_MAP = {
   stock: ["stock_read", "stock_write", "stock_create", "stock_delete"],
   messages: ["messages_read", "messages_delete"],
+  appointments: ["appointments_create", "appointments_cancel"],
 };
 
 function cleanText(value) {
@@ -98,6 +104,10 @@ function hasPermission(user, key) {
   if (!user) return false;
   if (user.role === "owner") return true;
   return Array.isArray(user.permissions) && user.permissions.includes(key);
+}
+
+function hasAnyPermission(user, keys) {
+  return keys.some((key) => hasPermission(user, key));
 }
 
 function findByUsername(username) {
@@ -276,8 +286,10 @@ function deleteUser(id, actor) {
 
 module.exports = {
   VALID_PERMISSIONS,
+  APPOINTMENT_VIEW_PERMISSIONS,
   rowToUser,
   hasPermission,
+  hasAnyPermission,
   findByUsername,
   findByLogin,
   findById,

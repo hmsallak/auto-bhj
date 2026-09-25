@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { CloseIcon } from "../home/icons";
 import AdminUserMenu from "./AdminUserMenu";
-import { OverviewIcon, StockIcon, MessagesIcon, CalendarIcon, UsersIcon, SettingsIcon } from "./icons";
+import { APPOINTMENT_VIEW_PERMISSIONS } from "./userPermissions";
+import { OverviewIcon, StockIcon, MessagesIcon, CalendarIcon, AppIcon, UsersIcon } from "./icons";
 
 // "profile" (the account settings page) is reachable only from the
 // top-right account menu, not the sidebar.
@@ -9,16 +10,17 @@ export const TABS = [
   { id: "overview", label: "Tableau de bord", Icon: OverviewIcon },
   { id: "stock", label: "Vehicules", Icon: StockIcon, permission: "stock_read" },
   { id: "messages", label: "Demandes", Icon: MessagesIcon, permission: "messages_read" },
-  { id: "appointments", label: "Mes rendez-vous", Icon: CalendarIcon, permission: "messages_read" },
-  { id: "users", label: "Equipe", Icon: UsersIcon, ownerOnly: true },
-  { id: "settings", label: "Parametres site", Icon: SettingsIcon, ownerOnly: true },
+  { id: "appointments", label: "Mes rendez-vous", Icon: CalendarIcon, permission: APPOINTMENT_VIEW_PERMISSIONS },
+  { id: "app", label: "Parametres", Icon: AppIcon },
+  { id: "users", label: "Utilisateurs", Icon: UsersIcon, ownerOnly: true },
 ];
 
 function canSeeTab(tab, user) {
   if (tab.ownerOnly) return user?.role === "owner";
   if (!tab.permission) return true;
   if (user?.role === "owner") return true;
-  return Boolean(user?.permissions?.includes(tab.permission));
+  const needed = Array.isArray(tab.permission) ? tab.permission : [tab.permission];
+  return needed.some((key) => user?.permissions?.includes(key));
 }
 
 export default function AdminSidebar({

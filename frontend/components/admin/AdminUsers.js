@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import OfficialIcon from "../OfficialIcon";
 import { USER_PERMISSIONS } from "./userPermissions";
+import { PillTabs, PillToggle, SettingRow } from "./SettingsUI";
 
 const ACTION_LABELS = {
   car_created: "Voiture ajoutee",
@@ -14,14 +14,146 @@ const ACTION_LABELS = {
   appointment_created: "Rendez-vous planifie",
   appointment_updated: "Rendez-vous modifie",
   appointment_deleted: "Rendez-vous annule",
-  user_created: "Membre cree",
-  user_permissions_updated: "Permissions modifiees",
+  user_created: "Utilisateur cree",
+  user_permissions_updated: "Droits modifies",
   user_approved: "Demande approuvee",
   user_rejected: "Demande refusee",
-  user_deleted: "Membre supprime",
+  user_deleted: "Utilisateur supprime",
+  site_settings_updated: "Coordonnees du site modifiees",
+  journal_cleared: "Journal vide",
 };
 
-function PendingRequestCard({ request, onApprove, onReject }) {
+// Journal sections, by action prefix. Parametres = accounts, rights and
+// site settings (this whole page is owner-only).
+const JOURNALS = [
+  { id: "cars", label: "Voitures", match: (action) => action.startsWith("car_") },
+  { id: "messages", label: "Messages", match: (action) => action.startsWith("message_") },
+  { id: "appointments", label: "RDV", fullLabel: "Rendez-vous", match: (action) => action.startsWith("appointment_") },
+  {
+    id: "settings",
+    label: "Parametres",
+    match: (action) => action.startsWith("user_") || action.startsWith("site_settings") || action.startsWith("journal_"),
+  },
+];
+
+function relativeTime(iso) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const minutes = Math.round(diffMs / 60000);
+  if (minutes < 1) return "a l'instant";
+  if (minutes < 60) return `il y a ${minutes} min`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `il y a ${hours} h`;
+  const days = Math.round(hours / 24);
+  return `il y a ${days} j`;
+}
+
+function displayName(user) {
+  return [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email || user.username;
+}
+
+function initials(user) {
+  const parts = displayName(user).replace(/@.*/, "").split(/[\s._-]+/).filter(Boolean);
+  return ((parts[0]?.[0] || "") + (parts[1]?.[0] || parts[0]?.[1] || "")).toUpperCase();
+}
+
+function accessSummary(user) {
+  if (user.role === "owner") return "Proprietaire - acces complet";
+  const count = USER_PERMISSIONS.filter((permission) => user.permissions?.includes(permission.key)).length;
+  if (count === USER_PERMISSIONS.length) return "Membre - acces complet";
+  return `Membre - ${count} droit${count > 1 ? "s" : ""} sur ${USER_PERMISSIONS.length}`;
+}
+
+function Avatar({ user, owner }) {
+  return <span className={`set-avatar ${owner ? "is-owner" : ""}`}>{initials(user)}</span>;
+}
+
+// Rights grouped by section ("Vehicules : Lecture, Ecriture").
+function PermissionList({ user }) {
+  if (user.role === "owner") {
+    return <p className="set-help">Acces complet a toute l'administration. Ce compte est protege.</p>;
+  }
+  const groups = [...new Set(USER_PERMISSIONS.map((permission) => permission.group))];
+  return (
+    <dl className="set-facts">
+      {groups.map((group) => {
+        const granted = USER_PERMISSIONS.filter(
+          (permission) => permission.group === group && user.permissions?.includes(permission.key)
+        );
+        return (
+          <div key={group}>
+            <dt>{group}</dt>
+            <dd>{granted.length ? granted.map((permission) => permission.label).join(", ") : "Aucun acces"}</dd>
+          </div>
+        );
+      })}
+    </dl>
+  );
+}
+
+function UserDetails({ user, onEdit, onDelete }) {
+  const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const owner = user.role === "owner";
+
+  async function remove() {
+    setBusy(true);
+    setError("");
+    try {
+      await onDelete(user.id);
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <dl className="set-facts">
+        <div>
+          <dt>E-mail</dt>
+          <dd>{user.email || "-"}</dd>
+        </div>
+        <div>
+          <dt>Role</dt>
+          <dd>{owner ? "Proprietaire" : "Membre"}</dd>
+        </div>
+      </dl>
+      <PermissionList user={user} />
+      {error && (
+        <p className="set-form-message is-error" role="alert">
+          {error}
+        </p>
+      )}
+      {!owner && (
+        <div className="set-form-actions">
+          {confirming ? (
+            <>
+              <span className="set-confirm-text">Supprimer cet utilisateur ?</span>
+              <button className="button neutral small" type="button" onClick={() => setConfirming(false)} disabled={busy}>
+                Non
+              </button>
+              <button className="button small set-danger" type="button" onClick={remove} disabled={busy}>
+                {busy ? "..." : "Oui, supprimer"}
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="button small set-danger-outline" type="button" onClick={() => setConfirming(true)}>
+                Supprimer
+              </button>
+              <button className="button primary small" type="button" onClick={() => onEdit(user)}>
+                Modifier les droits
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+function RequestDetails({ request, onApprove, onReject }) {
   const [selected, setSelected] = useState(() => new Set(request.permissions || []));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -48,66 +180,44 @@ function PendingRequestCard({ request, onApprove, onReject }) {
   }
 
   return (
-    <article className="team-request">
-      <div className="team-request-head">
-        <strong>{request.email || request.username}</strong>
-        <small>Demande du {new Date(request.createdAt).toLocaleDateString("fr-BE")}</small>
-      </div>
-      <div className="team-request-perms">
+    <>
+      <p className="set-help">Choisissez ce que cette personne pourra faire, puis approuvez ou refusez sa demande.</p>
+      <ul className="set-checks" aria-label="Droits accordes">
         {USER_PERMISSIONS.map((permission) => (
-          <label key={permission.key}>
-            <input
-              type="checkbox"
+          <li className="perm-line" key={permission.key}>
+            <span id={`req-${request.id}-${permission.key}`}>
+              <strong>
+                {permission.group} - {permission.label}
+              </strong>
+              <small>{permission.description}</small>
+            </span>
+            <PillToggle
               checked={selected.has(permission.key)}
+              labelledBy={`req-${request.id}-${permission.key}`}
               onChange={() => toggle(permission.key)}
             />
-            {permission.group} &middot; {permission.label}
-          </label>
+          </li>
         ))}
-      </div>
-      {error && <p className="message error">{error}</p>}
-      <div className="team-request-actions">
-        <button
-          className="button primary small"
-          type="button"
-          disabled={busy}
-          onClick={() => run("approve")}
-        >
-          Approuver
-        </button>
-        <button
-          className="danger-text"
-          type="button"
-          disabled={busy}
-          onClick={() => run("reject")}
-        >
+      </ul>
+      {error && (
+        <p className="set-form-message is-error" role="alert">
+          {error}
+        </p>
+      )}
+      <div className="set-form-actions">
+        <button className="button small set-danger-outline" type="button" disabled={busy} onClick={() => run("reject")}>
           Refuser
         </button>
+        <button className="button primary small" type="button" disabled={busy} onClick={() => run("approve")}>
+          Approuver
+        </button>
       </div>
-    </article>
+    </>
   );
 }
 
-function relativeTime(iso) {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const minutes = Math.round(diffMs / 60000);
-  if (minutes < 1) return "a l'instant";
-  if (minutes < 60) return `il y a ${minutes} min`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `il y a ${hours} h`;
-  const days = Math.round(hours / 24);
-  return `il y a ${days} j`;
-}
-
-function roleLabel(role) {
-  return role === "owner" ? "Proprietaire" : "Membre";
-}
-
-function hasFullAccess(user) {
-  if (user.role === "owner") return true;
-  return USER_PERMISSIONS.every((permission) => user.permissions?.includes(permission.key));
-}
-
+// Admin > Utilisateurs, same phone-style layout as Parametres: pill tabs
+// (users / pending requests / activity), rows that unfold their details.
 export default function AdminUsers({
   users,
   activity,
@@ -116,211 +226,194 @@ export default function AdminUsers({
   onDeleteUser,
   onCreateClick,
   onEditUser,
+  onClearJournal,
 }) {
-  const [message, setMessage] = useState("");
-  const [isError, setIsError] = useState(false);
   const [query, setQuery] = useState("");
-  const [openMenuId, setOpenMenuId] = useState(null);
+  const [openRow, setOpenRow] = useState(null);
+  const [journal, setJournal] = useState("cars");
+  const [clearing, setClearing] = useState(false);
+  const [clearBusy, setClearBusy] = useState(false);
+  const [clearMessage, setClearMessage] = useState("");
 
-  const pendingRequests = useMemo(
-    () => users.filter((user) => user.status === "pending_approval"),
-    [users]
-  );
-  const activeUsers = useMemo(
-    () => users.filter((user) => user.status !== "pending_approval"),
-    [users]
-  );
+  const pendingRequests = useMemo(() => users.filter((user) => user.status === "pending_approval"), [users]);
+  const activeUsers = useMemo(() => users.filter((user) => user.status !== "pending_approval"), [users]);
+  const [tab, setTab] = useState(() => (pendingRequests.length ? "requests" : "users"));
 
   const filteredUsers = useMemo(() => {
     const term = query.trim().toLowerCase();
     if (!term) return activeUsers;
-
-    return activeUsers.filter((user) => {
-      const permissions = user.permissions?.join(" ") || "";
-      return `${user.username} ${user.role} ${permissions}`.toLowerCase().includes(term);
-    });
+    return activeUsers.filter((user) =>
+      `${displayName(user)} ${user.email || ""} ${user.username}`.toLowerCase().includes(term)
+    );
   }, [query, activeUsers]);
 
-  async function handleDelete(user) {
+  const tabs = [
+    { id: "users", label: "Utilisateurs", count: activeUsers.length },
+    ...(pendingRequests.length ? [{ id: "requests", label: "Demandes", count: pendingRequests.length }] : []),
+    { id: "activity", label: "Journal" },
+  ];
+  // The requests tab disappears once the last one is handled.
+  const activeTab = tab === "requests" && !pendingRequests.length ? "users" : tab;
+
+  const currentJournal = JOURNALS.find((item) => item.id === journal) || JOURNALS[0];
+  const journalAll = activity.filter((entry) => currentJournal.match(entry.action));
+  const journalTotal = journalAll.length;
+  const journalEntries = journalAll.slice(0, 50);
+
+  async function clearCurrentJournal() {
+    setClearBusy(true);
     try {
-      await onDeleteUser(user.id);
+      const result = await onClearJournal(currentJournal.id);
+      setClearMessage(`Journal ${currentJournal.fullLabel || currentJournal.label} vide (${result.deleted} entree${result.deleted > 1 ? "s" : ""}).`);
+      setClearing(false);
     } catch (error) {
-      setMessage(error.message);
-      setIsError(true);
+      setClearMessage(error.message);
+    } finally {
+      setClearBusy(false);
     }
   }
 
+  const rowProps = (id) => ({
+    id,
+    open: openRow === id,
+    onToggle: () => setOpenRow((current) => (current === id ? null : id)),
+  });
+
+  function selectTab(id) {
+    setTab(id);
+    setOpenRow(null);
+  }
+
   return (
-    <div className="team-page">
-      {message && <p className={`message ${isError ? "error" : ""}`}>{message}</p>}
+    <div className="panel dash-panel set-page">
+      <PillTabs tabs={tabs} active={activeTab} onSelect={selectTab} label="Sections des utilisateurs" />
 
-      {pendingRequests.length > 0 && (
-        <section className="team-requests" aria-labelledby="team-requests-title">
-          <div className="team-section-head">
-            <div>
-              <h2 id="team-requests-title">Demandes en attente</h2>
-              <p>
-                {pendingRequests.length} compte{pendingRequests.length > 1 ? "s" : ""} a valider
-              </p>
-            </div>
-          </div>
-          <div className="team-request-list">
-            {pendingRequests.map((request) => (
-              <PendingRequestCard
-                key={request.id}
-                request={request}
-                onApprove={onApproveUser}
-                onReject={onRejectUser}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      <div className="team-layout">
-        <section className="team-members" aria-labelledby="team-members-title">
-          <div className="team-section-head">
-            <div>
-              <h2 id="team-members-title">Membres</h2>
-              <p>{filteredUsers.length} sur {activeUsers.length} comptes</p>
-            </div>
+      {activeTab === "users" && (
+        <>
+          <div className="set-toolbar">
             <input
               type="search"
-              placeholder="Rechercher un membre..."
+              placeholder="Rechercher un utilisateur..."
+              aria-label="Rechercher un utilisateur"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
+            <button className="button primary small" type="button" onClick={onCreateClick}>
+              + Ajouter
+            </button>
           </div>
 
           {filteredUsers.length ? (
-            <div className="team-table">
-              <div className="team-table-head" aria-hidden="true">
-                <span>Membre</span>
-                <span>Role</span>
-                <span>Statut</span>
-                <span>Permissions</span>
-                <span>Derniere connexion</span>
-                <span>Actions</span>
-              </div>
-
+            <ul className="set-list" role="tabpanel" aria-label="Utilisateurs">
               {filteredUsers.map((user) => (
-                <article className="team-row" key={user.id}>
-                  <div className="team-member-main">
-                    <span className="team-avatar">{user.username.slice(0, 2).toUpperCase()}</span>
-                    <div>
-                      <strong>
-                        {[user.firstName, user.lastName].filter(Boolean).join(" ") || user.username}
-                      </strong>
-                      <small>{user.role === "owner" ? "Acces complet" : "Acces limite"}</small>
-                    </div>
-                  </div>
-
-                  <div className="team-cell" data-label="Role">
-                    <span className={`team-badge ${user.role === "owner" ? "owner" : ""}`}>
-                      {roleLabel(user.role)}
-                    </span>
-                  </div>
-                  <div className="team-cell" data-label="Statut">
-                    <span className="team-badge success">Actif</span>
-                  </div>
-
-                  <div className="team-permission-summary team-cell" data-label="Permissions">
-                    {user.role === "owner" ? (
-                      <>
-                        <span className="team-badge owner">Full acces Admin</span>
-                        <span className="team-badge">Protege</span>
-                      </>
-                    ) : hasFullAccess(user) ? (
-                      <span className="team-badge owner">Full acces</span>
-                    ) : (
-                      <span className="team-badge">Acces limite</span>
-                    )}
-                  </div>
-
-                  <span className="team-muted team-cell" data-label="Derniere connexion">A connecter</span>
-
-                  <div className="team-actions team-cell" data-label="Actions">
-                    {user.role === "owner" ? (
-                      <span className="team-muted">Protege</span>
-                    ) : (
-                      <div className="admin-action-menu">
-                        <button
-                          className="admin-action-toggle"
-                          type="button"
-                          aria-label={`Actions pour ${user.username}`}
-                          aria-expanded={openMenuId === user.id}
-                          onClick={() => setOpenMenuId(openMenuId === user.id ? null : user.id)}
-                        >
-                          <OfficialIcon name="more" width={18} height={18} />
-                        </button>
-                        {openMenuId === user.id && (
-                          <div className="admin-action-dropdown">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setOpenMenuId(null);
-                                onEditUser(user);
-                              }}
-                            >
-                              Modifier
-                            </button>
-                            <button
-                              className="danger-text"
-                              type="button"
-                              onClick={() => {
-                                setOpenMenuId(null);
-                                handleDelete(user);
-                              }}
-                            >
-                              Supprimer
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </article>
+                <SettingRow
+                  key={user.id}
+                  {...rowProps(`user-${user.id}`)}
+                  leading={<Avatar user={user} owner={user.role === "owner"} />}
+                  title={displayName(user)}
+                  value={accessSummary(user)}
+                >
+                  <UserDetails user={user} onEdit={onEditUser} onDelete={onDeleteUser} />
+                </SettingRow>
               ))}
-            </div>
+            </ul>
           ) : (
-            <p className="empty">Aucun membre ne correspond a cette recherche.</p>
+            <p className="empty">Aucun utilisateur ne correspond a cette recherche.</p>
           )}
+        </>
+      )}
 
-          <div className="team-add-row">
-            <button className="button primary small" type="button" onClick={onCreateClick}>
-              Ajouter un membre
+      {activeTab === "requests" && (
+        <ul className="set-list" role="tabpanel" aria-label="Demandes d'acces">
+          {pendingRequests.map((request) => (
+            <SettingRow
+              key={request.id}
+              {...rowProps(`request-${request.id}`)}
+              leading={<Avatar user={request} />}
+              title={request.email || request.username}
+              value={`Demande du ${new Date(request.createdAt).toLocaleDateString("fr-BE")}`}
+            >
+              <RequestDetails request={request} onApprove={onApproveUser} onReject={onRejectUser} />
+            </SettingRow>
+          ))}
+        </ul>
+      )}
+
+      {activeTab === "activity" && (
+        // One compact segmented bar (always a single line) instead of four
+        // separate pills; the entry count moved to the tools line below.
+        <div className="set-segmented" role="tablist" aria-label="Journaux">
+          {JOURNALS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={journal === item.id}
+              aria-label={item.fullLabel || item.label}
+              className={journal === item.id ? "is-active" : ""}
+              onClick={() => {
+                setJournal(item.id);
+                setClearing(false);
+                setClearMessage("");
+              }}
+            >
+              {item.label}
             </button>
-          </div>
-        </section>
+          ))}
+        </div>
+      )}
 
-        <aside className="team-activity" aria-labelledby="team-activity-title">
-          <div className="team-section-head">
-            <div>
-              <h2 id="team-activity-title">Activite</h2>
-              <p>Dernieres actions enregistrees.</p>
-            </div>
-          </div>
-
-          {activity.length ? (
-            <div className="team-activity-list">
-              {activity.slice(0, 8).map((entry) => (
-                <article className="team-activity-row" key={entry.id}>
-                  <div>
-                    <strong>{ACTION_LABELS[entry.action] || entry.action}</strong>
-                    <span>
-                      {entry.actor}
-                      {entry.target ? ` - ${entry.target}` : ""}
-                    </span>
-                  </div>
-                  <time>{relativeTime(entry.createdAt)}</time>
-                </article>
-              ))}
+      {activeTab === "activity" && (
+        <div className="set-journal-tools">
+          <span className="set-journal-count">
+            {journalTotal} entree{journalTotal > 1 ? "s" : ""}
+            {journalTotal > journalEntries.length && ` - ${journalEntries.length} plus recentes affichees`}
+          </span>
+          {clearMessage && (
+            <p className="set-form-message" role="status">
+              {clearMessage}
+            </p>
+          )}
+          {clearing ? (
+            <div className="set-form-actions">
+              <span className="set-confirm-text">Supprimer tout le journal {currentJournal.fullLabel || currentJournal.label} ?</span>
+              <button className="button neutral small" type="button" onClick={() => setClearing(false)} disabled={clearBusy}>
+                Non
+              </button>
+              <button className="button small set-danger" type="button" onClick={clearCurrentJournal} disabled={clearBusy}>
+                {clearBusy ? "..." : "Oui, supprimer"}
+              </button>
             </div>
           ) : (
-            <p className="empty">Aucune activite pour le moment.</p>
+            onClearJournal &&
+            journalEntries.length > 0 && (
+              <button className="button small set-danger-outline" type="button" onClick={() => setClearing(true)}>
+                Vider ce journal
+              </button>
+            )
           )}
-        </aside>
-      </div>
+        </div>
+      )}
+
+      {activeTab === "activity" &&
+        (journalEntries.length ? (
+          <ul className="set-list set-activity" role="tabpanel" aria-label={`Journal ${currentJournal.label}`}>
+            {journalEntries.map((entry) => (
+              <li key={entry.id}>
+                <span className="set-row-text">
+                  <strong>{ACTION_LABELS[entry.action] || entry.action}</strong>
+                  <span>
+                    {entry.actor}
+                    {entry.target ? ` - ${entry.target}` : ""}
+                  </span>
+                </span>
+                <time dateTime={entry.createdAt}>{relativeTime(entry.createdAt)}</time>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="empty">Rien dans ce journal pour le moment.</p>
+        ))}
     </div>
   );
 }

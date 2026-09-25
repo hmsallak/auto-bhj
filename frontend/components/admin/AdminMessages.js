@@ -84,6 +84,7 @@ export default function AdminMessages({
   onDelete,
   onSchedule,
   onUpdateAppointment,
+  requestedOpenId = null,
   canDelete = true,
 }) {
   const carsByReference = new Map(cars.map((car) => [car.reference, car]));
@@ -91,6 +92,17 @@ export default function AdminMessages({
   const [planning, setPlanning] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState(null);
   const headingRef = useRef(null);
+  const handledRequestRef = useRef(null);
+
+  // Deep link from a push notification: open that request once it is loaded.
+  useEffect(() => {
+    if (!requestedOpenId || handledRequestRef.current === requestedOpenId) return;
+    const msg = messages.find((item) => item.id === requestedOpenId);
+    if (!msg) return;
+    handledRequestRef.current = requestedOpenId;
+    setOpenId(msg.id);
+    if (!msg.isRead) onToggleRead(msg);
+  }, [requestedOpenId, messages, onToggleRead]);
   // Derived from the live list: once the open message is deleted, we fall
   // back to the inbox on our own.
   const openMessage = messages.find((msg) => msg.id === openId) || null;

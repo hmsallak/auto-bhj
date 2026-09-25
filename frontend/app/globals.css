@@ -16703,3 +16703,995 @@ a.message-car:focus-visible {
     transition: none;
   }
 }
+
+/* Admin > Application tab. */
+.app-settings {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: start;
+  gap: 24px;
+}
+
+.app-device {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 6px 0 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+}
+
+.app-device.is-on {
+  border-color: rgba(26, 77, 62, 0.3);
+  background: rgba(115, 165, 141, 0.1);
+}
+
+.app-device strong {
+  font-size: 14px;
+}
+
+.app-device p,
+.app-hint {
+  margin: 2px 0 0;
+  color: var(--admin-muted);
+  font-size: 13px;
+}
+
+.app-device-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.app-info {
+  margin: -6px 0 12px;
+  color: var(--admin-accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.app-hint {
+  margin: 0 0 8px;
+}
+
+.app-pref-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-pref {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.app-pref-list li.app-pref:last-child {
+  border-bottom: 0;
+}
+
+.app-pref-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.app-pref-text strong {
+  font-size: 14px;
+}
+
+.app-pref-text span {
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+/* Pill toggle (Application > notification types). The knob sits right
+   when on, slides left and turns when off - like the pasted "button with
+   icon", but driven by state instead of hover. */
+.pill-toggle {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  width: 112px;
+  height: 36px;
+  padding: 0 40px 0 14px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(28, 28, 26, 0.1);
+  color: var(--admin-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 400ms ease, color 400ms ease, padding 400ms ease;
+}
+
+.pill-toggle:not(.is-on) {
+  padding: 0 14px 0 40px;
+}
+
+.pill-toggle.is-on {
+  background: var(--admin-accent);
+  color: #ffffff;
+}
+
+.pill-toggle-text {
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.pill-toggle-knob {
+  position: absolute;
+  top: 4px;
+  left: calc(100% - 32px);
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--admin-accent);
+  box-shadow: 0 1px 3px rgba(28, 28, 26, 0.2);
+  transition: left 400ms ease, transform 400ms ease, color 400ms ease;
+}
+
+.pill-toggle:not(.is-on) .pill-toggle-knob {
+  left: 4px;
+  color: var(--admin-muted);
+  transform: rotate(-90deg);
+}
+
+.pill-toggle:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.pill-toggle:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill-toggle,
+  .pill-toggle-knob {
+    transition: none;
+  }
+}
+
+.app-current {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 14px;
+  color: var(--admin-muted);
+  font-size: 13px;
+}
+
+.app-version-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--admin-accent);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.app-changelog {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-changelog > li {
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.app-changelog summary {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.app-changelog summary::-webkit-details-marker {
+  display: none;
+}
+
+.app-changelog summary:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: -2px;
+}
+
+.app-changelog-version {
+  color: var(--admin-accent);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.app-changelog-title {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-changelog time {
+  color: var(--admin-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.app-changelog details ul {
+  margin: 0 0 12px 62px;
+  padding: 0 0 0 16px;
+  color: var(--admin-text);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.admin-notif-settings {
+  justify-self: start;
+}
+
+@media (max-width: 1000px) {
+  .app-settings {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .app-changelog summary {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .app-changelog time {
+    grid-column: 2;
+  }
+
+  .app-changelog details ul {
+    margin-left: 10px;
+  }
+}
+
+
+/* "Cet appareil" row: same layout as the type rows, master switch. */
+.app-device {
+  display: grid;
+  gap: 6px;
+}
+
+.app-device-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.app-device-actions {
+  gap: 4px 14px;
+}
+
+.app-device-actions .dash-link {
+  padding-left: 0;
+}
+
+/* Types locked while the device is off. */
+.app-pref.is-locked .app-pref-text {
+  opacity: 0.55;
+}
+
+/* Owner-only site settings, full width under the two Parametres panels. */
+.app-settings-wide {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+/* ---- Admin > Parametres: phone-style settings (pill tabs + unfolding rows) ---- */
+.set-page {
+  max-width: 760px;
+  padding-top: 8px;
+}
+
+.set-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0 14px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.set-tabs button {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(28, 28, 26, 0.05);
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.set-tabs button.is-active {
+  background: var(--admin-hover);
+  font-weight: 600;
+}
+
+.set-tabs button:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.set-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.set-row {
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.set-row-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 76px;
+  padding: 14px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--admin-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.set-row-head:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: -2px;
+}
+
+.set-row-icon {
+  display: grid;
+  flex-shrink: 0;
+  width: 28px;
+  place-items: center;
+  color: var(--admin-text);
+}
+
+.set-row-text {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.set-row-text strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.set-row-text span {
+  overflow: hidden;
+  color: var(--admin-muted);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.set-row-action {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  color: var(--admin-text);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.set-row-body {
+  display: grid;
+  gap: 14px;
+  padding: 0 4px 20px;
+}
+
+.set-help {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.set-control {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 15px;
+}
+
+.set-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.set-links .dash-link {
+  padding-left: 0;
+}
+
+.set-form {
+  display: grid;
+  gap: 14px;
+}
+
+.set-form input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  font-size: 15px;
+}
+
+.set-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.set-form-actions .button {
+  min-width: 110px;
+  min-height: 44px;
+}
+
+.set-form-message {
+  margin: 0;
+  color: var(--admin-accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.set-form-message.is-error {
+  color: var(--admin-destructive);
+}
+
+/* The owner's site contact form sits inside its row: drop its own frame. */
+.set-row-body .profile-page {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (max-width: 520px) {
+  .set-row-head {
+    gap: 12px;
+  }
+
+  .set-row-action {
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .set-tabs button {
+    transition: none;
+  }
+}
+
+.set-control > span {
+  min-width: 0;
+}
+
+/* Right-aligned, content-sized buttons (the admin's mobile rules otherwise
+   stretch form buttons to full width). */
+.set-form .set-form-actions .button {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+/* ---- Admin > Utilisateurs (reuses the Parametres .set-* layout) ---- */
+.set-tab-count {
+  display: inline-grid;
+  min-width: 22px;
+  height: 22px;
+  margin-left: 8px;
+  padding: 0 6px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(26, 77, 62, 0.12);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.set-avatar {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--admin-hover);
+  color: var(--admin-accent);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.set-avatar.is-owner {
+  background: var(--admin-accent);
+  color: #ffffff;
+}
+
+/* Avatars are wider than line icons: give the column the room. */
+.set-row-icon:has(.set-avatar) {
+  width: 40px;
+}
+
+.set-toolbar {
+  display: flex;
+  gap: 10px;
+  padding: 14px 0 6px;
+}
+
+.set-toolbar input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 14px;
+}
+
+.set-toolbar .button {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 44px;
+}
+
+.set-facts {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.set-facts div {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.set-facts dt {
+  color: var(--admin-muted);
+  font-size: 14px;
+}
+
+.set-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--admin-text);
+  font-size: 15px;
+}
+
+.set-checks {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.dashboard .set-checks label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.dashboard .set-checks input {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  margin: 2px 0 0;
+  accent-color: var(--admin-accent);
+}
+
+.set-checks span {
+  display: grid;
+  gap: 2px;
+}
+
+.set-checks strong {
+  font-size: 14px;
+}
+
+.set-checks small {
+  color: var(--admin-muted);
+  font-size: 13px;
+}
+
+.set-form-actions {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.set-form-actions .button {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 44px;
+}
+
+.set-confirm-text {
+  margin-right: auto;
+  color: var(--admin-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.set-danger-outline {
+  border: 1px solid rgba(185, 28, 28, 0.4);
+  background: transparent;
+  color: var(--admin-destructive);
+}
+
+.set-danger-outline:hover {
+  background: rgba(185, 28, 28, 0.08);
+}
+
+.set-danger {
+  border: 1px solid var(--admin-destructive);
+  background: var(--admin-destructive);
+  color: #ffffff;
+}
+
+.set-activity li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.set-activity time {
+  flex-shrink: 0;
+  color: var(--admin-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .set-facts div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+/* Toolbar: search takes the room, "+ Ajouter" stays compact (beats the
+   admin's mobile rules that stretch inputs/buttons). */
+.set-page .set-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.set-page .set-toolbar input {
+  width: 100%;
+}
+
+.set-page .set-toolbar .button {
+  width: auto;
+  padding: 0 16px;
+}
+
+/* Row action buttons keep their natural size, right-aligned, on every
+   screen (the admin's mobile rules would stretch them full width). */
+.set-page .set-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.set-page .set-form-actions .button {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 0 16px;
+}
+
+/* Permission lines with the on/off pill (user form + access requests). */
+.perm-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--admin-border);
+  list-style: none;
+}
+
+.perm-line:last-child {
+  border-bottom: 0;
+}
+
+.perm-line > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.perm-line strong {
+  font-size: 14px;
+}
+
+.perm-line small {
+  color: var(--admin-muted);
+  font-size: 13px;
+}
+
+ul.set-checks {
+  margin: 0;
+  padding: 0;
+}
+
+/* User form "Informations" accordion (same look as the settings rows). */
+.form-accordion {
+  display: block;
+}
+
+.form-accordion > summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 68px;
+  padding: 10px 4px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.form-accordion > summary::-webkit-details-marker {
+  display: none;
+}
+
+.form-accordion > summary:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: -2px;
+}
+
+.form-accordion-action svg {
+  transition: transform 200ms ease;
+}
+
+/* Open: the label goes, the chevron points up (like the screenshots). */
+.form-accordion[open] .form-accordion-label {
+  display: none;
+}
+
+.form-accordion[open] .form-accordion-action svg {
+  transform: rotate(180deg);
+}
+
+.form-accordion[open] > summary .set-row-text span {
+  display: none;
+}
+
+.form-accordion > .team-form-fields {
+  padding: 4px 4px 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-accordion-action svg {
+    transition: none;
+  }
+}
+
+.form-accordion > .form-accordion-body {
+  display: grid;
+  gap: 12px;
+  padding: 0 4px 16px;
+}
+
+/* User form bottom bar: "< Retour" on the left, Annuler / Enregistrer on
+   the right, all compact on every screen size. */
+.dashboard .team-form-actions .form-bottom-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+}
+
+.dashboard .team-form-actions .form-bottom-actions .button {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 44px;
+  padding: 0 16px;
+}
+
+.form-bottom-actions .form-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 44px;
+  margin-right: auto;
+  padding-left: 0;
+}
+
+/* Second-level pill tabs (Utilisateurs > Journal sections). */
+.set-tabs.is-small {
+  padding: 12px 0 10px;
+  border-bottom: 0;
+}
+
+.set-tabs.is-small button {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.set-tabs.is-small .set-tab-count {
+  min-width: 20px;
+  height: 20px;
+  margin-left: 6px;
+  font-size: 11px;
+}
+
+/* "Vider ce journal" (owner) under the journal sub-tabs. */
+.set-journal-tools {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.set-journal-tools .set-form-actions {
+  width: 100%;
+}
+
+.set-page .set-journal-tools > .button {
+  width: auto;
+  min-height: 40px;
+  padding: 0 14px;
+}
+
+/* Journal sections: one segmented bar, four equal parts, single line. */
+.set-segmented {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  margin: 12px 0 8px;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgba(28, 28, 26, 0.06);
+}
+
+.set-segmented button {
+  min-width: 0;
+  min-height: 36px;
+  padding: 0 4px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.set-segmented button.is-active {
+  background: #ffffff;
+  color: var(--admin-text);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(28, 28, 26, 0.12);
+}
+
+.set-segmented button:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: -2px;
+}
+
+/* Tools line: entry count on the left, "Vider ce journal" on the right. */
+.set-journal-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.set-journal-count {
+  color: var(--admin-muted);
+  font-size: 13px;
+}
+
+.set-journal-tools .set-form-message,
+.set-journal-tools .set-form-actions {
+  flex-basis: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .set-segmented button {
+    transition: none;
+  }
+}
+
+/* Parametres > A propos. */
+.set-about {
+  display: grid;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.set-about-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.set-about-head img {
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+}
+
+.set-about-head div {
+  display: grid;
+  gap: 2px;
+}
+
+.set-about-head strong {
+  font-size: 17px;
+}
+
+.set-about-head span {
+  color: var(--admin-muted);
+  font-size: 14px;
+}
+
+.set-about h3 {
+  margin: 8px 0 0;
+  color: var(--admin-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.set-about-news {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--admin-text);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.set-about .set-list {
+  margin-top: 8px;
+  border-top: 1px solid var(--admin-border);
+}

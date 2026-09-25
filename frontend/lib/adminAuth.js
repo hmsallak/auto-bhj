@@ -1,6 +1,6 @@
 import { cookies, headers } from "next/headers";
 import { verifySessionToken } from "../../backend/auth/sessions";
-import { findByUsername, rowToUser, hasPermission } from "../../backend/models/adminUsers";
+import { findByUsername, rowToUser, hasPermission, hasAnyPermission } from "../../backend/models/adminUsers";
 
 const SESSION_COOKIE = "session";
 
@@ -39,6 +39,12 @@ export async function requireOwner() {
 export async function requirePermission(key) {
   const user = await getCurrentUser();
   if (!user || !hasPermission(user, key)) return null;
+  return user;
+}
+
+export async function requireAnyPermission(keys) {
+  const user = await getCurrentUser();
+  if (!user || !hasAnyPermission(user, keys)) return null;
   return user;
 }
 

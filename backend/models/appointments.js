@@ -112,7 +112,12 @@ function updateAppointment(id, payload, actor) {
   const existing = db.prepare("SELECT * FROM appointments WHERE id = ?").get(id);
   if (!existing) return { error: "Rendez-vous introuvable." };
 
-  db.prepare("UPDATE appointments SET starts_at = ?, note = ? WHERE id = ?").run(startsAt, note || null, id);
+  // A new time needs a new reminder.
+  db.prepare("UPDATE appointments SET starts_at = ?, note = ?, reminder_sent_at = NULL WHERE id = ?").run(
+    startsAt,
+    note || null,
+    id
+  );
   activityLog.log(actor, "appointment_updated", `${existing.name} - ${startsAt.replace("T", " ")}`);
 
   return { appointment: rowToAppointment(db.prepare("SELECT * FROM appointments WHERE id = ?").get(id)) };

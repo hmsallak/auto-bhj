@@ -100,8 +100,32 @@ async function sendToPermission(permission, payload) {
   }
 }
 
+// Every device of every active admin for whom predicate(user) is true;
+// `user` is the full rowToUser() object plus `notificationPrefs` (raw JSON).
+async function sendToUsersWhere(predicate, payload) {
+  try {
+    const db = getDb();
+    const users = db
+      .prepare("SELECT * FROM admin_users WHERE status IS NULL OR status = 'active'")
+      .all()
+      .map((row) => ({ ...rowToUser(row), notificationPrefs: row.notification_prefs }))
+      .filter(predicate);
+    if (!users.length) return { sent: 0 };
+
+    const names = users.map((user) => user.username);
+    const rows = db
+      .prepare(`SELECT * FROM push_subscriptions WHERE username IN (${names.map(() => "?").join(",")})`)
+      .all(...names);
+    return await sendToRows(rows, payload);
+  } catch (error) {
+    console.error("[push] targeted send failed:", error.message);
+    return { sent: 0 };
+  }
+}
+
 module.exports = {
   isPushConfigured,
+  sendToUsersWhere,
   publicKey,
   saveSubscription,
   removeSubscription,

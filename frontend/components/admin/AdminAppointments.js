@@ -110,10 +110,12 @@ function AppointmentDetail({ item, car, message, onBack, onEdit, onCancel }) {
       <ContactActions msg={item} />
 
       <div className="admin-actions">
-        <button className="button primary small message-plan" type="button" onClick={() => onEdit(item)}>
-          Modifier
-        </button>
-        {confirming ? (
+        {onEdit && (
+          <button className="button primary small message-plan" type="button" onClick={() => onEdit(item)}>
+            Modifier
+          </button>
+        )}
+        {!onCancel ? null : confirming ? (
           <>
             <button className="danger" type="button" onClick={() => onCancel(item)}>
               Oui, annuler le rendez-vous
@@ -163,6 +165,7 @@ function AppointmentRow({ item, car, showDay, onOpen, onEdit, onCancel }) {
           </>
         ) : (
           <>
+          {onEdit && (
           <button
             className="appointment-edit"
             type="button"
@@ -172,6 +175,8 @@ function AppointmentRow({ item, car, showDay, onOpen, onEdit, onCancel }) {
           >
             <img src="/icons/modifier.svg" alt="" width={20} height={20} aria-hidden="true" />
           </button>
+          )}
+          {onCancel && (
           <button
             className="appointment-cancel-toggle"
             type="button"
@@ -183,6 +188,7 @@ function AppointmentRow({ item, car, showDay, onOpen, onEdit, onCancel }) {
               <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </button>
+          )}
           </>
         )}
       </div>
@@ -233,7 +239,7 @@ export default function AdminAppointments({
               car={carsByReference.get(item.carReference)}
               showDay={group.showDay}
               onOpen={(target) => onOpenChange(target.id)}
-              onEdit={setEditing}
+              onEdit={onUpdate ? setEditing : undefined}
               onCancel={onCancel}
             />
           ))}
@@ -282,7 +288,7 @@ export default function AdminAppointments({
           car={carsByReference.get(openItem.carReference)}
           message={messages.find((msg) => msg.id === openItem.messageId)}
           onBack={() => onOpenChange(null)}
-          onEdit={setEditing}
+          onEdit={onUpdate ? setEditing : undefined}
           onCancel={onCancel}
         />
         {picker}

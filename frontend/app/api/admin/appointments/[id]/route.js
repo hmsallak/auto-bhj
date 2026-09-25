@@ -7,7 +7,7 @@ import { resolveBaseUrl } from "../../../../../lib/appUrl";
 import { notifyAppointment } from "../../../../../../backend/appointmentMail";
 
 export const PATCH = apiRoute(async function handleUpdate(request, { params }) {
-  const user = await requirePermission("messages_read");
+  const user = await requirePermission("appointments_create");
   if (!user) {
     const { status, error } = await authError();
     return NextResponse.json({ error }, { status });
@@ -31,7 +31,7 @@ export const PATCH = apiRoute(async function handleUpdate(request, { params }) {
 });
 
 export const DELETE = apiRoute(async function handleDelete(request, { params }) {
-  const user = await requirePermission("messages_read");
+  const user = await requirePermission("appointments_cancel");
   if (!user) {
     const { status, error } = await authError();
     return NextResponse.json({ error }, { status });

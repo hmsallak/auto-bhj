@@ -44,10 +44,12 @@ const ADMIN_USERS_COLUMNS = {
   role: "TEXT NOT NULL DEFAULT 'member'",
   permissions: "TEXT NOT NULL DEFAULT '[]'",
   status: "TEXT NOT NULL DEFAULT 'active'",
+  notification_prefs: "TEXT",
 };
 
 const APPOINTMENTS_COLUMNS = {
   token: "TEXT",
+  reminder_sent_at: "TEXT",
 };
 
 const SESSIONS_COLUMNS = {
@@ -164,6 +166,31 @@ function backfillSoldAt(database) {
   database.exec("UPDATE cars SET sold_at = updated_at WHERE status = 'sold' AND sold_at IS NULL;");
 }
 
+// Appointments used to ride on "messages_read". When the dedicated
+// appointments_create / appointments_cancel rights arrived, members who had
+// messages_read kept what they could do. Runs once (guarded by
+// notification_log), so later choices made in the admin are never undone.
+function grantAppointmentPermissions(database) {
+  const key = "migration:appointment-permissions";
+  const done = database.prepare("SELECT 1 FROM notification_log WHERE key = ?").get(key);
+  if (done) return;
+
+  const members = database.prepare("SELECT id, permissions FROM admin_users WHERE role != 'owner'").all();
+  const update = database.prepare("UPDATE admin_users SET permissions = ? WHERE id = ?");
+  for (const member of members) {
+    let list;
+    try {
+      list = JSON.parse(member.permissions || "[]");
+    } catch {
+      continue;
+    }
+    if (!Array.isArray(list) || !(list.includes("messages_read") || list.includes("messages"))) continue;
+    const next = [...new Set([...list, "appointments_create", "appointments_cancel"])];
+    update.run(JSON.stringify(next), member.id);
+  }
+  database.prepare("INSERT INTO notification_log (key, sent_at) VALUES (?, ?)").run(key, new Date().toISOString());
+}
+
 // Appointments created before the public confirmation page existed get
 // their token here, so every appointment has a working link.
 function backfillAppointmentTokens(database) {
@@ -249,6 +276,7 @@ function getDb() {
   migrateColumns(db, "sessions", SESSIONS_COLUMNS);
   migrateColumns(db, "appointments", APPOINTMENTS_COLUMNS);
   backfillAppointmentTokens(db);
+  grantAppointmentPermissions(db);
   ensureOwnerExists(db);
   applyAdminPasswordOverride(db);
   purgeStaleRows(db);

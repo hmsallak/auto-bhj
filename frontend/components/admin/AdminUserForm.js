@@ -2,12 +2,23 @@
 
 import { useMemo, useState } from "react";
 import { USER_PERMISSION_GROUPS, USER_PERMISSIONS } from "./userPermissions";
+import { Chevron, PillToggle, RowIcon } from "./SettingsUI";
 
 export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const isEditing = Boolean(editingUser);
+  const [granted, setGranted] = useState(() => new Set(editingUser?.permissions || []));
+
+  function setPermission(key, on) {
+    setGranted((current) => {
+      const next = new Set(current);
+      if (on) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  }
 
   const permissionsByGroup = useMemo(
     () =>
@@ -24,9 +35,9 @@ export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
     setIsError(false);
 
     const formData = new FormData(event.currentTarget);
-    const permissions = USER_PERMISSIONS.filter((permission) =>
-      formData.get(`permission-${permission.key}`)
-    ).map((permission) => permission.key);
+    const permissions = USER_PERMISSIONS.filter((permission) => granted.has(permission.key)).map(
+      (permission) => permission.key
+    );
 
     const payload = {
       firstName: formData.get("firstName"),
@@ -42,8 +53,11 @@ export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
     setSubmitting(true);
     try {
       await onSubmit(payload);
-      setMessage(isEditing ? "Membre mis a jour." : "Membre cree.");
-      if (!isEditing) event.currentTarget.reset();
+      setMessage(isEditing ? "Utilisateur mis a jour." : "Utilisateur cree.");
+      if (!isEditing) {
+        event.currentTarget.reset();
+        setGranted(new Set());
+      }
     } catch (error) {
       setMessage(error.message);
       setIsError(true);
@@ -52,38 +66,53 @@ export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
     }
   }
 
-  function handleAllowAll(event) {
-    const form = event.currentTarget.form;
-    form
-      ?.querySelectorAll(".team-permission-line input[type='checkbox']")
-      .forEach((input) => {
-        input.checked = true;
-      });
+  // "Annuler" drops the unsaved edits (fields back to their saved values,
+  // rights back to what the account has) without leaving the form.
+  function handleReset(event) {
+    event.currentTarget.form?.reset();
+    setGranted(new Set(editingUser?.permissions || []));
+    setMessage("");
+    setIsError(false);
+  }
+
+  function handleAllowAll() {
+    setGranted(new Set(USER_PERMISSIONS.map((permission) => permission.key)));
   }
 
   return (
     <section className="team-member-form-page" aria-labelledby="team-member-form-title">
       <div className="team-form-head">
         <div>
-          <p className="eyebrow">Equipe</p>
-          <h2 id="team-member-form-title">{isEditing ? "Modifier le membre" : "Creer un membre"}</h2>
+          <p className="eyebrow">Utilisateurs</p>
+          <h2 id="team-member-form-title">{isEditing ? "Modifier l'utilisateur" : "Creer un utilisateur"}</h2>
           <p>
             {isEditing
               ? "Ajuste les informations et les autorisations de ce compte."
               : "Ajoute un acces propre avec des autorisations precises."}
           </p>
         </div>
-        <button className="button neutral small" type="button" onClick={onCancel}>
-          Retour
-        </button>
       </div>
 
       <form className="team-member-form" onSubmit={handleSubmit}>
-        <section className="team-form-section" aria-labelledby="team-member-identity-title">
-          <div>
-            <h3 id="team-member-identity-title">Informations</h3>
-            <p>Identite du membre et acces de connexion.</p>
-          </div>
+        {/* Accordion: open when creating (required fields must stay
+            reachable for validation), folded when editing. */}
+        <details className="team-form-section form-accordion" open={!isEditing}>
+          <summary>
+            <span className="set-row-icon">
+              <RowIcon name="access" />
+            </span>
+            <span className="set-row-text">
+              <strong id="team-member-identity-title">Informations</strong>
+              <span>
+                {isEditing
+                  ? [editingUser.firstName, editingUser.lastName].filter(Boolean).join(" ") || editingUser.username
+                  : "Identite de l'utilisateur et acces de connexion"}
+              </span>
+            </span>
+            <span className="set-row-action form-accordion-action">
+              <Chevron />
+            </span>
+          </summary>
           <div className="team-form-fields">
             <label>
               Prenom
@@ -111,14 +140,29 @@ export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
               </label>
             )}
           </div>
-        </section>
+        </details>
 
-        <section className="team-form-section" aria-labelledby="team-member-permissions-title">
-          <div>
-            <h3 id="team-member-permissions-title">Autorisations</h3>
-            <p>Les droits d'ecriture ajoutent automatiquement la lecture necessaire.</p>
-          </div>
-          <div>
+        {/* Accordion too; open by default since editing rights is why
+            people land on this form. */}
+        <details className="team-form-section form-accordion" open>
+          <summary>
+            <span className="set-row-icon">
+              <RowIcon name="password" />
+            </span>
+            <span className="set-row-text">
+              <strong id="team-member-permissions-title">Autorisations</strong>
+              <span>
+                {granted.size === USER_PERMISSIONS.length
+                  ? "Acces complet"
+                  : `${granted.size} droit${granted.size > 1 ? "s" : ""} sur ${USER_PERMISSIONS.length}`}
+              </span>
+            </span>
+            <span className="set-row-action form-accordion-action">
+              <Chevron />
+            </span>
+          </summary>
+          <div className="form-accordion-body">
+            <p className="set-help">Les droits d'ecriture ajoutent automatiquement la lecture necessaire.</p>
             <div className="team-permission-tools">
               <button className="button neutral small" type="button" onClick={handleAllowAll}>
                 Tout autoriser
@@ -129,32 +173,38 @@ export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
                 <fieldset className="team-permission-group" key={group}>
                   <legend>{group}</legend>
                   {permissions.map((permission) => (
-                    <label className="team-permission-line" key={permission.key}>
-                      <input
-                        type="checkbox"
-                        name={`permission-${permission.key}`}
-                        defaultChecked={editingUser?.permissions?.includes(permission.key)}
-                      />
-                      <span>
+                    <div className="team-permission-line perm-line" key={permission.key}>
+                      <span id={`perm-${permission.key}`}>
                         <strong>{permission.label}</strong>
                         <small>{permission.description}</small>
                       </span>
-                    </label>
+                      <PillToggle
+                        checked={granted.has(permission.key)}
+                        labelledBy={`perm-${permission.key}`}
+                        onChange={(on) => setPermission(permission.key, on)}
+                      />
+                    </div>
                   ))}
                 </fieldset>
               ))}
             </div>
           </div>
-        </section>
+        </details>
 
         <div className="team-form-actions">
           {message && <p className={`message ${isError ? "error" : ""}`}>{message}</p>}
-          <div>
-            <button className="button neutral small" type="button" onClick={onCancel}>
+          <div className="form-bottom-actions">
+            <button className="dash-link form-back" type="button" onClick={onCancel}>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Retour
+            </button>
+            <button className="button neutral small" type="button" onClick={handleReset}>
               Annuler
             </button>
             <button className="button primary small" type="submit" disabled={submitting}>
-              {submitting ? "Enregistrement..." : isEditing ? "Enregistrer" : "Creer le membre"}
+              {submitting ? "Enregistrement..." : isEditing ? "Enregistrer" : "Creer l'utilisateur"}
             </button>
           </div>
         </div>

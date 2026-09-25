@@ -22,6 +22,10 @@ export function CalendarIcon() {
   return <AdminNavIcon file="calendrier.svg" />;
 }
 
+export function AppIcon() {
+  return <AdminNavIcon file="parametres.svg" />;
+}
+
 export function UsersIcon() {
   return <AdminNavIcon file="famille.svg" />;
 }
