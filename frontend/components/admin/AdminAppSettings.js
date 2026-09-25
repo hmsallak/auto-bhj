@@ -84,10 +84,12 @@ function EmailForm({ currentEmail, onUpdateEmail, onClose }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    const email = String(new FormData(event.currentTarget).get("email") || "").trim();
+    const data = new FormData(event.currentTarget);
+    const email = String(data.get("email") || "").trim();
+    const currentPassword = String(data.get("currentPassword") || "");
     setBusy(true);
     try {
-      await onUpdateEmail(email);
+      await onUpdateEmail(email, currentPassword);
       setMessage({ text: "E-mail enregistre.", error: false });
     } catch (error) {
       setMessage({ text: error.message, error: true });
@@ -100,6 +102,14 @@ function EmailForm({ currentEmail, onUpdateEmail, onClose }) {
     <form className="set-form" onSubmit={handleSubmit}>
       <p className="set-help">Sert a vous connecter et a recevoir le lien si vous oubliez votre mot de passe.</p>
       <input name="email" type="email" autoComplete="email" placeholder="Adresse e-mail" aria-label="Adresse e-mail" defaultValue={currentEmail || ""} required />
+      <input
+        name="currentPassword"
+        type="password"
+        autoComplete="current-password"
+        placeholder="Mot de passe actuel"
+        aria-label="Mot de passe actuel"
+        required
+      />
       <FormMessage message={message} />
       <div className="set-form-actions">
         <button className="button neutral small" type="button" onClick={onClose}>

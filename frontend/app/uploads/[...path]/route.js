@@ -16,7 +16,8 @@ export async function GET(request, { params }) {
   const filename = (segments || []).join("/");
   const resolved = path.join(uploadsDir, filename);
 
-  if (!resolved.startsWith(uploadsDir)) {
+  // Trailing separator: ".../uploads2/x.jpg" must not pass as ".../uploads".
+  if (!resolved.startsWith(uploadsDir + path.sep)) {
     return NextResponse.json({ error: "Invalid path." }, { status: 400 });
   }
 

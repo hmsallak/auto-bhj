@@ -1,21 +1,11 @@
 import { NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { signup } from "../../../../../backend/auth/accountSignup";
 import { sendMail, renderEmail } from "../../../../../backend/mail";
 import { isRateLimited, recordFailedLogin } from "../../../../../backend/auth/rateLimit";
 import { getClientIp } from "../../../../lib/adminAuth";
 import { apiRoute } from "../../../../lib/apiRoute";
+import { resolveBaseUrl } from "../../../../lib/appUrl";
 
-async function resolveBaseUrl(request) {
-  if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, "");
-
-  const store = await headers();
-  const host = store.get("x-forwarded-host") || store.get("host");
-  const proto = store.get("x-forwarded-proto") || "https";
-  if (host) return `${proto}://${host}`;
-
-  return new URL(request.url).origin;
-}
 
 export const POST = apiRoute(async function handleSignup(request) {
   const ip = await getClientIp();

@@ -1,21 +1,11 @@
 import { NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { confirmEmailToken } from "../../../../../backend/auth/accountSignup";
 import { getOwnerEmails } from "../../../../../backend/models/adminUsers";
-import { sendMail, renderEmail } from "../../../../../backend/mail";
+import { sendMail, renderEmail, escapeHtml } from "../../../../../backend/mail";
 import { notify } from "../../../../../backend/notifications";
 import { apiRoute } from "../../../../lib/apiRoute";
+import { resolveBaseUrl } from "../../../../lib/appUrl";
 
-async function resolveBaseUrl(request) {
-  if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, "");
-
-  const store = await headers();
-  const host = store.get("x-forwarded-host") || store.get("host");
-  const proto = store.get("x-forwarded-proto") || "https";
-  if (host) return `${proto}://${host}`;
-
-  return new URL(request.url).origin;
-}
 
 export const POST = apiRoute(async function handleVerifyEmail(request) {
   const payload = await request.json().catch(() => ({}));
@@ -48,7 +38,7 @@ export const POST = apiRoute(async function handleVerifyEmail(request) {
             html: renderEmail({
               heading: "Nouvelle demande de compte",
               lines: [
-                `<strong>${result.email}</strong> a confirme son adresse e-mail et attend ton approbation.`,
+                `<strong>${escapeHtml(result.email)}</strong> a confirme son adresse e-mail et attend ton approbation.`,
                 "Ouvre l'onglet Equipe pour lui attribuer des droits ou refuser la demande.",
               ],
               button: { label: "Ouvrir l'espace admin", url: `${base}/admin` },

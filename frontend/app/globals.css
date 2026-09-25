@@ -17695,3 +17695,252 @@ ul.set-checks {
   margin-top: 8px;
   border-top: 1px solid var(--admin-border);
 }
+
+/* Sidebar count badges - single source of truth, placed last on purpose.
+   Earlier layers fought: a "text-chip reset" stripped the pill shape and
+   background, the active-tab rule painted a green square, and unread badges
+   ended up white text on a transparent background (invisible). */
+.dashboard .dash-nav-item .dash-nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  margin-left: auto;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgba(28, 28, 26, 0.08);
+  color: var(--admin-text);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.dashboard .dash-nav-item.active .dash-nav-badge {
+  background: #ffffff;
+  color: var(--admin-accent);
+}
+
+/* Something waits (unread requests, pending accounts): always filled. */
+.dashboard .dash-nav-item .dash-nav-badge.unread {
+  background: var(--admin-accent);
+  color: #ffffff;
+}
+
+/* Unread messages: a plain red "(n)" right after the label, no pill. */
+.dashboard .dash-nav-item .dash-nav-dot {
+  color: var(--admin-destructive);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Inbox batch selection: a checkbox before each preview + an action bar. */
+.message-inbox-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.message-inbox-row .message-preview {
+  flex: 1;
+  min-width: 0;
+  border-bottom: 0;
+}
+
+.message-inbox-row.is-selected {
+  background: rgba(26, 77, 62, 0.06);
+}
+
+.dashboard .message-select {
+  display: grid;
+  flex-shrink: 0;
+  width: 44px;
+  place-items: center;
+  cursor: pointer;
+}
+
+.dashboard .message-select input {
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--admin-accent);
+  cursor: pointer;
+}
+
+.message-batch-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--admin-hover);
+}
+
+.message-batch-count {
+  margin-right: auto;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dashboard .message-batch-bar .button {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 40px;
+  padding: 0 14px;
+}
+
+.message-batch-bar .set-form-message {
+  flex-basis: 100%;
+}
+
+/* Nav labels clip their overflow (for the ellipsis): with a line-height equal
+   to the font size, descenders (g, p, q) were cut. Give the line some room. */
+.dashboard .dash-nav-item > span:not(.dash-nav-badge) {
+  line-height: 1.45;
+}
+
+/* Batch bar: master checkbox left, count + trash icon right. */
+.dashboard .message-select-all {
+  /* Not a form-field label: undo the admin's uppercase label style. */
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--admin-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  margin-right: auto;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dashboard .message-select-all input {
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--admin-accent);
+  cursor: pointer;
+}
+
+.message-batch-count.is-quiet {
+  margin-right: 0;
+  color: var(--admin-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.message-batch-trash {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-destructive);
+  cursor: pointer;
+}
+
+.message-batch-trash:hover {
+  background: rgba(185, 28, 28, 0.1);
+}
+
+.message-batch-trash:focus-visible {
+  outline: 2px solid var(--admin-destructive);
+  outline-offset: 2px;
+}
+
+/* Inbox selection mode (phone mail style): "x  N ... trash" replaces the
+   title, then a "Tout selectionner" row aligned with the row checkboxes. */
+.message-select-mode {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.message-select-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+}
+
+.message-select-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--admin-text);
+  cursor: pointer;
+}
+
+.message-select-icon:hover {
+  background: var(--admin-hover);
+}
+
+.message-select-icon:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.message-select-count {
+  margin-right: auto;
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.message-select-head .message-batch-trash {
+  color: var(--admin-destructive);
+}
+
+.message-select-head .message-batch-trash:hover {
+  background: rgba(185, 28, 28, 0.1);
+}
+
+.message-select-question {
+  margin-right: auto;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.dashboard .message-select-head .button {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 40px;
+  padding: 0 14px;
+}
+
+/* Same 44px column as the row checkboxes, so every box lines up. */
+.dashboard .message-select-mode .message-select-all {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-height: 48px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.message-select-box {
+  display: grid;
+  flex-shrink: 0;
+  width: 44px;
+  place-items: center;
+}

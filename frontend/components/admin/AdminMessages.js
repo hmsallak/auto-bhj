@@ -84,12 +84,18 @@ export default function AdminMessages({
   onDelete,
   onSchedule,
   onUpdateAppointment,
+  onDeleteMany,
   requestedOpenId = null,
   canDelete = true,
 }) {
   const carsByReference = new Map(cars.map((car) => [car.reference, car]));
   const [openId, setOpenId] = useState(null);
   const [planning, setPlanning] = useState(false);
+  // Batch delete: ids ticked in the inbox list.
+  const [selected, setSelected] = useState(() => new Set());
+  const [confirmingBatch, setConfirmingBatch] = useState(false);
+  const [batchBusy, setBatchBusy] = useState(false);
+  const [batchError, setBatchError] = useState("");
   const [editingAppointment, setEditingAppointment] = useState(null);
   const headingRef = useRef(null);
   const handledRequestRef = useRef(null);
@@ -223,21 +229,142 @@ export default function AdminMessages({
   }
 
   const unread = messages.filter((msg) => !msg.isRead).length;
+  const canSelect = canDelete && Boolean(onDeleteMany);
+  // Ignore ids of messages that are gone (deleted elsewhere, reloaded).
+  const selectedIds = messages.filter((msg) => selected.has(msg.id)).map((msg) => msg.id);
+  const allSelected = messages.length > 0 && selectedIds.length === messages.length;
+
+  function toggleSelected(id) {
+    setConfirmingBatch(false);
+    setSelected((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setConfirmingBatch(false);
+    setSelected(allSelected ? new Set() : new Set(messages.map((msg) => msg.id)));
+  }
+
+  async function deleteSelected() {
+    setBatchBusy(true);
+    setBatchError("");
+    try {
+      await onDeleteMany(selectedIds);
+      setSelected(new Set());
+      setConfirmingBatch(false);
+    } catch (error) {
+      setBatchError(error.message);
+    } finally {
+      setBatchBusy(false);
+    }
+  }
 
   return (
     <div className="panel dash-panel">
-      <div className="dash-panel-head">
-        <h2>
-          Messages recus ({messages.length}){unread > 0 && <span className="message-unread-count"> - {unread} non lu{unread > 1 ? "s" : ""}</span>}
-        </h2>
-      </div>
+      {/* Selection mode (like a phone mail app): the title row becomes
+          "x  N ... trash", then a "Tout selectionner" row under it. */}
+      {canSelect && selectedIds.length > 0 ? (
+        <div className="message-select-mode" role="region" aria-label="Selection">
+          <div className="message-select-head">
+            {confirmingBatch ? (
+              <>
+                <span className="message-select-question">
+                  Supprimer {selectedIds.length} message{selectedIds.length > 1 ? "s" : ""} ?
+                </span>
+                <button className="button neutral small" type="button" onClick={() => setConfirmingBatch(false)} disabled={batchBusy}>
+                  Non
+                </button>
+                <button className="button small set-danger" type="button" onClick={deleteSelected} disabled={batchBusy}>
+                  {batchBusy ? "..." : "Oui, supprimer"}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  className="message-select-icon"
+                  type="button"
+                  aria-label="Quitter la selection"
+                  onClick={() => {
+                    setSelected(new Set());
+                    setConfirmingBatch(false);
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </button>
+                <strong className="message-select-count" aria-live="polite">
+                  {selectedIds.length}
+                  <span className="visually-hidden"> selectionne{selectedIds.length > 1 ? "s" : ""}</span>
+                </strong>
+                <button
+                  className="message-select-icon message-batch-trash"
+                  type="button"
+                  aria-label={`Supprimer ${selectedIds.length} message${selectedIds.length > 1 ? "s" : ""}`}
+                  title="Supprimer la selection"
+                  onClick={() => setConfirmingBatch(true)}
+                >
+                  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <path
+                      d="M4 7h16M9 7V4.8A.8.8 0 0 1 9.8 4h4.4a.8.8 0 0 1 .8.8V7m-8.5 0 .8 12.2A1.9 1.9 0 0 0 9.4 21h5.2a1.9 1.9 0 0 0 1.9-1.8L17.3 7M10 11v6m4-6v6"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </>
+            )}
+          </div>
+          <label className="message-select-all">
+            <span className="message-select-box">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                ref={(input) => {
+                  if (input) input.indeterminate = !allSelected && selectedIds.length > 0;
+                }}
+                onChange={toggleAll}
+              />
+            </span>
+            {allSelected ? "Tout deselectionner" : "Tout selectionner"}
+          </label>
+          {batchError && (
+            <p className="set-form-message is-error" role="alert">
+              {batchError}
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="dash-panel-head">
+          <h2>
+            Messages recus ({messages.length}){unread > 0 && <span className="message-unread-count"> - {unread} non lu{unread > 1 ? "s" : ""}</span>}
+          </h2>
+        </div>
+      )}
 
       {messages.length ? (
         <ul className="message-inbox">
           {messages.map((msg) => {
             const car = carsByReference.get(msg.carReference);
             return (
-              <li key={msg.id}>
+              <li key={msg.id} className={`message-inbox-row ${selected.has(msg.id) ? "is-selected" : ""}`}>
+                {canSelect && (
+                  <label className="message-select">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(msg.id)}
+                      onChange={() => toggleSelected(msg.id)}
+                    />
+                    <span className="visually-hidden">Selectionner le message de {msg.name}</span>
+                  </label>
+                )}
                 <button
                   className={`message-preview ${msg.isRead ? "" : "unread"}`}
                   type="button"

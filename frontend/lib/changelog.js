@@ -4,6 +4,26 @@
 
 export const CHANGELOG = [
   {
+    version: "1.5.1",
+    date: "2026-09-25",
+    title: "Securite et messages",
+    highlights: [
+      "Securite renforcee (mise a jour du moteur du site)",
+      "Messages : selection et suppression par lot",
+      "Menu simplifie : seuls les messages non lus sont signales",
+    ],
+    changes: [
+      "Mise a jour de Next.js (16.3.6) et sharp (0.35.4) : failles critiques corrigees",
+      "Changer ou reinitialiser le mot de passe deconnecte les autres appareils",
+      "Changer l'e-mail de connexion demande le mot de passe ; une adresse ne peut servir qu'a un compte",
+      "Suppression d'un utilisateur : ses sessions et appareils de notification sont effaces",
+      "Notifications : seuls les services officiels (Google, Mozilla, Apple, Microsoft) sont acceptes",
+      "Site public : dates internes des voitures retirees",
+      "Messages : selection multiple, tout selectionner, suppression par lot",
+      "Menu : compteur rouge des messages non lus uniquement",
+    ],
+  },
+  {
     version: "1.5.0",
     date: "2026-09-25",
     title: "Onglet Parametres",

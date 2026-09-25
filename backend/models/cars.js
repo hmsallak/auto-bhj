@@ -339,7 +339,17 @@ function deleteCar(id, actor) {
   return info.changes > 0;
 }
 
+// What the public site may see of a car: internal timestamps (sale date,
+// last edit, exact listing time) stay in the admin. The listing day is kept
+// for the "most recent" sort.
+function toPublicCar(car) {
+  if (!car) return null;
+  const { soldAt, updatedAt, createdAt, ...rest } = car;
+  return { ...rest, createdAt: createdAt ? createdAt.slice(0, 10) : null };
+}
+
 module.exports = {
+  toPublicCar,
   listCars,
   searchCars,
   getCarByReference,

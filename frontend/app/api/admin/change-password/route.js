@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { findByUsername, updatePassword } from "../../../../../backend/models/adminUsers";
 import { verifyPassword } from "../../../../../backend/auth/passwords";
-import { requireSession } from "../../../../lib/adminAuth";
+import { requireSession, getCurrentUser } from "../../../../lib/adminAuth";
+import { destroyUserSessions } from "../../../../../backend/auth/sessions";
 import { apiRoute } from "../../../../lib/apiRoute";
 
 export const POST = apiRoute(async function handleChangePassword(request) {
   const session = await requireSession();
-  if (!session) {
+  // A session left over from a now inactive (rejected/pending) account
+  // must not be usable to change anything.
+  if (!session || !(await getCurrentUser())) {
     return NextResponse.json({ error: "Connexion requise." }, { status: 401 });
   }
 
@@ -27,5 +30,7 @@ export const POST = apiRoute(async function handleChangePassword(request) {
   }
 
   updatePassword(session.username, newPassword);
+  // Everyone else logged into this account is signed out; this device stays.
+  destroyUserSessions(session.username, session.id);
   return NextResponse.json({ ok: true });
 });

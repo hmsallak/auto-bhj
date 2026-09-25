@@ -90,6 +90,14 @@ function updateEmail(username, email) {
     return { error: "Adresse e-mail invalide." };
   }
 
+  // The e-mail is a login identifier: two accounts must never share it.
+  if (clean) {
+    const taken = getDb()
+      .prepare("SELECT 1 FROM admin_users WHERE lower(email) = ? AND username != ?")
+      .get(clean, cleanText(username));
+    if (taken) return { error: "Cette adresse est deja utilisee par un autre compte." };
+  }
+
   getDb()
     .prepare("UPDATE admin_users SET email = ? WHERE username = ?")
     .run(clean || null, cleanText(username));
@@ -172,7 +180,10 @@ function rejectUser(id, actor) {
   if (!target) return { error: "Utilisateur introuvable." };
   if (target.role === "owner") return { error: "Impossible de refuser le proprietaire." };
 
-  getDb().prepare("DELETE FROM admin_users WHERE id = ?").run(id);
+  const db = getDb();
+  db.prepare("DELETE FROM admin_users WHERE id = ?").run(id);
+  db.prepare("DELETE FROM sessions WHERE username = ?").run(target.username);
+  db.prepare("DELETE FROM push_subscriptions WHERE username = ?").run(target.username);
   activityLog.log(actor, "user_rejected", target.email || target.username);
 
   return { ok: true };
@@ -278,7 +289,12 @@ function deleteUser(id, actor) {
   if (!target) return { error: "Utilisateur introuvable." };
   if (target.role === "owner") return { error: "Impossible de supprimer le proprietaire." };
 
-  getDb().prepare("DELETE FROM admin_users WHERE id = ?").run(id);
+  const db = getDb();
+  db.prepare("DELETE FROM admin_users WHERE id = ?").run(id);
+  // Nothing of the account may outlive it: a later account reusing the same
+  // username must not inherit old sessions or notification devices.
+  db.prepare("DELETE FROM sessions WHERE username = ?").run(target.username);
+  db.prepare("DELETE FROM push_subscriptions WHERE username = ?").run(target.username);
   activityLog.log(actor, "user_deleted", target.username);
 
   return { ok: true };

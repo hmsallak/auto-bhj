@@ -16,7 +16,6 @@ import AdminCarForm from "../../components/AdminCarForm";
 import { MenuIcon } from "../../components/home/icons";
 import { statusLabel } from "../../lib/format";
 import { STOCK_FILTER_ALL } from "../../lib/stock";
-import { isPastAppointment } from "../../lib/appointments";
 import { APPOINTMENT_VIEW_PERMISSIONS } from "../../components/admin/userPermissions";
 
 const TAB_TITLES = {
@@ -98,7 +97,7 @@ export default function AdminPage() {
   }, [carMessage, carMessageError]);
 
   async function loadCars() {
-    setCars(await api("/api/cars"));
+    setCars(await api("/api/admin/cars"));
   }
 
   async function loadMessages() {
@@ -305,11 +304,11 @@ export default function AdminPage() {
     });
   }
 
-  async function handleUpdateEmail(email) {
+  async function handleUpdateEmail(email, currentPassword) {
     const result = await api("/api/admin/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, currentPassword }),
     });
     setUser((current) => (current ? { ...current, email: result.email } : current));
   }
@@ -400,6 +399,16 @@ export default function AdminPage() {
     await loadMessages();
   }
 
+  // Batch delete from the inbox (confirmed in the list itself).
+  async function handleDeleteMessages(ids) {
+    const results = await Promise.allSettled(
+      ids.map((id) => api(`/api/admin/messages/${id}`, { method: "DELETE" }))
+    );
+    await loadMessages();
+    const failed = results.filter((result) => result.status === "rejected").length;
+    if (failed) throw new Error(`${failed} message${failed > 1 ? "s" : ""} n'ont pas pu etre supprime${failed > 1 ? "s" : ""}.`);
+  }
+
   async function handleSaveUser(payload) {
     if (editingUser) {
       await api(`/api/admin/users/${editingUser.id}`, {
@@ -459,8 +468,6 @@ export default function AdminPage() {
   }
 
   const unreadCount = messages.filter((msg) => !msg.isRead).length;
-  const upcomingCount = appointments.filter((item) => !isPastAppointment(item.startsAt)).length;
-  const pendingUserCount = users.filter((u) => u.status === "pending_approval").length;
 
   return (
     <div className="dashboard">
@@ -471,10 +478,7 @@ export default function AdminPage() {
         onClose={() => setMobileMenuOpen(false)}
         onLogout={handleLogout}
         user={user}
-        stockCount={cars.length}
         unreadCount={unreadCount}
-        upcomingCount={upcomingCount}
-        pendingUserCount={pendingUserCount}
       />
       <button
         className={`dash-mobile-backdrop ${mobileMenuOpen ? "open" : ""}`}
@@ -572,6 +576,7 @@ export default function AdminPage() {
               requestedOpenId={messageToOpen}
               onToggleRead={handleToggleMessageRead}
               onDelete={handleDeleteMessage}
+              onDeleteMany={handleDeleteMessages}
               canDelete={hasPermission(user, "messages_delete")}
             />
           )}

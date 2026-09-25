@@ -22,10 +22,28 @@ function publicKey() {
   return isPushConfigured() ? process.env.VAPID_PUBLIC_KEY : null;
 }
 
+// Push goes to the browser vendor's service only. Accepting any https URL
+// would let an account make this server POST to a host of its choosing.
+const PUSH_HOSTS = [
+  /^fcm\.googleapis\.com$/, // Chrome, Samsung Internet, Edge (Android)
+  /^updates\.push\.services\.mozilla\.com$/, // Firefox
+  /^web\.push\.apple\.com$/, // Safari / iPhone
+  /\.notify\.windows\.com$/, // Edge (Windows)
+];
+
+function isPushServiceUrl(endpoint) {
+  try {
+    const url = new URL(endpoint);
+    return url.protocol === "https:" && PUSH_HOSTS.some((host) => host.test(url.hostname));
+  } catch {
+    return false;
+  }
+}
+
 function saveSubscription(username, subscription, userAgent) {
   const endpoint = String(subscription?.endpoint || "");
   const { p256dh, auth } = subscription?.keys || {};
-  if (!/^https:\/\//.test(endpoint) || !p256dh || !auth) return { error: "Abonnement invalide." };
+  if (!isPushServiceUrl(endpoint) || !p256dh || !auth) return { error: "Abonnement invalide." };
 
   // Same device re-subscribing (or another admin on it) just takes the row over.
   getDb()

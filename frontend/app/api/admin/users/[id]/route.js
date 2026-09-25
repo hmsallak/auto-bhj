@@ -8,10 +8,8 @@ import {
 import { sendMail, renderEmail } from "../../../../../../backend/mail";
 import { requireOwner, authError } from "../../../../../lib/adminAuth";
 import { apiRoute } from "../../../../../lib/apiRoute";
+import { resolveBaseUrl } from "../../../../../lib/appUrl";
 
-function baseUrl(request) {
-  return (process.env.APP_URL || new URL(request.url).origin).replace(/\/$/, "");
-}
 
 export const PATCH = apiRoute(async function handleUpdate(request, { params }) {
   const user = await requireOwner();
@@ -31,7 +29,7 @@ export const PATCH = apiRoute(async function handleUpdate(request, { params }) {
     }
 
     if (result.user?.email) {
-      const base = baseUrl(request);
+      const base = await resolveBaseUrl(request);
       try {
         await sendMail({
           to: result.user.email,

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getCarByReference } from "../../../../../backend/models/cars";
+import { getCarByReference, toPublicCar } from "../../../../../backend/models/cars";
 import { formatKm, carPriceLabel } from "../../../../lib/format";
 import CarDetail from "../../../../components/site/CarDetail";
 
@@ -147,7 +147,7 @@ export default async function CarDetailPage({ params }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      <CarDetail car={car} />
+      <CarDetail car={toPublicCar(car)} />
     </>
   );
 }

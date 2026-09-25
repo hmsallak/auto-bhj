@@ -48,6 +48,12 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
     setMessage("");
 
     const wantsPasswordChange = Boolean(newPassword || confirmPassword);
+    const wantsEmailChange = email !== (user?.email || "");
+
+    if (wantsEmailChange && !currentPassword) {
+      setMessage("Saisis ton mot de passe actuel pour changer l'e-mail.");
+      return;
+    }
 
     if (wantsPasswordChange && newPassword !== confirmPassword) {
       setMessage("Les deux mots de passe ne correspondent pas.");
@@ -61,8 +67,8 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
     setSubmitting(true);
     try {
       const changed = [];
-      if (email !== (user?.email || "")) {
-        await onUpdateEmail(email);
+      if (wantsEmailChange) {
+        await onUpdateEmail(email, currentPassword);
         changed.push("E-mail");
       }
       if (wantsPasswordChange) {
@@ -149,7 +155,7 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
 
         <section className="profile-section" aria-labelledby="profile-password-title">
           <h3 id="profile-password-title">Changer le mot de passe</h3>
-          <p>Laisse ces champs vides pour ne pas le modifier.</p>
+          <p>Le mot de passe actuel est demande pour changer l&apos;e-mail ou le mot de passe.</p>
           <div className="profile-password-fields">
             <label>
               Mot de passe actuel

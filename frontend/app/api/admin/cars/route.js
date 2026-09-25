@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
-import { createCar } from "../../../../../backend/models/cars";
-import { requirePermission, authError } from "../../../../lib/adminAuth";
+import { createCar, listCars } from "../../../../../backend/models/cars";
+import { requirePermission, getCurrentUser, authError } from "../../../../lib/adminAuth";
 import { readCarPayload } from "../../../../lib/carPayload";
 import { apiRoute } from "../../../../lib/apiRoute";
+
+// Full car records (sale date, edit times) for the admin only.
+export const GET = apiRoute(async function handleList() {
+  if (!(await getCurrentUser())) {
+    const { status, error } = await authError();
+    return NextResponse.json({ error }, { status });
+  }
+  return NextResponse.json(listCars());
+});
 
 export const POST = apiRoute(async function handleCreate(request) {
   const user = await requirePermission("stock_create");

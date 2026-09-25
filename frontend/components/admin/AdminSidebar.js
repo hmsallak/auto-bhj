@@ -9,7 +9,7 @@ import { OverviewIcon, StockIcon, MessagesIcon, CalendarIcon, AppIcon, UsersIcon
 export const TABS = [
   { id: "overview", label: "Tableau de bord", Icon: OverviewIcon },
   { id: "stock", label: "Vehicules", Icon: StockIcon, permission: "stock_read" },
-  { id: "messages", label: "Demandes", Icon: MessagesIcon, permission: "messages_read" },
+  { id: "messages", label: "Messages", Icon: MessagesIcon, permission: "messages_read" },
   { id: "appointments", label: "Mes rendez-vous", Icon: CalendarIcon, permission: APPOINTMENT_VIEW_PERMISSIONS },
   { id: "app", label: "Parametres", Icon: AppIcon },
   { id: "users", label: "Utilisateurs", Icon: UsersIcon, ownerOnly: true },
@@ -30,10 +30,7 @@ export default function AdminSidebar({
   onLogout,
   isOpen = false,
   user,
-  stockCount,
   unreadCount,
-  upcomingCount = 0,
-  pendingUserCount = 0,
 }) {
   const visibleTabs = TABS.filter((tab) => canSeeTab(tab, user));
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
@@ -70,17 +67,17 @@ export default function AdminSidebar({
             onClick={() => onSelect(id)}
           >
             <Icon />
-            <span>{label}</span>
-            {id === "stock" && <span className="dash-nav-badge">{stockCount}</span>}
-            {id === "messages" && unreadCount > 0 && (
-              <span className="dash-nav-badge unread">{unreadCount}</span>
-            )}
-            {id === "appointments" && upcomingCount > 0 && (
-              <span className="dash-nav-badge">{upcomingCount}</span>
-            )}
-            {id === "users" && pendingUserCount > 0 && (
-              <span className="dash-nav-badge unread">{pendingUserCount}</span>
-            )}
+            <span>
+              {label}
+              {/* Only one alert in the menu: unread messages, as a small red
+                  "(n)" right after the word (inside the label, so it never
+                  gets stretched like a separate flex item). */}
+              {id === "messages" && unreadCount > 0 && (
+                <span className="dash-nav-dot" aria-label={`${unreadCount} message${unreadCount > 1 ? "s" : ""} non lu${unreadCount > 1 ? "s" : ""}`}>
+                  {" "}({unreadCount > 9 ? "9+" : unreadCount})
+                </span>
+              )}
+            </span>
           </button>
         ))}
       </nav>

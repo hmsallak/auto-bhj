@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { findByLogin, ensureSeedAdmin } from "../../../../../backend/models/adminUsers";
-import { verifyPassword } from "../../../../../backend/auth/passwords";
+import { verifyPassword, hashPassword } from "../../../../../backend/auth/passwords";
 import { createSessionToken, SESSION_TTL_MS } from "../../../../../backend/auth/sessions";
 import { isRateLimited, recordFailedLogin, clearFailedLogins } from "../../../../../backend/auth/rateLimit";
 import { getClientIp, SESSION_COOKIE_NAME } from "../../../../lib/adminAuth";
 import { apiRoute } from "../../../../lib/apiRoute";
+
+// Checked against when the identifier matches no account, so a wrong
+// e-mail takes as long as a wrong password (no account discovery by timing).
+const DUMMY_HASH = hashPassword("autobhj-no-such-account");
 
 export const POST = apiRoute(async function handleLogin(request) {
   ensureSeedAdmin(process.env.ADMIN_USER || "admin", process.env.ADMIN_PASSWORD || "change-moi");
@@ -19,7 +23,7 @@ export const POST = apiRoute(async function handleLogin(request) {
   const password = String(payload.password || "");
 
   const admin = findByLogin(identifier);
-  const validPassword = admin ? verifyPassword(password, admin.password_hash) : false;
+  const validPassword = verifyPassword(password, admin ? admin.password_hash : DUMMY_HASH) && Boolean(admin);
 
   if (!admin || !validPassword) {
     recordFailedLogin(ip);

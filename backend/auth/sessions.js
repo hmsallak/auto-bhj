@@ -29,7 +29,10 @@ function verifySessionToken(token) {
   if (!token) return null;
 
   const [id, signature] = String(token).split(".");
-  if (!id || !signature || sign(id) !== signature) return null;
+  if (!id || !signature) return null;
+  const expected = Buffer.from(sign(id));
+  const given = Buffer.from(signature);
+  if (expected.length !== given.length || !crypto.timingSafeEqual(expected, given)) return null;
 
   const db = getDb();
   const session = db.prepare("SELECT * FROM sessions WHERE id = ?").get(id);
@@ -54,8 +57,21 @@ function destroySessionToken(token) {
   getDb().prepare("DELETE FROM sessions WHERE id = ?").run(id);
 }
 
+// Ends every session of an account, except `keepId` (the one making the
+// change). Used when the password changes (a stolen session must not
+// survive it) and when the account is deleted or rejected.
+function destroyUserSessions(username, keepId = null) {
+  const db = getDb();
+  if (keepId) {
+    db.prepare("DELETE FROM sessions WHERE username = ? AND id != ?").run(username, keepId);
+  } else {
+    db.prepare("DELETE FROM sessions WHERE username = ?").run(username);
+  }
+}
+
 module.exports = {
   SESSION_TTL_MS,
+  destroyUserSessions,
   SESSION_IDLE_TTL_MS,
   createSessionToken,
   verifySessionToken,

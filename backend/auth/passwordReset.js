@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const { getDb } = require("../db/connection");
 const { updatePassword } = require("../models/adminUsers");
+const { destroyUserSessions } = require("./sessions");
 
 const TOKEN_TTL_MS = 1000 * 60 * 30; // 30 minutes
 const REQUEST_WINDOW_MS = 1000 * 60 * 60; // 1 hour
@@ -72,6 +73,8 @@ function resetPasswordWithToken(token, newPassword) {
   }
 
   updatePassword(row.username, newPassword);
+  // A reset usually means "someone may be in my account": sign out everywhere.
+  destroyUserSessions(row.username);
 
   // Burn this token and any other outstanding one for the same account.
   db.prepare(
