@@ -26,20 +26,8 @@ const TAB_TITLES = {
   appointments: "Mes rendez-vous",
   app: "Parametres",
   users: "Utilisateurs",
-  userForm: "Creer / Modifier un utilisateur",
+  userForm: "Nouvel utilisateur",
   profile: "Parametres du compte",
-};
-
-const TAB_SUBTITLES = {
-  overview: "Bienvenue sur votre espace de gestion.",
-  stock: "Suivez, filtrez et mettez a jour les vehicules publies.",
-  form: "Renseignez les informations de l'annonce sans perdre le fil.",
-  messages: "Centralisez les demandes recues depuis le site.",
-  appointments: "Les rendez-vous planifies avec vos clients.",
-  app: "Vos notifications et les mises a jour de l'application.",
-  users: "Les comptes qui ont acces a l'administration.",
-  userForm: "Configurez les informations et les droits de l'utilisateur.",
-  profile: "Consultez votre compte et gerez votre session.",
 };
 
 function hasPermission(user, permission) {
@@ -137,6 +125,7 @@ export default function AdminPage() {
 
   async function loadForRole(currentUser) {
     const isOwner = currentUser?.role === "owner";
+    const isAdmin = Boolean(currentUser?.isAdmin);
     const tasks = [loadCars()];
     if (isOwner || currentUser?.permissions?.includes("messages_read")) {
       tasks.push(loadMessages());
@@ -144,8 +133,9 @@ export default function AdminPage() {
     if (canViewAppointments(currentUser)) {
       tasks.push(loadAppointments());
     }
-    if (isOwner) {
-      tasks.push(loadUsers(), loadActivity());
+    if (isAdmin) {
+      tasks.push(loadUsers());
+      if (isOwner) tasks.push(loadActivity());
     }
     await Promise.all(tasks);
   }
@@ -160,7 +150,9 @@ export default function AdminPage() {
               firstName: session.firstName,
               lastName: session.lastName,
               email: session.email,
+              pendingEmail: session.pendingEmail,
               role: session.role,
+              isAdmin: session.isAdmin,
               permissions: session.permissions,
             }
           : null;
@@ -220,7 +212,9 @@ export default function AdminPage() {
         firstName: session.firstName,
         lastName: session.lastName,
         email: session.email,
+        pendingEmail: session.pendingEmail,
         role: session.role,
+        isAdmin: session.isAdmin,
         permissions: session.permissions,
       };
       setAuthenticated(true);
@@ -310,7 +304,8 @@ export default function AdminPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, currentPassword }),
     });
-    setUser((current) => (current ? { ...current, email: result.email } : current));
+    setUser((current) => (current ? { ...current, pendingEmail: result.pendingEmail } : current));
+    return result;
   }
 
   async function loadSiteSettings() {
@@ -424,7 +419,8 @@ export default function AdminPage() {
       });
     }
 
-    await Promise.all([loadUsers(), loadActivity()]);
+    await loadUsers();
+    if (user?.role === "owner") await loadActivity();
     setEditingUser(null);
     setActiveTab("users");
   }
@@ -435,7 +431,8 @@ export default function AdminPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ permissions }),
     });
-    await Promise.all([loadUsers(), loadActivity()]);
+    await loadUsers();
+    if (user?.role === "owner") await loadActivity();
   }
 
   async function handleApproveUser(id, permissions) {
@@ -444,7 +441,8 @@ export default function AdminPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ approve: true, permissions }),
     });
-    await Promise.all([loadUsers(), loadActivity()]);
+    await loadUsers();
+    if (user?.role === "owner") await loadActivity();
   }
 
   async function handleRejectUser(id) {
@@ -453,12 +451,14 @@ export default function AdminPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ reject: true }),
     });
-    await Promise.all([loadUsers(), loadActivity()]);
+    await loadUsers();
+    if (user?.role === "owner") await loadActivity();
   }
 
   async function handleDeleteUser(id) {
     await api(`/api/admin/users/${id}`, { method: "DELETE" });
-    await Promise.all([loadUsers(), loadActivity()]);
+    await loadUsers();
+    if (user?.role === "owner") await loadActivity();
   }
 
   if (checking) return null;
@@ -468,6 +468,7 @@ export default function AdminPage() {
   }
 
   const unreadCount = messages.filter((msg) => !msg.isRead).length;
+  const topbarTitle = activeTab === "userForm" && editingUser ? "Modifier l'utilisateur" : TAB_TITLES[activeTab];
 
   return (
     <div className="dashboard">
@@ -500,8 +501,7 @@ export default function AdminPage() {
               <MenuIcon width="22" height="22" aria-hidden="true" />
             </button>
             <div>
-              <h1>{TAB_TITLES[activeTab]}</h1>
-              <p>{TAB_SUBTITLES[activeTab]}</p>
+              <h1>{topbarTitle}</h1>
             </div>
           </div>
           <div className="dash-topbar-actions" />
@@ -611,6 +611,7 @@ export default function AdminPage() {
             <AdminUsers
               users={users}
               activity={activity}
+              canManageAdmins={user?.role === "owner"}
               onClearJournal={handleClearJournal}
               onUpdatePermissions={handleUpdatePermissions}
               onApproveUser={handleApproveUser}
@@ -630,6 +631,7 @@ export default function AdminPage() {
           {activeTab === "userForm" && user?.role === "owner" && (
             <AdminUserForm
               editingUser={editingUser}
+              canManageAdmins={user?.role === "owner"}
               onSubmit={handleSaveUser}
               onCancel={() => {
                 setEditingUser(null);

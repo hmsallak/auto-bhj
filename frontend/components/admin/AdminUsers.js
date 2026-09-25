@@ -58,6 +58,7 @@ function initials(user) {
 
 function accessSummary(user) {
   if (user.role === "owner") return "Proprietaire - acces complet";
+  if (user.isAdmin) return "Administrateur";
   const count = USER_PERMISSIONS.filter((permission) => user.permissions?.includes(permission.key)).length;
   if (count === USER_PERMISSIONS.length) return "Membre - acces complet";
   return `Membre - ${count} droit${count > 1 ? "s" : ""} sur ${USER_PERMISSIONS.length}`;
@@ -90,7 +91,7 @@ function PermissionList({ user }) {
   );
 }
 
-function UserDetails({ user, onEdit, onDelete }) {
+function UserDetails({ user, onEdit, onDelete, canManageAdmins }) {
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -116,7 +117,7 @@ function UserDetails({ user, onEdit, onDelete }) {
         </div>
         <div>
           <dt>Role</dt>
-          <dd>{owner ? "Proprietaire" : "Membre"}</dd>
+          <dd>{owner ? "Proprietaire" : user.isAdmin ? "Administrateur" : "Membre"}</dd>
         </div>
       </dl>
       <PermissionList user={user} />
@@ -125,7 +126,7 @@ function UserDetails({ user, onEdit, onDelete }) {
           {error}
         </p>
       )}
-      {!owner && (
+      {!owner && (canManageAdmins || !user.isAdmin) && (
         <div className="set-form-actions">
           {confirming ? (
             <>
@@ -227,6 +228,7 @@ export default function AdminUsers({
   onCreateClick,
   onEditUser,
   onClearJournal,
+  canManageAdmins = false,
 }) {
   const [query, setQuery] = useState("");
   const [openRow, setOpenRow] = useState(null);
@@ -313,7 +315,7 @@ export default function AdminUsers({
                   title={displayName(user)}
                   value={accessSummary(user)}
                 >
-                  <UserDetails user={user} onEdit={onEditUser} onDelete={onDeleteUser} />
+                  <UserDetails user={user} onEdit={onEditUser} onDelete={onDeleteUser} canManageAdmins={canManageAdmins} />
                 </SettingRow>
               ))}
             </ul>

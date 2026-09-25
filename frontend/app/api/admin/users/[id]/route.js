@@ -6,13 +6,13 @@ import {
   deleteUser,
 } from "../../../../../../backend/models/adminUsers";
 import { sendMail, renderEmail } from "../../../../../../backend/mail";
-import { requireOwner, authError } from "../../../../../lib/adminAuth";
+import { requireAdmin, authError } from "../../../../../lib/adminAuth";
 import { apiRoute } from "../../../../../lib/apiRoute";
 import { resolveBaseUrl } from "../../../../../lib/appUrl";
 
 
 export const PATCH = apiRoute(async function handleUpdate(request, { params }) {
-  const user = await requireOwner();
+  const user = await requireAdmin();
   if (!user) {
     const { status, error } = await authError();
     return NextResponse.json({ error }, { status });
@@ -63,7 +63,7 @@ export const PATCH = apiRoute(async function handleUpdate(request, { params }) {
     return NextResponse.json({ ok: true });
   }
 
-  const result = updateUser(Number(id), payload, user.username);
+  const result = updateUser(Number(id), payload, user);
   if (result.error) {
     const status = result.error === "Utilisateur introuvable." ? 404 : 400;
     return NextResponse.json({ error: result.error }, { status });
@@ -73,14 +73,14 @@ export const PATCH = apiRoute(async function handleUpdate(request, { params }) {
 });
 
 export const DELETE = apiRoute(async function handleDelete(request, { params }) {
-  const user = await requireOwner();
+  const user = await requireAdmin();
   if (!user) {
     const { status, error } = await authError();
     return NextResponse.json({ error }, { status });
   }
 
   const { id } = await params;
-  const result = deleteUser(Number(id), user.username);
+  const result = deleteUser(Number(id), user);
   if (result.error) {
     const status = result.error === "Utilisateur introuvable." ? 404 : 400;
     return NextResponse.json({ error: result.error }, { status });

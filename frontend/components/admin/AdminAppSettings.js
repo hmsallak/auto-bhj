@@ -63,8 +63,8 @@ function PasswordForm({ onChangePassword, onClose }) {
         ailleurs.
       </p>
       <input name="currentPassword" type="password" autoComplete="current-password" placeholder="Mot de passe actuel" aria-label="Mot de passe actuel" required />
-      <input name="newPassword" type="password" autoComplete="new-password" placeholder="Nouveau mot de passe" aria-label="Nouveau mot de passe" required minLength={8} />
-      <input name="confirmPassword" type="password" autoComplete="new-password" placeholder="Confirmer le nouveau mot de passe" aria-label="Confirmer le nouveau mot de passe" required minLength={8} />
+      <input name="newPassword" type="password" autoComplete="new-password" placeholder="Nouveau mot de passe" aria-label="Nouveau mot de passe" required minLength={10} />
+      <input name="confirmPassword" type="password" autoComplete="new-password" placeholder="Confirmer le nouveau mot de passe" aria-label="Confirmer le nouveau mot de passe" required minLength={10} />
       <FormMessage message={message} />
       <div className="set-form-actions">
         <button className="button neutral small" type="button" onClick={onClose}>
@@ -78,7 +78,7 @@ function PasswordForm({ onChangePassword, onClose }) {
   );
 }
 
-function EmailForm({ currentEmail, onUpdateEmail, onClose }) {
+function EmailForm({ currentEmail, pendingEmail, onUpdateEmail, onClose }) {
   const [message, setMessage] = useState({ text: "", error: false });
   const [busy, setBusy] = useState(false);
 
@@ -89,8 +89,13 @@ function EmailForm({ currentEmail, onUpdateEmail, onClose }) {
     const currentPassword = String(data.get("currentPassword") || "");
     setBusy(true);
     try {
-      await onUpdateEmail(email, currentPassword);
-      setMessage({ text: "E-mail enregistre.", error: false });
+      const result = await onUpdateEmail(email, currentPassword);
+      setMessage({
+        text: result.pendingEmail
+          ? `Un lien de confirmation a ete envoye a ${result.pendingEmail}.`
+          : "Adresse e-mail retiree.",
+        error: false,
+      });
     } catch (error) {
       setMessage({ text: error.message, error: true });
     } finally {
@@ -101,7 +106,8 @@ function EmailForm({ currentEmail, onUpdateEmail, onClose }) {
   return (
     <form className="set-form" onSubmit={handleSubmit}>
       <p className="set-help">Sert a vous connecter et a recevoir le lien si vous oubliez votre mot de passe.</p>
-      <input name="email" type="email" autoComplete="email" placeholder="Adresse e-mail" aria-label="Adresse e-mail" defaultValue={currentEmail || ""} required />
+      {pendingEmail && <p className="set-help">Confirmation en attente pour : {pendingEmail}</p>}
+      <input name="email" type="email" autoComplete="email" placeholder="Nouvelle adresse e-mail" aria-label="Nouvelle adresse e-mail" defaultValue={currentEmail || ""} required />
       <input
         name="currentPassword"
         type="password"
@@ -123,11 +129,77 @@ function EmailForm({ currentEmail, onUpdateEmail, onClose }) {
   );
 }
 
+function AccountSecurity() {
+  const [details, setDetails] = useState(null);
+  const [message, setMessage] = useState({ text: "", error: false });
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/account-security", { credentials: "same-origin" })
+      .then(async (response) => {
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || "Impossible de charger vos appareils.");
+        setDetails(payload);
+      })
+      .catch((error) => setMessage({ text: error.message, error: true }));
+  }, []);
+
+  async function disconnectOthers(event) {
+    event.preventDefault();
+    const currentPassword = String(new FormData(event.currentTarget).get("currentPassword") || "");
+    setBusy(true);
+    setMessage({ text: "", error: false });
+    try {
+      const response = await fetch("/api/admin/account-security", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "Impossible de deconnecter les autres sessions.");
+      setDetails(payload);
+      event.currentTarget.reset();
+      setMessage({ text: "Les autres sessions ont ete deconnectees.", error: false });
+    } catch (error) {
+      setMessage({ text: error.message, error: true });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!details && !message.text) return <p className="set-help">Chargement des appareils...</p>;
+
+  const sessionCount = details?.sessions?.length || 0;
+  const deviceCount = details?.notificationDevices?.length || 0;
+  return (
+    <div className="set-security-devices">
+      <p className="set-help">
+        {sessionCount} session{sessionCount > 1 ? "s" : ""} active{sessionCount > 1 ? "s" : ""} et {deviceCount} appareil{deviceCount > 1 ? "s" : ""} autorise{deviceCount > 1 ? "s" : ""} pour les notifications.
+      </p>
+      {details?.sessions?.map((session, index) => (
+        <p className="set-device-line" key={`${session.createdAt}-${index}`}>
+          {session.current ? "Cet appareil" : "Autre session"} - actif le {new Intl.DateTimeFormat("fr-BE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.lastSeenAt))}
+        </p>
+      ))}
+      <form className="set-form" onSubmit={disconnectOthers}>
+        <label className="visually-hidden" htmlFor="disconnect-others-password">Mot de passe actuel</label>
+        <input id="disconnect-others-password" name="currentPassword" type="password" autoComplete="current-password" placeholder="Mot de passe actuel" required />
+        <div className="set-form-actions">
+          <button className="button neutral small" type="submit" disabled={busy || sessionCount < 2}>
+            {busy ? "..." : "Deconnecter les autres sessions"}
+          </button>
+        </div>
+      </form>
+      <FormMessage message={message} />
+    </div>
+  );
+}
+
 const TABS = [
-  { id: "general", label: "General", ownerOnly: true },
+  { id: "general", label: "Site", ownerOnly: true },
   { id: "notifications", label: "Notifications" },
-  { id: "security", label: "Securite" },
-  { id: "about", label: "A propos" },
+  { id: "activity", label: "Activite" },
 ];
 
 // Version history (owner only): one line per release, details folded.
@@ -226,38 +298,10 @@ export default function AdminAppSettings({ user, onChangePassword, onUpdateEmail
         </ul>
       )}
 
-      {tab === "about" && (
-        <div className="set-about" role="tabpanel" aria-label="A propos">
-          <div className="set-about-head">
-            <img src="/admin-icon-192.png" alt="" width={56} height={56} />
-            <div>
-              <strong>BHJ Admin</strong>
-              <span>
-                Version {CURRENT_VERSION.version} - mise a jour le {formatDate(CURRENT_VERSION.date)}
-              </span>
-            </div>
-          </div>
-
-          <h3>Nouveautes</h3>
-          <ul className="set-about-news">
-            {(CURRENT_VERSION.highlights || CURRENT_VERSION.changes.slice(0, 3)).map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-
-          {isOwner && (
-            <ul className="set-list">
-              <SettingRow {...rowProps("history")} icon="version" title="Historique des versions" value={`${CHANGELOG.length} versions`}>
-                <VersionHistory />
-              </SettingRow>
-            </ul>
-          )}
-        </div>
-      )}
-
       {tab === "notifications" && (
         <ul className="set-list" role="tabpanel" aria-label="Notifications">
-          <SettingRow {...rowProps("device")} icon="device" title="Cet appareil" value={deviceOn ? "Active" : push.statusText}>
+          <li className="set-group-title">Sur cet appareil</li>
+          <SettingRow {...rowProps("device")} icon="device" title="Notifications sur cet appareil" value={deviceOn ? "Activees" : push.statusText}>
             <p className="set-help">
               Recevoir les notifications de l'admin sur ce telephone ou cet ordinateur. Desactive, aucune notification
               n'arrive ici, quels que soient les choix ci-dessous.
@@ -292,6 +336,7 @@ export default function AdminAppSettings({ user, onChangePassword, onUpdateEmail
             )}
           </SettingRow>
 
+          <li className="set-group-title">Pour mon compte</li>
           {prefs?.map((item) => {
             // Device off: every type shows off and locked; the saved choices
             // come back as they were once the device is on again.
@@ -327,14 +372,19 @@ export default function AdminAppSettings({ user, onChangePassword, onUpdateEmail
         </ul>
       )}
 
-      {tab === "security" && (
-        <ul className="set-list" role="tabpanel" aria-label="Securite">
-          <SettingRow {...rowProps("password")} icon="password" title="Modifier le mot de passe">
-            <PasswordForm onChangePassword={onChangePassword} onClose={closeRow} />
-          </SettingRow>
-          <SettingRow {...rowProps("email")} icon="email" title="E-mail de connexion" value={user?.email || "Aucun"}>
-            <EmailForm currentEmail={user?.email} onUpdateEmail={onUpdateEmail} onClose={closeRow} />
-          </SettingRow>
+      {tab === "activity" && (
+        <ul className="set-list" role="tabpanel" aria-label="Activite">
+          {user?.isAdmin && (
+            <SettingRow {...rowProps("sessions")} icon="sessions" title="Sessions et appareils">
+              <AccountSecurity />
+            </SettingRow>
+          )}
+          {isOwner && (
+            <SettingRow {...rowProps("history")} icon="version" title="Historique des mises a jour" value={`${CHANGELOG.length} versions`}>
+              <VersionHistory />
+            </SettingRow>
+          )}
+          {!user?.isAdmin && !isOwner && <li className="empty">Aucune activite disponible.</li>}
         </ul>
       )}
     </div>

@@ -13,6 +13,7 @@ const ICON_PATHS = {
   access: "M15 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm9-2v6m3-3h-6",
   password: "M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3",
   email: "M4 6h16v12H4zM4 7l8 6 8-6",
+  sessions: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 9v-1a7 7 0 0 1 14 0v1M18 8h3m-1.5-1.5v3",
 };
 
 export function RowIcon({ name }) {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { USER_PERMISSIONS } from "./userPermissions";
+import { PillTabs } from "./SettingsUI";
 
 function accessLabel(user) {
   if (user?.role === "owner") return "Acces complet";
@@ -18,6 +19,8 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
   // Bumping this remounts the form, so every field falls back to its
   // defaultValue - used by Cancel and after a successful save.
   const [formKey, setFormKey] = useState(0);
+  const [tab, setTab] = useState("info");
+  const [showPasswords, setShowPasswords] = useState(false);
 
   useEffect(() => {
     if (!toast) return;
@@ -47,8 +50,8 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
     const confirmPassword = String(data.get("confirmPassword") || "");
     setMessage("");
 
-    const wantsPasswordChange = Boolean(newPassword || confirmPassword);
-    const wantsEmailChange = email !== (user?.email || "");
+    const wantsPasswordChange = tab === "security" && Boolean(newPassword || confirmPassword);
+    const wantsEmailChange = tab === "email" && email !== (user?.email || "");
 
     if (wantsEmailChange && !currentPassword) {
       setMessage("Saisis ton mot de passe actuel pour changer l'e-mail.");
@@ -68,8 +71,8 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
     try {
       const changed = [];
       if (wantsEmailChange) {
-        await onUpdateEmail(email, currentPassword);
-        changed.push("E-mail");
+        const result = await onUpdateEmail(email, currentPassword);
+        changed.push(result.pendingEmail ? "Confirmation de l'e-mail" : "E-mail");
       }
       if (wantsPasswordChange) {
         await onChangePassword({ currentPassword, newPassword });
@@ -77,7 +80,11 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
       }
 
       if (changed.length) {
-        setToast(`${changed.join(" et ")} modifie${changed.length > 1 ? "s" : ""} avec succes.`);
+        setToast(
+          changed.includes("Confirmation de l'e-mail")
+            ? "Un lien de confirmation a ete envoye a la nouvelle adresse."
+            : `${changed.join(" et ")} modifie${changed.length > 1 ? "s" : ""} avec succes.`
+        );
         setFormKey((key) => key + 1);
       } else {
         setMessage("Aucune modification a enregistrer.");
@@ -111,7 +118,14 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
         </div>
       </div>
 
-      <section className="profile-section" aria-labelledby="profile-account-title">
+      <PillTabs
+        tabs={[{ id: "info", label: "Infos" }, { id: "email", label: "E-mail" }, { id: "security", label: "Securite" }]}
+        active={tab}
+        onSelect={(nextTab) => { setTab(nextTab); resetForm(); }}
+        label="Sections du compte"
+      />
+
+      {tab === "info" && <section className="profile-section" aria-labelledby="profile-account-title">
         <h3 id="profile-account-title">Compte</h3>
         <div className="profile-lines">
           <div>
@@ -135,47 +149,64 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
             </strong>
           </div>
         </div>
-      </section>
+      </section>}
 
-      <form className="profile-form" key={formKey} onSubmit={handleSubmit}>
-        <section className="profile-section" aria-labelledby="profile-email-title">
-          <h3 id="profile-email-title">Email de recuperation</h3>
-          <p>Utilise pour reinitialiser ton mot de passe en cas d&apos;oubli.</p>
+      {tab !== "info" && <form className="profile-form" key={formKey} onSubmit={handleSubmit}>
+        {tab === "email" && <section className="profile-section" aria-labelledby="profile-email-title">
+          <h3 id="profile-email-title">Nouvel e-mail</h3>
+          <p>Confirme ton mot de passe actuel pour enregistrer cette modification.</p>
           <label>
-            Adresse e-mail
+            E-mail actuel
+            <input type="email" value={user?.email || ""} readOnly aria-readonly="true" />
+          </label>
+          <label>
+            Nouvel e-mail
             <input
               name="email"
               type="email"
-              defaultValue={user?.email || ""}
               autoComplete="email"
               placeholder="prenom@exemple.com"
             />
           </label>
-        </section>
+          <label>
+            Mot de passe actuel
+            <input name="currentPassword" type="password" autoComplete="current-password" required />
+          </label>
+        </section>}
 
-        <section className="profile-section" aria-labelledby="profile-password-title">
+        {tab === "security" && <section className="profile-section" aria-labelledby="profile-password-title">
           <h3 id="profile-password-title">Changer le mot de passe</h3>
-          <p>Le mot de passe actuel est demande pour changer l&apos;e-mail ou le mot de passe.</p>
+          <p>Au moins 10 caracteres, avec une majuscule, une minuscule et un chiffre.</p>
           <div className="profile-password-fields">
             <label>
               Mot de passe actuel
-              <input name="currentPassword" type="password" autoComplete="current-password" />
+              <span className="profile-password-input">
+                <input name="currentPassword" type={showPasswords ? "text" : "password"} autoComplete="current-password" />
+                <button className="password-reveal" type="button" onClick={() => setShowPasswords((current) => !current)} aria-label={showPasswords ? "Masquer le mot de passe" : "Afficher le mot de passe"}>
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d={showPasswords ? "M4 4l16 16M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 5.1A10.7 10.7 0 0 1 12 5c5.1 0 8.5 4.4 9.5 7-0.4 1-1.2 2.3-2.4 3.4M6.1 6.1C4.3 7.5 3.1 10 2.5 12c1 2.6 4.4 7 9.5 7 1.1 0 2.1-.2 3-.6" : "M2.5 12S5.9 5 12 5s9.5 7 9.5 7-3.4 7-9.5 7S2.5 12 2.5 12Zm9.5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </button>
+              </span>
             </label>
             <label>
               Nouveau mot de passe
-              <input name="newPassword" type="password" autoComplete="new-password" minLength={8} />
+              <span className="profile-password-input">
+                <input name="newPassword" type={showPasswords ? "text" : "password"} autoComplete="new-password" minLength={10} />
+                <button className="password-reveal" type="button" onClick={() => setShowPasswords((current) => !current)} aria-label={showPasswords ? "Masquer le mot de passe" : "Afficher le mot de passe"}>
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d={showPasswords ? "M4 4l16 16M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 5.1A10.7 10.7 0 0 1 12 5c5.1 0 8.5 4.4 9.5 7-0.4 1-1.2 2.3-2.4 3.4M6.1 6.1C4.3 7.5 3.1 10 2.5 12c1 2.6 4.4 7 9.5 7 1.1 0 2.1-.2 3-.6" : "M2.5 12S5.9 5 12 5s9.5 7 9.5 7-3.4 7-9.5 7S2.5 12 2.5 12Zm9.5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </button>
+              </span>
             </label>
             <label>
               Confirmation
-              <input
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                minLength={8}
-              />
+              <span className="profile-password-input">
+                <input name="confirmPassword" type={showPasswords ? "text" : "password"} autoComplete="new-password" minLength={10} />
+                <button className="password-reveal" type="button" onClick={() => setShowPasswords((current) => !current)} aria-label={showPasswords ? "Masquer le mot de passe" : "Afficher le mot de passe"}>
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d={showPasswords ? "M4 4l16 16M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 5.1A10.7 10.7 0 0 1 12 5c5.1 0 8.5 4.4 9.5 7-0.4 1-1.2 2.3-2.4 3.4M6.1 6.1C4.3 7.5 3.1 10 2.5 12c1 2.6 4.4 7 9.5 7 1.1 0 2.1-.2 3-.6" : "M2.5 12S5.9 5 12 5s9.5 7 9.5 7-3.4 7-9.5 7S2.5 12 2.5 12Zm9.5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </button>
+              </span>
             </label>
           </div>
-        </section>
+        </section>}
 
         {message && <p className="message error">{message}</p>}
 
@@ -192,7 +223,7 @@ export default function AdminProfile({ user, onChangePassword, onUpdateEmail, on
             {submitting ? "Enregistrement..." : "Sauvegarder"}
           </button>
         </div>
-      </form>
+      </form>}
 
       <div className="profile-session-actions">
         <button className="button neutral small" type="button" onClick={onLogout}>

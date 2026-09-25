@@ -71,7 +71,7 @@ export default function ResetPasswordPage() {
                 <input
                   name="newPassword"
                   type={show ? "text" : "password"}
-                  minLength={8}
+                  minLength={10}
                   autoComplete="new-password"
                   required
                   autoFocus
@@ -82,7 +82,7 @@ export default function ResetPasswordPage() {
                 <input
                   name="confirmPassword"
                   type={show ? "text" : "password"}
-                  minLength={8}
+                  minLength={10}
                   autoComplete="new-password"
                   required
                 />

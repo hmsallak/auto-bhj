@@ -69,6 +69,24 @@ function destroyUserSessions(username, keepId = null) {
   }
 }
 
+function listUserSessions(username, currentId) {
+  const now = Date.now();
+  const db = getDb();
+  db.prepare("DELETE FROM sessions WHERE username = ? AND (expires_at < ? OR last_seen_at < ?)").run(
+    username,
+    now,
+    now - SESSION_IDLE_TTL_MS
+  );
+  return db
+    .prepare("SELECT id, created_at, last_seen_at FROM sessions WHERE username = ? ORDER BY last_seen_at DESC")
+    .all(username)
+    .map((session) => ({
+      current: session.id === currentId,
+      createdAt: session.created_at,
+      lastSeenAt: session.last_seen_at,
+    }));
+}
+
 module.exports = {
   SESSION_TTL_MS,
   destroyUserSessions,
@@ -76,4 +94,5 @@ module.exports = {
   createSessionToken,
   verifySessionToken,
   destroySessionToken,
+  listUserSessions,
 };

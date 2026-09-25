@@ -12,11 +12,12 @@ export const TABS = [
   { id: "messages", label: "Messages", Icon: MessagesIcon, permission: "messages_read" },
   { id: "appointments", label: "Mes rendez-vous", Icon: CalendarIcon, permission: APPOINTMENT_VIEW_PERMISSIONS },
   { id: "app", label: "Parametres", Icon: AppIcon },
-  { id: "users", label: "Utilisateurs", Icon: UsersIcon, ownerOnly: true },
+  { id: "users", label: "Utilisateurs", Icon: UsersIcon, adminOnly: true },
 ];
 
 function canSeeTab(tab, user) {
   if (tab.ownerOnly) return user?.role === "owner";
+  if (tab.adminOnly) return Boolean(user?.isAdmin);
   if (!tab.permission) return true;
   if (user?.role === "owner") return true;
   const needed = Array.isArray(tab.permission) ? tab.permission : [tab.permission];
@@ -34,7 +35,7 @@ export default function AdminSidebar({
 }) {
   const visibleTabs = TABS.filter((tab) => canSeeTab(tab, user));
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
-  const roleLabel = user?.role === "owner" ? "Proprietaire" : "Membre";
+  const roleLabel = user?.role === "owner" ? "Proprietaire" : user?.isAdmin ? "Administrateur" : "Membre";
 
   return (
     <aside className={`dash-sidebar ${isOpen ? "open" : ""}`} aria-label="Navigation admin">

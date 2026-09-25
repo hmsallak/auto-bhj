@@ -3,6 +3,7 @@ import { findByUsername, updatePassword } from "../../../../../backend/models/ad
 import { verifyPassword } from "../../../../../backend/auth/passwords";
 import { requireSession, getCurrentUser } from "../../../../lib/adminAuth";
 import { destroyUserSessions } from "../../../../../backend/auth/sessions";
+import { validatePasswordStrength } from "../../../../../backend/auth/passwordPolicy";
 import { apiRoute } from "../../../../lib/apiRoute";
 
 export const POST = apiRoute(async function handleChangePassword(request) {
@@ -17,14 +18,15 @@ export const POST = apiRoute(async function handleChangePassword(request) {
   const currentPassword = String(payload.currentPassword || "");
   const newPassword = String(payload.newPassword || "");
 
-  if (newPassword.length < 8) {
+  const admin = findByUsername(session.username);
+  const weak = validatePasswordStrength(newPassword, { email: admin?.email || "" });
+  if (weak) {
     return NextResponse.json(
-      { error: "Le nouveau mot de passe doit contenir au moins 8 caracteres." },
+      { error: weak },
       { status: 400 }
     );
   }
 
-  const admin = findByUsername(session.username);
   if (!admin || !verifyPassword(currentPassword, admin.password_hash)) {
     return NextResponse.json({ error: "Mot de passe actuel incorrect." }, { status: 403 });
   }

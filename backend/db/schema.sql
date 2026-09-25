@@ -54,6 +54,10 @@ CREATE TABLE IF NOT EXISTS admin_users (
   first_name TEXT,
   last_name TEXT,
   email TEXT,
+  -- Address waiting for confirmation before it replaces the recovery e-mail.
+  pending_email TEXT,
+  -- Delegated administrators can manage users and their own security devices.
+  is_admin INTEGER NOT NULL DEFAULT 0,
   role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('owner', 'member')),
   permissions TEXT NOT NULL DEFAULT '[]',
   -- JSON {type: bool} of push notification choices; NULL = defaults.
@@ -127,6 +131,18 @@ CREATE TABLE IF NOT EXISTS email_verification_tokens (
 );
 
 CREATE INDEX IF NOT EXISTS idx_email_verification_username ON email_verification_tokens (username, created_at);
+
+-- Changing a recovery e-mail must prove control of the new address too.
+CREATE TABLE IF NOT EXISTS email_change_tokens (
+  token_hash TEXT PRIMARY KEY,
+  username TEXT NOT NULL,
+  email TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL,
+  used_at INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_change_username ON email_change_tokens (username, created_at);
 
 -- Per-IP throttle for the public contact endpoint (no form/auth in front).
 CREATE TABLE IF NOT EXISTS contact_attempts (

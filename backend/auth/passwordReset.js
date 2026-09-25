@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const { getDb } = require("../db/connection");
 const { updatePassword } = require("../models/adminUsers");
 const { destroyUserSessions } = require("./sessions");
+const { validatePasswordStrength } = require("./passwordPolicy");
 
 const TOKEN_TTL_MS = 1000 * 60 * 30; // 30 minutes
 const REQUEST_WINDOW_MS = 1000 * 60 * 60; // 1 hour
@@ -58,10 +59,6 @@ function createResetToken(identifier) {
 // { error }.
 function resetPasswordWithToken(token, newPassword) {
   if (!token) return { error: "Lien invalide." };
-  if (!newPassword || newPassword.length < 8) {
-    return { error: "Le nouveau mot de passe doit contenir au moins 8 caracteres." };
-  }
-
   const db = getDb();
   const tokenHash = hashToken(token);
   const row = db
@@ -71,6 +68,10 @@ function resetPasswordWithToken(token, newPassword) {
   if (!row || row.used_at || row.expires_at < Date.now()) {
     return { error: "Lien expire ou deja utilise. Refais une demande." };
   }
+
+  const account = db.prepare("SELECT email FROM admin_users WHERE username = ?").get(row.username);
+  const weakPassword = validatePasswordStrength(newPassword, { email: account?.email || "" });
+  if (weakPassword) return { error: weakPassword };
 
   updatePassword(row.username, newPassword);
   // A reset usually means "someone may be in my account": sign out everywhere.

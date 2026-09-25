@@ -1,5 +1,6 @@
 const { getDb } = require("../db/connection");
 const { hashPassword } = require("../auth/passwords");
+const { validatePasswordStrength } = require("../auth/passwordPolicy");
 const activityLog = require("./activityLog");
 
 const VALID_PERMISSIONS = [
@@ -24,6 +25,14 @@ const LEGACY_PERMISSION_MAP = {
 
 function cleanText(value) {
   return String(value ?? "").trim();
+}
+
+function actorUsername(actor) {
+  return typeof actor === "string" ? actor : actor?.username || "system";
+}
+
+function isPrincipalAdmin(actor) {
+  return typeof actor === "object" && actor?.role === "owner";
 }
 
 function parsePermissions(raw) {
@@ -72,7 +81,9 @@ function rowToUser(row) {
     firstName: row.first_name || "",
     lastName: row.last_name || "",
     email: row.email || "",
+    pendingEmail: row.pending_email || "",
     role: row.role,
+    isAdmin: row.role === "owner" || Boolean(row.is_admin),
     status: row.status || "active",
     permissions: row.role === "owner" ? [...VALID_PERMISSIONS] : parsePermissions(row.permissions),
     createdAt: row.created_at,
@@ -84,7 +95,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Lets a signed-in admin set/clear their own recovery email (used by the
 // password-reset flow). An empty value clears it; anything non-empty must
 // look like an address.
-function updateEmail(username, email) {
+function requestEmailChange(username, email) {
   const clean = cleanText(email).toLowerCase();
   if (clean && !EMAIL_RE.test(clean)) {
     return { error: "Adresse e-mail invalide." };
@@ -93,16 +104,16 @@ function updateEmail(username, email) {
   // The e-mail is a login identifier: two accounts must never share it.
   if (clean) {
     const taken = getDb()
-      .prepare("SELECT 1 FROM admin_users WHERE lower(email) = ? AND username != ?")
-      .get(clean, cleanText(username));
+      .prepare(
+        "SELECT 1 FROM admin_users WHERE (lower(email) = ? OR lower(pending_email) = ?) AND username != ?"
+      )
+      .get(clean, clean, cleanText(username));
     if (taken) return { error: "Cette adresse est deja utilisee par un autre compte." };
   }
 
-  getDb()
-    .prepare("UPDATE admin_users SET email = ? WHERE username = ?")
-    .run(clean || null, cleanText(username));
+  getDb().prepare("UPDATE admin_users SET pending_email = ? WHERE username = ?").run(clean || null, cleanText(username));
 
-  return { ok: true, email: clean };
+  return { ok: true, pendingEmail: clean };
 }
 
 // Owners implicitly have every permission; members only what's granted.
@@ -112,6 +123,10 @@ function hasPermission(user, key) {
   if (!user) return false;
   if (user.role === "owner") return true;
   return Array.isArray(user.permissions) && user.permissions.includes(key);
+}
+
+function hasAdminAccess(user) {
+  return Boolean(user && (user.role === "owner" || user.isAdmin));
 }
 
 function hasAnyPermission(user, keys) {
@@ -222,7 +237,7 @@ function ensureSeedAdmin(username, password) {
   ).run(cleanText(username), hashPassword(password), new Date().toISOString());
 }
 
-function createUser({ username, password, firstName, lastName, permissions }, actor) {
+function createUser({ username, password, firstName, lastName, permissions, isAdmin }, actor) {
   const cleanUsername = cleanText(username);
   const cleanFirstName = cleanText(firstName);
   const cleanLastName = cleanText(lastName);
@@ -231,9 +246,8 @@ function createUser({ username, password, firstName, lastName, permissions }, ac
     return { error: "Identifiant invalide (3 caracteres minimum)." };
   }
 
-  if (!password || password.length < 8) {
-    return { error: "Le mot de passe doit contenir au moins 8 caracteres." };
-  }
+  const weakPassword = validatePasswordStrength(password);
+  if (weakPassword) return { error: weakPassword };
 
   if (findByUsername(cleanUsername)) {
     return { error: "Cet identifiant existe deja." };
@@ -244,7 +258,7 @@ function createUser({ username, password, firstName, lastName, permissions }, ac
   const db = getDb();
   const info = db
     .prepare(
-      "INSERT INTO admin_users (username, password_hash, first_name, last_name, role, permissions, created_at) VALUES (?, ?, ?, ?, 'member', ?, ?)"
+      "INSERT INTO admin_users (username, password_hash, first_name, last_name, role, permissions, is_admin, created_at) VALUES (?, ?, ?, ?, 'member', ?, ?, ?)"
     )
     .run(
       cleanUsername,
@@ -252,6 +266,7 @@ function createUser({ username, password, firstName, lastName, permissions }, ac
       cleanFirstName,
       cleanLastName,
       JSON.stringify(safePermissions),
+      isAdmin ? 1 : 0,
       new Date().toISOString()
     );
 
@@ -260,22 +275,28 @@ function createUser({ username, password, firstName, lastName, permissions }, ac
   return { user: rowToUser(findById(info.lastInsertRowid)) };
 }
 
-function updateUser(id, { firstName, lastName, permissions }, actor) {
+function updateUser(id, { firstName, lastName, permissions, isAdmin }, actor) {
   const target = findById(id);
   if (!target) return { error: "Utilisateur introuvable." };
   if (target.role === "owner") return { error: "Impossible de modifier le proprietaire." };
+  const targetIsAdmin = Boolean(target.is_admin);
+  const changesAdminStatus = typeof isAdmin === "boolean" && isAdmin !== targetIsAdmin;
+  if (!isPrincipalAdmin(actor) && (targetIsAdmin || changesAdminStatus)) {
+    return { error: "Seul l'administrateur principal peut modifier le statut d'un administrateur." };
+  }
 
   const safePermissions = normalizePermissions(permissions);
 
   const db = getDb();
-  db.prepare("UPDATE admin_users SET first_name = ?, last_name = ?, permissions = ? WHERE id = ?").run(
+  db.prepare("UPDATE admin_users SET first_name = ?, last_name = ?, permissions = ?, is_admin = ? WHERE id = ?").run(
     cleanText(firstName ?? target.first_name),
     cleanText(lastName ?? target.last_name),
     JSON.stringify(safePermissions),
+    typeof isAdmin === "boolean" ? Number(isAdmin) : Number(Boolean(target.is_admin)),
     id
   );
 
-  activityLog.log(actor, "user_permissions_updated", target.username);
+  activityLog.log(actorUsername(actor), "user_permissions_updated", target.username);
 
   return { user: rowToUser(findById(id)) };
 }
@@ -288,6 +309,9 @@ function deleteUser(id, actor) {
   const target = findById(id);
   if (!target) return { error: "Utilisateur introuvable." };
   if (target.role === "owner") return { error: "Impossible de supprimer le proprietaire." };
+  if (Boolean(target.is_admin) && !isPrincipalAdmin(actor)) {
+    return { error: "Seul l'administrateur principal peut supprimer un administrateur." };
+  }
 
   const db = getDb();
   db.prepare("DELETE FROM admin_users WHERE id = ?").run(id);
@@ -295,7 +319,7 @@ function deleteUser(id, actor) {
   // username must not inherit old sessions or notification devices.
   db.prepare("DELETE FROM sessions WHERE username = ?").run(target.username);
   db.prepare("DELETE FROM push_subscriptions WHERE username = ?").run(target.username);
-  activityLog.log(actor, "user_deleted", target.username);
+  activityLog.log(actorUsername(actor), "user_deleted", target.username);
 
   return { ok: true };
 }
@@ -305,6 +329,7 @@ module.exports = {
   APPOINTMENT_VIEW_PERMISSIONS,
   rowToUser,
   hasPermission,
+  hasAdminAccess,
   hasAnyPermission,
   findByUsername,
   findByLogin,
@@ -314,7 +339,7 @@ module.exports = {
   getOwnerEmails,
   ensureSeedAdmin,
   updatePassword,
-  updateEmail,
+  requestEmailChange,
   createUser,
   updateUser,
   updateUserPermissions,

@@ -4,12 +4,13 @@ import { useMemo, useState } from "react";
 import { USER_PERMISSION_GROUPS, USER_PERMISSIONS } from "./userPermissions";
 import { Chevron, PillToggle, RowIcon } from "./SettingsUI";
 
-export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
+export default function AdminUserForm({ editingUser, onSubmit, onCancel, canManageAdmins }) {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const isEditing = Boolean(editingUser);
   const [granted, setGranted] = useState(() => new Set(editingUser?.permissions || []));
+  const [isAdmin, setIsAdmin] = useState(Boolean(editingUser?.isAdmin));
 
   function setPermission(key, on) {
     setGranted((current) => {
@@ -44,6 +45,7 @@ export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
       lastName: formData.get("lastName"),
       username: isEditing ? editingUser.username : formData.get("username"),
       permissions,
+      isAdmin,
     };
 
     if (!isEditing) {
@@ -57,6 +59,7 @@ export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
       if (!isEditing) {
         event.currentTarget.reset();
         setGranted(new Set());
+        setIsAdmin(false);
       }
     } catch (error) {
       setMessage(error.message);
@@ -71,6 +74,7 @@ export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
   function handleReset(event) {
     event.currentTarget.form?.reset();
     setGranted(new Set(editingUser?.permissions || []));
+    setIsAdmin(Boolean(editingUser?.isAdmin));
     setMessage("");
     setIsError(false);
   }
@@ -136,11 +140,23 @@ export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
             {!isEditing && (
               <label>
                 Mot de passe temporaire
-                <input name="password" type="password" autoComplete="new-password" minLength={8} required />
+                <input name="password" type="password" autoComplete="new-password" minLength={10} required />
               </label>
             )}
           </div>
         </details>
+
+        {canManageAdmins && (
+          <section className="team-form-section">
+            <div className="perm-line">
+              <span id="user-admin-access">
+                <strong>Administrateur</strong>
+                <small>Peut gerer les utilisateurs et acceder a ses propres sessions et appareils.</small>
+              </span>
+              <PillToggle checked={isAdmin} labelledBy="user-admin-access" onChange={setIsAdmin} />
+            </div>
+          </section>
+        )}
 
         {/* Accordion too; open by default since editing rights is why
             people land on this form. */}
@@ -169,24 +185,45 @@ export default function AdminUserForm({ editingUser, onSubmit, onCancel }) {
               </button>
             </div>
             <div className="team-permission-matrix">
-              {permissionsByGroup.map(({ group, permissions }) => (
-                <fieldset className="team-permission-group" key={group}>
-                  <legend>{group}</legend>
-                  {permissions.map((permission) => (
-                    <div className="team-permission-line perm-line" key={permission.key}>
-                      <span id={`perm-${permission.key}`}>
-                        <strong>{permission.label}</strong>
-                        <small>{permission.description}</small>
+              {permissionsByGroup.map(({ group, permissions }, index) => {
+                const grantedCount = permissions.filter((permission) => granted.has(permission.key)).length;
+                const rows = permissions.map((permission) => (
+                  <div className="team-permission-line perm-line" key={permission.key}>
+                    <span id={`perm-${permission.key}`}>
+                      <strong>{permission.label}</strong>
+                      <small>{permission.description}</small>
+                    </span>
+                    <PillToggle
+                      checked={granted.has(permission.key)}
+                      labelledBy={`perm-${permission.key}`}
+                      onChange={(on) => setPermission(permission.key, on)}
+                    />
+                  </div>
+                ));
+
+                return (
+                  <details
+                    className="team-form-section form-accordion permission-accordion"
+                    key={group}
+                    defaultOpen={index === 0}
+                  >
+                    <summary>
+                      <span className="set-row-icon"><RowIcon name="access" /></span>
+                      <span className="set-row-text">
+                        <strong>{group}</strong>
+                        <span>{grantedCount} droit{grantedCount > 1 ? "s" : ""} sur {permissions.length}</span>
                       </span>
-                      <PillToggle
-                        checked={granted.has(permission.key)}
-                        labelledBy={`perm-${permission.key}`}
-                        onChange={(on) => setPermission(permission.key, on)}
-                      />
+                      <span className="set-row-action form-accordion-action"><Chevron /></span>
+                    </summary>
+                    <div className="form-accordion-body">
+                      <fieldset className="team-permission-group">
+                        <legend className="visually-hidden">{group}</legend>
+                        {rows}
+                      </fieldset>
                     </div>
-                  ))}
-                </fieldset>
-              ))}
+                  </details>
+                );
+              })}
             </div>
           </div>
         </details>

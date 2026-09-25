@@ -41,6 +41,8 @@ const ADMIN_USERS_COLUMNS = {
   first_name: "TEXT",
   last_name: "TEXT",
   email: "TEXT",
+  pending_email: "TEXT",
+  is_admin: "INTEGER NOT NULL DEFAULT 0",
   role: "TEXT NOT NULL DEFAULT 'member'",
   permissions: "TEXT NOT NULL DEFAULT '[]'",
   status: "TEXT NOT NULL DEFAULT 'active'",
@@ -244,6 +246,7 @@ function purgeStaleRows(database) {
     ["DELETE FROM contact_attempts WHERE attempted_at < ?", dayAgo],
     ["DELETE FROM password_reset_tokens WHERE used_at IS NOT NULL OR expires_at < ?", now],
     ["DELETE FROM email_verification_tokens WHERE used_at IS NOT NULL OR expires_at < ?", now],
+    ["DELETE FROM email_change_tokens WHERE used_at IS NOT NULL OR expires_at < ?", now],
   ];
 
   for (const [sql, arg] of statements) {

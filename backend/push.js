@@ -65,6 +65,13 @@ function countSubscriptions(username) {
   return getDb().prepare("SELECT COUNT(*) AS n FROM push_subscriptions WHERE username = ?").get(username).n;
 }
 
+function listSubscriptions(username) {
+  return getDb()
+    .prepare("SELECT id, user_agent, created_at FROM push_subscriptions WHERE username = ? ORDER BY created_at DESC")
+    .all(username)
+    .map((row) => ({ id: row.id, userAgent: row.user_agent || "Navigateur inconnu", createdAt: row.created_at }));
+}
+
 async function sendToRows(rows, payload) {
   if (!isPushConfigured() || !rows.length) return { sent: 0 };
   const body = JSON.stringify(payload);
@@ -148,6 +155,7 @@ module.exports = {
   saveSubscription,
   removeSubscription,
   countSubscriptions,
+  listSubscriptions,
   sendToUser,
   sendToPermission,
 };
