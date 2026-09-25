@@ -21,6 +21,9 @@ export const CHANGELOG = [
       "Site public : dates internes des voitures retirees",
       "Messages : selection multiple, tout selectionner, suppression par lot",
       "Menu : compteur rouge des messages non lus uniquement",
+      "Coordonnees publiques : le mot de passe est demande a la validation, avec le recapitulatif des changements",
+      "Un mot de passe de confirmation errone ne deconnecte plus",
+      "Numero de telephone public verifie ; onglets de Parametres sur une seule ligne",
     ],
   },
   {

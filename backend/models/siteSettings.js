@@ -50,7 +50,13 @@ function updateSiteSettings({ phone, email }) {
   );
 
   if (typeof phone === "string" && phone.trim()) {
-    upsert.run("phone", phone.trim());
+    const clean = phone.trim();
+    // Shown to every visitor and turned into tel:/wa.me links: digits,
+    // spaces, "+", ".", "-", "/", "(", ")" only, with at least 8 digits.
+    if (!/^[+\d\s().\/-]{8,25}$/.test(clean) || clean.replace(/\D/g, "").length < 8) {
+      return { error: "Numero de telephone invalide." };
+    }
+    upsert.run("phone", clean);
   }
 
   if (typeof email === "string") {

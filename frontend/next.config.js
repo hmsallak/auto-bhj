@@ -34,6 +34,8 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  // Don't advertise the framework in every response ("X-Powered-By: Next.js").
+  poweredByHeader: false,
   async redirects() {
     return [{ source: "/fr", destination: "/", permanent: false }];
   },

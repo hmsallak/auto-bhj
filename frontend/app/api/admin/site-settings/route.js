@@ -30,7 +30,7 @@ export const PATCH = apiRoute(async function handleUpdate(request) {
   // Mandatory password confirmation before any change takes effect.
   const admin = findByUsername(user.username);
   if (!admin || !verifyPassword(String(payload.currentPassword || ""), admin.password_hash)) {
-    return NextResponse.json({ error: "Mot de passe actuel incorrect." }, { status: 401 });
+    return NextResponse.json({ error: "Mot de passe actuel incorrect." }, { status: 403 });
   }
 
   const result = updateSiteSettings({ phone: payload.phone, email: payload.email });

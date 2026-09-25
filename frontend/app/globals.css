@@ -17944,3 +17944,77 @@ ul.set-checks {
   width: 44px;
   place-items: center;
 }
+
+/* Public contact details: confirm dialog (what changes + password). */
+.site-confirm-changes {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--admin-card);
+}
+
+.site-confirm-changes dt {
+  color: var(--admin-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.site-confirm-changes dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--admin-text);
+  font-size: 14px;
+}
+
+.site-confirm-old {
+  color: var(--admin-muted);
+  text-decoration: line-through;
+}
+
+.dashboard .site-confirm-password {
+  display: grid;
+  gap: 6px;
+  color: var(--admin-text);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.dashboard .site-confirm-password input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+}
+
+/* Main pill tabs: always one line (4 tabs in Parametres). Tighter pills;
+   on a very narrow screen the row scrolls sideways instead of wrapping. */
+.set-tabs:not(.is-small) {
+  flex-wrap: nowrap;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.set-tabs:not(.is-small)::-webkit-scrollbar {
+  display: none;
+}
+
+.set-tabs:not(.is-small) button {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .set-tabs:not(.is-small) button {
+    padding: 0 11px;
+    font-size: 13px;
+  }
+}

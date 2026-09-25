@@ -31,7 +31,7 @@ export const PATCH = apiRoute(async function handleUpdateMe(request) {
   const payload = await request.json().catch(() => ({}));
   const row = findByUsername(user.username);
   if (!row || !verifyPassword(String(payload.currentPassword || ""), row.password_hash)) {
-    return NextResponse.json({ error: "Mot de passe actuel incorrect." }, { status: 401 });
+    return NextResponse.json({ error: "Mot de passe actuel incorrect." }, { status: 403 });
   }
 
   const result = updateEmail(user.username, payload.email);

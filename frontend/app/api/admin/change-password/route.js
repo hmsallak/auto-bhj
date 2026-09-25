@@ -26,7 +26,7 @@ export const POST = apiRoute(async function handleChangePassword(request) {
 
   const admin = findByUsername(session.username);
   if (!admin || !verifyPassword(currentPassword, admin.password_hash)) {
-    return NextResponse.json({ error: "Mot de passe actuel incorrect." }, { status: 401 });
+    return NextResponse.json({ error: "Mot de passe actuel incorrect." }, { status: 403 });
   }
 
   updatePassword(session.username, newPassword);
